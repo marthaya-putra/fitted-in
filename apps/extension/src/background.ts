@@ -1,0 +1,51 @@
+// Background service worker for fitted-in extension
+console.log('fitted-in background script loaded');
+
+// Listen for messages from content script
+chrome.runtime.onMessage.addListener((request: { action: string }, sender, sendResponse) => {
+  if (request.action === 'openSidePanel') {
+    // User clicked the notification, so we can open the sidepanel
+    // This is allowed because it's in response to a user gesture (click)
+    if (sender.tab) {
+      chrome.sidePanel.open({ windowId: sender.tab.windowId });
+      sendResponse({ success: true });
+    }
+  }
+});
+
+// Update the extension action to show when on LinkedIn job pages
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab.url) {
+    if (tab.url.includes('linkedin.com/jobs')) {
+      // Enable the extension action for LinkedIn job pages
+      chrome.action.enable(tabId);
+
+      // Set a badge to indicate the extension is active on this page
+      chrome.action.setBadgeText({ text: 'ON', tabId: tabId });
+      chrome.action.setBadgeBackgroundColor({ color: '#3b82f6', tabId: tabId });
+    } else {
+      // Disable for non-LinkedIn pages
+      chrome.action.disable(tabId);
+      chrome.action.setBadgeText({ text: '', tabId: tabId });
+    }
+  }
+});
+
+// Extension install/update event
+chrome.runtime.onInstalled.addListener(() => {
+  console.log('fitted-in extension installed/updated');
+
+  // Clear any existing notification data
+  chrome.storage.local.remove(['lastNotificationTime']);
+
+  // Set default action state
+  chrome.action.disable();
+  chrome.action.setBadgeText({ text: '' });
+});
+
+// Handle extension icon click
+chrome.action.onClicked.addListener((tab) => {
+  if (tab.url && tab.url.includes('linkedin.com/jobs')) {
+    chrome.sidePanel.open({ windowId: tab.windowId });
+  }
+});
