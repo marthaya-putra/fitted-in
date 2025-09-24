@@ -32,7 +32,8 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
       fullName: '',
       email: '',
       phone: '',
-      location: ''
+      location: '',
+      website: ''
     },
     resume: {
       summary: '',
@@ -163,6 +164,16 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
                 value={formData.personalInfo.location}
                 onChange={(e) => handleInputChange('personalInfo', 'location', e.target.value)}
                 placeholder="New York, NY"
+              />
+            </div>
+            <div>
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                type="url"
+                value={formData.personalInfo.website}
+                onChange={(e) => handleInputChange('personalInfo', 'website', e.target.value)}
+                placeholder="https://yourwebsite.com"
               />
             </div>
           </CardContent>

@@ -8,6 +8,7 @@ export interface ResumeData {
     email: string
     phone: string
     location: string
+    website: string
   }
   resume: {
     summary: string
@@ -61,11 +62,32 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
 
 export async function saveResume(data: ResumeData): Promise<void> {
   try {
-    // Here you would save to your database
-    console.log('Saving resume data:', data)
+    // Transform the data to match the backend API format
+    const resumeProfileData = {
+      fullName: data.personalInfo.fullName,
+      location: data.personalInfo.location,
+      email: data.personalInfo.email,
+      website: data.personalInfo.website,
+      phone: data.personalInfo.phone,
+      summary: data.resume.summary,
+      workExperiences: data.resume.experiences,
+      educations: data.resume.educations,
+      technicalSkills: data.resume.skills,
+      accountId: 1 // Hardcoded for now - should come from authentication
+    }
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const response = await fetch('http://localhost:3001/resume-profiles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(resumeProfileData),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || 'Failed to save resume profile')
+    }
 
     revalidatePath('/')
   } catch (error) {

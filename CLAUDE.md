@@ -108,3 +108,5 @@ Turbo handles build dependencies with the following pipeline:
 - `build` tasks depend on `^build` (upstream builds)
 - Outputs cached to `.next/` and `dist/` directories
 - Development mode runs with `cache: false` and `persistent: true`
+
+Refer to `.env.local` for environment file in development server
