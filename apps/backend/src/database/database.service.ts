@@ -1,12 +1,13 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import { schema } from "../db";
+import { schema } from "../db/schema";
+import { Db } from "./types";
 
 @Injectable()
 export class DatabaseService implements OnModuleInit {
   private pool: Pool;
-  private _db: ReturnType<typeof drizzle>;
+  private _db: Db;
 
   constructor() {
     // Don't initialize here - wait for OnModuleInit

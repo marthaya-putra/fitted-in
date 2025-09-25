@@ -1,6 +1,7 @@
 import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
 
-export const resumeProfile = pgTable("resume_profile", {
+export const schema = {
+  resumeProfile: pgTable("resume_profile", {
   id: serial("id").primaryKey(),
 
   // personal info
@@ -20,7 +21,10 @@ export const resumeProfile = pgTable("resume_profile", {
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+  }),
+};
+
+export const resumeProfile = schema.resumeProfile;
 
 export type ResumeProfile = typeof resumeProfile.$inferSelect;
 export type NewResumeProfile = typeof resumeProfile.$inferInsert;
