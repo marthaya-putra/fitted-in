@@ -26,7 +26,6 @@ export class ResumeProfileController {
   async create(
     @Body(ValidationPipe) createResumeProfileDto: CreateResumeProfileDto,
   ): Promise<ResumeProfile> {
-    console.log("process.env.DATABASE_URL: ", process.env.DATABASE_URL)
     return await this.resumeProfileService.create(createResumeProfileDto);
   }
 

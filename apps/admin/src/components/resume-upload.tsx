@@ -57,9 +57,23 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
         formData.append('pdf', file)
 
         const result = await parseResume(formData)
-
+        const normalized: ResumeData = {
+          personalInfo: {
+            fullName: result.personalInfo.fullName || '',
+            email: result.personalInfo.email || '',
+            phone: result.personalInfo.phone || '',
+            location: result.personalInfo.location || '',
+            website: result.personalInfo.website || ''
+          },
+          resume: {
+            summary: result.resume.summary || '',
+            experiences: result.resume.experiences || '',
+            educations: result.resume.educations || '',
+            skills: result.resume.skills || ''
+          }
+        }
         // Auto-fill form with parsed data
-        setFormData(result)
+        setFormData(normalized);
         toast.success('Resume parsed successfully!')
       } catch (error) {
         toast.error(error instanceof Error ? error.message : 'Failed to parse resume')
@@ -67,12 +81,12 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
     })
   }
 
-  const handleInputChange = (section: keyof ResumeData, field: string, value: string) => {
+  const handleInputChange = (section: keyof ResumeData, field: string, value: string | undefined) => {
     setFormData(prev => ({
       ...prev,
       [section]: {
         ...prev[section],
-        [field]: value
+        [field]: value || ''
       }
     }))
   }
