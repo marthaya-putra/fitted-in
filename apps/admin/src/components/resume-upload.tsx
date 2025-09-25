@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useForm, Controller } from 'react-hook-form'
 import { Upload, FileText, User, Briefcase, GraduationCap, Wrench, Eye, Edit3 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -27,19 +28,22 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
     educations: true,
     skills: true
   })
-  const [formData, setFormData] = useState<ResumeData>(initialData || {
-    personalInfo: {
-      fullName: '',
-      email: '',
-      phone: '',
-      location: '',
-      website: ''
-    },
-    resume: {
-      summary: '',
-      experiences: '',
-      educations: '',
-      skills: ''
+
+  const { control, handleSubmit, setValue } = useForm<ResumeData>({
+    defaultValues: initialData || {
+      personalInfo: {
+        fullName: '',
+        email: '',
+        phone: '',
+        location: '',
+        website: ''
+      },
+      resume: {
+        summary: '',
+        experiences: '',
+        educations: '',
+        skills: ''
+      }
     }
   })
 
@@ -73,7 +77,12 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
           }
         }
         // Auto-fill form with parsed data
-        setFormData(normalized);
+        Object.entries(normalized.personalInfo).forEach(([key, value]) => {
+          setValue(`personalInfo.${key as keyof ResumeData['personalInfo']}`, value)
+        })
+        Object.entries(normalized.resume).forEach(([key, value]) => {
+          setValue(`resume.${key as keyof ResumeData['resume']}`, value)
+        })
         toast.success('Resume parsed successfully!')
       } catch (error) {
         toast.error(error instanceof Error ? error.message : 'Failed to parse resume')
@@ -81,22 +90,12 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
     })
   }
 
-  const handleInputChange = (section: keyof ResumeData, field: string, value: string | undefined) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value || ''
-      }
-    }))
-  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = async (data: ResumeData) => {
     setIsSaving(true)
 
     try {
-      await saveResume(formData)
+      await saveResume(data)
       toast.success('Resume saved successfully!')
     } catch (error) {
       toast.error('Failed to save resume')
@@ -106,7 +105,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Upload Section */}
         <Card>
@@ -145,49 +144,74 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                value={formData.personalInfo.fullName}
-                onChange={(e) => handleInputChange('personalInfo', 'fullName', e.target.value)}
-                placeholder="John Doe"
+              <Controller
+                name="personalInfo.fullName"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id="fullName"
+                    {...field}
+                    placeholder="John Doe"
+                  />
+                )}
               />
             </div>
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.personalInfo.email}
-                onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)}
-                placeholder="john@example.com"
+              <Controller
+                name="personalInfo.email"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id="email"
+                    type="email"
+                    {...field}
+                    placeholder="john@example.com"
+                  />
+                )}
               />
             </div>
             <div>
               <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                value={formData.personalInfo.phone}
-                onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)}
-                placeholder="+1 (555) 123-4567"
+              <Controller
+                name="personalInfo.phone"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id="phone"
+                    {...field}
+                    placeholder="+1 (555) 123-4567"
+                  />
+                )}
               />
             </div>
             <div>
               <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                value={formData.personalInfo.location}
-                onChange={(e) => handleInputChange('personalInfo', 'location', e.target.value)}
-                placeholder="New York, NY"
+              <Controller
+                name="personalInfo.location"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id="location"
+                    {...field}
+                    placeholder="New York, NY"
+                  />
+                )}
               />
             </div>
             <div>
               <Label htmlFor="website">Website</Label>
-              <Input
-                id="website"
-                type="url"
-                value={formData.personalInfo.website}
-                onChange={(e) => handleInputChange('personalInfo', 'website', e.target.value)}
-                placeholder="https://yourwebsite.com"
+              <Controller
+                name="personalInfo.website"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id="website"
+                    type="url"
+                    {...field}
+                    placeholder="https://yourwebsite.com"
+                  />
+                )}
               />
             </div>
           </CardContent>
@@ -224,14 +248,20 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
           </CardHeader>
           <CardContent>
             <div data-color-mode="light">
-              <MDEditor
-                value={formData.resume.summary}
-                onChange={(value) => handleInputChange('resume', 'summary', value || '')}
-                preview={editModes.summary ? 'edit' : 'preview'}
-                hideToolbar={false}
-                visibleDragbar={false}
-                height={200}
-                data-color-mode="light"
+              <Controller
+                name="resume.summary"
+                control={control}
+                render={({ field }) => (
+                  <MDEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    preview={editModes.summary ? 'edit' : 'preview'}
+                    hideToolbar={false}
+                    visibleDragbar={false}
+                    height={200}
+                    data-color-mode="light"
+                  />
+                )}
               />
             </div>
           </CardContent>
@@ -268,14 +298,20 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
           </CardHeader>
           <CardContent>
             <div data-color-mode="light">
-              <MDEditor
-                value={formData.resume.experiences}
-                onChange={(value) => handleInputChange('resume', 'experiences', value || '')}
-                preview={editModes.experiences ? 'edit' : 'preview'}
-                hideToolbar={false}
-                visibleDragbar={false}
-                height={300}
-                data-color-mode="light"
+              <Controller
+                name="resume.experiences"
+                control={control}
+                render={({ field }) => (
+                  <MDEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    preview={editModes.experiences ? 'edit' : 'preview'}
+                    hideToolbar={false}
+                    visibleDragbar={false}
+                    height={300}
+                    data-color-mode="light"
+                  />
+                )}
               />
             </div>
           </CardContent>
@@ -312,14 +348,22 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
           </CardHeader>
           <CardContent>
             <div data-color-mode="light">
-              <MDEditor
-                value={formData.resume.educations}
-                onChange={(value) => handleInputChange('resume', 'educations', value || '')}
-                preview={editModes.educations ? 'edit' : 'preview'}
-                hideToolbar={false}
-                visibleDragbar={false}
-                height={200}
-                data-color-mode="light"
+              <Controller
+                name="resume.educations"
+                control={control}
+                render={({ field }) => (
+                  <MDEditor
+                    value={field.value}
+                    onChange={(value) => {
+                      field.onChange
+                    }}
+                    preview={editModes.educations ? 'edit' : 'preview'}
+                    hideToolbar={false}
+                    visibleDragbar={false}
+                    height={200}
+                    data-color-mode="light"
+                  />
+                )}
               />
             </div>
           </CardContent>
@@ -356,14 +400,20 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
           </CardHeader>
           <CardContent>
             <div data-color-mode="light">
-              <MDEditor
-                value={formData.resume.skills}
-                onChange={(value) => handleInputChange('resume', 'skills', value || '')}
-                preview={editModes.skills ? 'edit' : 'preview'}
-                hideToolbar={false}
-                visibleDragbar={false}
-                height={200}
-                data-color-mode="light"
+              <Controller
+                name="resume.skills"
+                control={control}
+                render={({ field }) => (
+                  <MDEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    preview={editModes.skills ? 'edit' : 'preview'}
+                    hideToolbar={false}
+                    visibleDragbar={false}
+                    height={200}
+                    data-color-mode="light"
+                  />
+                )}
               />
             </div>
           </CardContent>
