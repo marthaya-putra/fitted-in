@@ -19,34 +19,35 @@ import { ResumeProfileRepository } from '@/database/repositories/resume-profile.
 
 @Controller('resume-profiles')
 export class ResumeProfileController {
-  constructor(private readonly resumeProfileService: ResumeProfileService) { }
+  constructor(private readonly resumeProfileService: ResumeProfileService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @Body(ValidationPipe) createResumeProfileDto: CreateResumeProfileDto,
+    @Body(ValidationPipe) createResumeProfileDto: CreateResumeProfileDto
   ): Promise<ResumeProfile> {
     return await this.resumeProfileService.create(createResumeProfileDto);
   }
 
-
   @Get(':id')
-  async findById(@Param('id', ParseIntPipe) id: number): Promise<ResumeProfile> {
+  async findById(
+    @Param('id', ParseIntPipe) id: number
+  ): Promise<ResumeProfile> {
     return await this.resumeProfileService.findById(id);
   }
 
   @Get('account/:accountId')
-  async findByAccountId(@Param('accountId', ParseIntPipe) accountId: number): Promise<ResumeProfile> {
+  async findByAccountId(
+    @Param('accountId', ParseIntPipe) accountId: number
+  ): Promise<ResumeProfile> {
     return await this.resumeProfileService.findByAccountId(accountId);
   }
 
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body(ValidationPipe) updateResumeProfileDto: UpdateResumeProfileDto,
+    @Body(ValidationPipe) updateResumeProfileDto: UpdateResumeProfileDto
   ): Promise<ResumeProfile> {
     return await this.resumeProfileService.update(id, updateResumeProfileDto);
   }
-
-
 }

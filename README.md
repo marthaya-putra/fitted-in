@@ -11,16 +11,19 @@ A Turbo monorepo with three applications:
 ## Development
 
 Install dependencies:
+
 ```bash
 npm install
 ```
 
 Run all apps in development:
+
 ```bash
 npm run dev
 ```
 
 Build all apps:
+
 ```bash
 npm run build
 ```
@@ -28,6 +31,7 @@ npm run build
 ## App-specific commands
 
 ### Admin (Next.js)
+
 ```bash
 cd apps/admin
 npm run dev    # Development server
@@ -36,6 +40,7 @@ npm run start  # Start production server
 ```
 
 ### Backend (NestJS)
+
 ```bash
 cd apps/backend
 npm run start:dev  # Development server with watch
@@ -44,6 +49,7 @@ npm run start:prod # Start production server
 ```
 
 ### Extension (Chrome)
+
 ```bash
 cd apps/extension
 npm run dev    # Development server

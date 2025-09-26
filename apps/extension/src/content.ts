@@ -1,16 +1,17 @@
+import { ActionType } from "./actions";
 // Simple content script without React dependencies
 
 function createNotification(): void {
   // Remove any existing notification
-  const existing = document.getElementById('fitted-in-notification');
+  const existing = document.getElementById("fitted-in-notification");
   if (existing) {
     existing.remove();
   }
 
-  const notification = document.createElement('div');
-  notification.id = 'fitted-in-notification';
+  const notification = document.createElement("div");
+  notification.id = "fitted-in-notification";
 
-  const notificationInner = document.createElement('div');
+  const notificationInner = document.createElement("div");
   notificationInner.style.cssText = `
     position: fixed;
     top: 20px;
@@ -30,11 +31,11 @@ function createNotification(): void {
     animation: slideIn 0.3s ease-out;
   `;
 
-  const span = document.createElement('span');
-  span.textContent = 'fitted-in is available! Click to open';
+  const span = document.createElement("span");
+  span.textContent = "fitted-in is available! Click to open";
 
-  const closeButton = document.createElement('button');
-  closeButton.innerHTML = '&times;';
+  const closeButton = document.createElement("button");
+  closeButton.innerHTML = "&times;";
   closeButton.style.cssText = `
     background: none;
     border: none;
@@ -43,7 +44,7 @@ function createNotification(): void {
     cursor: pointer;
     font-size: 16px;
   `;
-  closeButton.addEventListener('click', (e) => {
+  closeButton.addEventListener("click", e => {
     e.stopPropagation();
     notification.remove();
   });
@@ -53,7 +54,7 @@ function createNotification(): void {
   notification.appendChild(notificationInner);
 
   // Add CSS animation
-  const style = document.createElement('style');
+  const style = document.createElement("style");
   style.textContent = `
     @keyframes slideIn {
       from { transform: translateX(100%); opacity: 0; }
@@ -62,13 +63,12 @@ function createNotification(): void {
   `;
   document.head.appendChild(style);
 
-  notification.addEventListener('click', () => {
+  notification.addEventListener("click", () => {
     // Send message to background to toggle sidepanel
-    chrome.runtime.sendMessage({ action: 'openSidePanel' });
+    chrome.runtime.sendMessage({ action: "open-side-panel" });
   });
 
   document.body.appendChild(notification);
-
 }
 
 // Show notification whenever LinkedIn jobs page is visited
@@ -77,11 +77,17 @@ setTimeout(() => {
 }, 500); // Show after 500ms
 
 // Listen for messages from background script
-chrome.runtime.onMessage.addListener((request: { action: string }, _sender, sendResponse) => {
-  if (request.action === 'ping') {
-    sendResponse({ status: 'content script active' });
+chrome.runtime.onMessage.addListener(
+  (request: { action: ActionType }, _sender, sendResponse) => {
+    if (request.action === "extract-job-description") {
+      const el = document.getElementById("job-details");
+      console.log({ el });
+      const data = el ? el.innerText : "";
+      sendResponse({ data });
+      return true; // Keep message channel open for async response
+    }
+    return false; // No async response needed for other actions
   }
-  return true; // Keep message channel open for async response
-});
+);
 
-console.log('fitted-in content script loaded on LinkedIn Jobs');
+console.log("fitted-in content script loaded on LinkedIn Jobs");

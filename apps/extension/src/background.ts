@@ -1,51 +1,80 @@
+import { actions, ActionType } from "./actions";
+
 // Background service worker for fitted-in extension
-console.log('fitted-in background script loaded');
+console.log("fitted-in background script loaded");
 
 // Listen for messages from content script
-chrome.runtime.onMessage.addListener((request: { action: string }, sender, sendResponse) => {
-  if (request.action === 'openSidePanel') {
-    // User clicked the notification, so we can open the sidepanel
-    // This is allowed because it's in response to a user gesture (click)
-    if (sender.tab) {
-      chrome.sidePanel.open({ windowId: sender.tab.windowId });
-      sendResponse({ success: true });
+chrome.runtime.onMessage.addListener(
+  (request: { action: ActionType }, sender, sendResponse) => {
+    if (request.action === actions.openSidePanel) {
+      // User clicked the notification, so we can open the sidepanel
+      // This is allowed because it's in response to a user gesture (click)
+      if (sender.tab) {
+        chrome.sidePanel.open({ windowId: sender.tab.windowId });
+        sendResponse({ success: true });
+      } else {
+        sendResponse({ success: false, error: "No tab available" });
+      }
+    }
+
+    if (request.action === actions.extractJobDescription) {
+      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+        const tabId = tabs[0]?.id;
+        console.log({ tabId });
+
+        if (!tabId) {
+          sendResponse({ data: "" });
+          return true;
+        }
+
+        // Step 2: Ask content.js for DOM param
+        chrome.tabs.sendMessage(
+          tabId,
+          { action: actions.extractJobDescription },
+          response => {
+            console.log({ response });
+            sendResponse({ data: response?.data || "" });
+          }
+        );
+      });
+      return true; // Keep message channel open for async response
     }
   }
-});
+);
 
 // Update the extension action to show when on LinkedIn job pages
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete' && tab.url) {
-    if (tab.url.includes('linkedin.com/jobs')) {
+  if (changeInfo.status === "complete" && tab.url) {
+    if (tab.url.includes("linkedin.com/jobs")) {
       // Enable the extension action for LinkedIn job pages
       chrome.action.enable(tabId);
 
       // Set a badge to indicate the extension is active on this page
-      chrome.action.setBadgeText({ text: 'ON', tabId: tabId });
-      chrome.action.setBadgeBackgroundColor({ color: '#3b82f6', tabId: tabId });
+      chrome.action.setBadgeText({ text: "ON", tabId: tabId });
+      chrome.action.setBadgeBackgroundColor({ color: "#3b82f6", tabId: tabId });
     } else {
       // Disable for non-LinkedIn pages
       chrome.action.disable(tabId);
-      chrome.action.setBadgeText({ text: '', tabId: tabId });
+      chrome.action.setBadgeText({ text: "", tabId: tabId });
     }
   }
 });
 
 // Extension install/update event
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('fitted-in extension installed/updated');
+  console.log("fitted-in extension installed/updated");
 
   // Clear any existing notification data
-  chrome.storage.local.remove(['lastNotificationTime']);
+  chrome.storage.local.remove(["lastNotificationTime"]);
 
   // Set default action state
   chrome.action.disable();
-  chrome.action.setBadgeText({ text: '' });
+  chrome.action.setBadgeText({ text: "" });
 });
 
 // Handle extension icon click
-chrome.action.onClicked.addListener((tab) => {
-  if (tab.url && tab.url.includes('linkedin.com/jobs')) {
+chrome.action.onClicked.addListener(tab => {
+  if (tab.url && tab.url.includes("linkedin.com/jobs")) {
     chrome.sidePanel.open({ windowId: tab.windowId });
   }
 });

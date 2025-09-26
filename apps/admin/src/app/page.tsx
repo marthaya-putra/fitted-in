@@ -1,4 +1,4 @@
-import { ResumeForm } from '@/components/resume-upload'
+import { ResumeForm } from '@/components/resume-upload';
 
 export default function Home() {
   return (
@@ -9,12 +9,13 @@ export default function Home() {
             Master Resume Builder
           </h1>
           <p className="text-lg text-gray-600">
-            Upload your existing resume and we'll help you build your master profile
+            Upload your existing resume and we'll help you build your master
+            profile
           </p>
         </div>
 
         <ResumeForm />
       </div>
     </main>
-  )
+  );
 }

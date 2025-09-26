@@ -1,21 +1,43 @@
-'use client'
+'use client';
 
-import { useState, useTransition } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
-import { Upload, FileText, User, Briefcase, GraduationCap, Wrench, Eye, Edit3 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { UploadArea } from '@/components/ui/upload'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { toast } from 'sonner'
-import { parseResume, saveResume, type ResumeData } from '@/lib/actions'
-import dynamic from 'next/dynamic'
+import { useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Upload,
+  FileText,
+  User,
+  Briefcase,
+  GraduationCap,
+  Wrench,
+  Eye,
+  Edit3,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { UploadArea } from '@/components/ui/upload';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { toast } from 'sonner';
+import { parseResume, saveResume, type ResumeData } from '@/lib/actions';
+import dynamic from 'next/dynamic';
 
 // Dynamically import the markdown editor to avoid SSR issues
-const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false })
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
 const formSchema = z.object({
   personalInfo: z.object({
@@ -31,21 +53,21 @@ const formSchema = z.object({
     educations: z.string(),
     skills: z.string(),
   }),
-})
+});
 
 interface ResumeFormProps {
-  initialData?: ResumeData
+  initialData?: ResumeData;
 }
 
 export function ResumeForm({ initialData }: ResumeFormProps) {
-  const [isPending, startTransition] = useTransition()
-  const [isSaving, setIsSaving] = useState(false)
+  const [isPending, startTransition] = useTransition();
+  const [isSaving, setIsSaving] = useState(false);
   const [editModes, setEditModes] = useState({
     summary: true,
     experiences: true,
     educations: true,
-    skills: true
-  })
+    skills: true,
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,75 +77,79 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
         email: '',
         phone: '',
         location: '',
-        website: ''
+        website: '',
       },
       resume: {
         summary: '',
         experiences: '',
         educations: '',
-        skills: ''
-      }
-    }
-  })
+        skills: '',
+      },
+    },
+  });
 
-  const { control, handleSubmit, setValue } = form
+  const { control, handleSubmit, setValue } = form;
 
   const toggleEditMode = (field: keyof typeof editModes) => {
     setEditModes(prev => ({
       ...prev,
-      [field]: !prev[field]
-    }))
-  }
+      [field]: !prev[field],
+    }));
+  };
 
   const handleFileSelect = async (file: File) => {
     startTransition(async () => {
       try {
-        const formData = new FormData()
-        formData.append('pdf', file)
+        const formData = new FormData();
+        formData.append('pdf', file);
 
-        const result = await parseResume(formData)
+        const result = await parseResume(formData);
         const normalized: ResumeData = {
           personalInfo: {
             fullName: result.personalInfo.fullName || '',
             email: result.personalInfo.email || '',
             phone: result.personalInfo.phone || '',
             location: result.personalInfo.location || '',
-            website: result.personalInfo.website || ''
+            website: result.personalInfo.website || '',
           },
           resume: {
             summary: result.resume.summary || '',
             experiences: result.resume.experiences || '',
             educations: result.resume.educations || '',
-            skills: result.resume.skills || ''
-          }
-        }
+            skills: result.resume.skills || '',
+          },
+        };
         // Auto-fill form with parsed data
         Object.entries(normalized.personalInfo).forEach(([key, value]) => {
-          setValue(`personalInfo.${key as keyof ResumeData['personalInfo']}`, value)
-        })
+          setValue(
+            `personalInfo.${key as keyof ResumeData['personalInfo']}`,
+            value
+          );
+        });
         Object.entries(normalized.resume).forEach(([key, value]) => {
-          setValue(`resume.${key as keyof ResumeData['resume']}`, value)
-        })
-        toast.success('Resume parsed successfully!')
+          setValue(`resume.${key as keyof ResumeData['resume']}`, value);
+        });
+        toast.success('Resume parsed successfully!');
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to parse resume')
+        toast.error(
+          error instanceof Error ? error.message : 'Failed to parse resume'
+        );
       }
-    })
-  }
-
+    });
+  };
 
   const onSubmit = async (data: ResumeData) => {
-    setIsSaving(true)
+    setIsSaving(true);
 
     try {
-      await saveResume(data)
-      toast.success('Resume saved successfully!')
+      await saveResume(data);
+      toast.success('Resume saved successfully!');
     } catch (error) {
-      toast.error('Failed to save resume')
+      toast.error('Failed to save resume');
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -149,7 +175,9 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
               {isPending && (
                 <div className="text-center">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <p className="mt-2 text-sm text-gray-600">Parsing your resume...</p>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Parsing your resume...
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -184,7 +212,11 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="john@example.com" {...field} />
+                      <Input
+                        type="email"
+                        placeholder="john@example.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -223,7 +255,11 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
                   <FormItem>
                     <FormLabel>Website</FormLabel>
                     <FormControl>
-                      <Input type="url" placeholder="https://yourwebsite.com" {...field} />
+                      <Input
+                        type="url"
+                        placeholder="https://yourwebsite.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -459,16 +495,11 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
 
         {/* Save Button */}
         <div className="text-center">
-          <Button
-            type="submit"
-            size="lg"
-            className="px-8"
-            disabled={isSaving}
-          >
+          <Button type="submit" size="lg" className="px-8" disabled={isSaving}>
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }

@@ -1,7 +1,6 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
-
 
 export default defineConfig({
   plugins: [
@@ -15,7 +14,7 @@ export default defineConfig({
         {
           src: 'icons/**',
           dest: '.',
-        }
+        },
       ],
     }),
   ],
@@ -28,7 +27,7 @@ export default defineConfig({
         content: './src/content.ts',
       },
       output: {
-        entryFileNames: (chunkInfo) => {
+        entryFileNames: chunkInfo => {
           if (chunkInfo.name === 'background') {
             return 'background.js';
           }
@@ -37,8 +36,8 @@ export default defineConfig({
           }
           return 'assets/[name]-[hash].js';
         },
-      }
-    }
+      },
+    },
   },
-  publicDir: 'public'
-})
+  publicDir: 'public',
+});

@@ -9,6 +9,7 @@ This is a Turbo monorepo containing three applications: a Next.js admin dashboar
 ## Architecture
 
 ### Monorepo Structure
+
 - **Turbo** manages the monorepo with workspaces for `apps/*` and `packages/*`
 - **Shared configuration** through root-level package.json and turbo.json
 - **Independent builds** with dependency management between apps
@@ -37,6 +38,7 @@ This is a Turbo monorepo containing three applications: a Next.js admin dashboar
 ## Development Commands
 
 ### Root Level Commands
+
 ```bash
 pnpm run dev     # Start all apps in development
 pnpm run build   # Build all apps
@@ -46,6 +48,7 @@ pnpm run clean   # Clean all build artifacts
 ```
 
 ### Package Management
+
 This project uses **pnpm** as the package manager. Always use `pnpm` instead of `npm` for all operations.
 
 ```bash
@@ -57,6 +60,7 @@ pnpm remove <pkg> # Remove a package
 ### App-Specific Commands
 
 **Admin (Next.js)**
+
 ```bash
 cd apps/admin
 pnpm run dev    # Development server
@@ -66,6 +70,7 @@ pnpm run lint   # ESLint
 ```
 
 **Backend (NestJS)**
+
 ```bash
 cd apps/backend
 pnpm run start:dev    # Development with watch
@@ -78,6 +83,7 @@ pnpm run test:cov     # Coverage report
 ```
 
 **Extension (Chrome)**
+
 ```bash
 cd apps/extension
 pnpm run dev      # Vite dev server
@@ -105,6 +111,7 @@ pnpm run lint     # ESLint
 ## Build Pipeline
 
 Turbo handles build dependencies with the following pipeline:
+
 - `build` tasks depend on `^build` (upstream builds)
 - Outputs cached to `.next/` and `dist/` directories
 - Development mode runs with `cache: false` and `persistent: true`

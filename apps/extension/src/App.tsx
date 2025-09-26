@@ -1,27 +1,34 @@
-import { useState, useEffect } from 'react'
+import { useState } from "react";
+import { actions } from "./actions";
 
 function App() {
-  const [message, setMessage] = useState('Loading...')
+  const [jobDescription, setJobDescription] = useState("");
 
-  useEffect(() => {
-    setMessage('Welcome to fitted-in extension!')
-  }, [])
+  const handleExtractJobDescription = () => {
+    chrome.runtime.sendMessage(
+      { action: actions.extractJobDescription },
+      response => {
+        console.log({ response });
+        setJobDescription(response?.data || "");
+      }
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-md mx-auto">
-        <p className="text-gray-600">{message}</p>
         <div className="mt-6">
           <button
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-            onClick={() => setMessage('Button clicked!')}
+            onClick={handleExtractJobDescription}
           >
-            Click me
+            Click me 9
           </button>
         </div>
+        <p>{jobDescription}</p>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

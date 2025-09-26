@@ -24,10 +24,16 @@ export const resumeSchema = z.object({
     location: z.string().describe("The person's location/city"),
   }),
   resume: z.object({
-    summary: z.string().describe("Professional summary or objective statement"),
-    experiences: z.string().describe("Work experience details with job titles, companies, and dates"),
-    educations: z.string().describe("Education history with degrees, institutions, and dates"),
-    skills: z.string().describe("Skills and proficiencies"),
+    summary: z.string().describe('Professional summary or objective statement'),
+    experiences: z
+      .string()
+      .describe(
+        'Work experience details with job titles, companies, and dates'
+      ),
+    educations: z
+      .string()
+      .describe('Education history with degrees, institutions, and dates'),
+    skills: z.string().describe('Skills and proficiencies'),
   }),
 });
 
@@ -58,11 +64,10 @@ export async function parse(pdfFile: Express.Multer.File): Promise<ResumeData> {
           ],
         },
       ],
-      schema: resumeSchema
+      schema: resumeSchema,
     });
 
     return object;
-
   } catch (error) {
     console.error('Error parsing resume:', error);
     throw new Error('Failed to parse resume');

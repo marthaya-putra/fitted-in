@@ -1,26 +1,26 @@
-import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, integer } from 'drizzle-orm/pg-core';
 
 export const schema = {
-  resumeProfile: pgTable("resume_profile", {
-  id: serial("id").primaryKey(),
+  resumeProfile: pgTable('resume_profile', {
+    id: serial('id').primaryKey(),
 
-  // personal info
-  fullName: text("full_name").notNull(),
-  location: text("location"),
-  email: text("email"),
-  website: text("website"),
-  phone: text("phone"),
+    // personal info
+    fullName: text('full_name').notNull(),
+    location: text('location'),
+    email: text('email'),
+    website: text('website'),
+    phone: text('phone'),
 
-  // resume info
-  summary: text("summary"),
-  workExperiences: text("work_experiences"),
-  educations: text("educations"),
-  technicalSkills: text("technical_skills"),
+    // resume info
+    summary: text('summary'),
+    workExperiences: text('work_experiences'),
+    educations: text('educations'),
+    technicalSkills: text('technical_skills'),
 
-  accountId: integer("account_id").notNull(),
+    accountId: integer('account_id').notNull(),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
   }),
 };
 

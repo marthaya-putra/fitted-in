@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsNumber, IsNotEmpty, IsEmail } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsNotEmpty,
+  IsEmail,
+} from 'class-validator';
 
 export class CreateResumeProfileDto {
   @IsString()

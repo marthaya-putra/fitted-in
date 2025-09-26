@@ -1,11 +1,18 @@
-import { Controller, Get, Post, Body, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { parse, ResumeData } from './resumeParser';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) { }
+  constructor(private readonly appService: AppService) {}
 
   @Get()
   getHello(): string {
@@ -13,20 +20,22 @@ export class AppController {
   }
 
   @Post('parse-resume')
-  @UseInterceptors(FileInterceptor('pdf', {
-    fileFilter: (_req, file, callback) => {
-      if (file.mimetype !== 'application/pdf') {
-        return callback(new Error('Only PDF files are allowed'), false);
-      }
-      callback(null, true);
-    },
-    limits: {
-      fileSize: 10 * 1024 * 1024, // 10MB
-    }
-  }))
+  @UseInterceptors(
+    FileInterceptor('pdf', {
+      fileFilter: (_req, file, callback) => {
+        if (file.mimetype !== 'application/pdf') {
+          return callback(new Error('Only PDF files are allowed'), false);
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB
+      },
+    })
+  )
   async parseResume(
     @UploadedFile() pdf: Express.Multer.File,
-    @Body('accountId') accountId: string,
+    @Body('accountId') accountId: string
   ): Promise<ResumeData> {
     try {
       // TODO: Use accountId for authentication/authorization if needed
