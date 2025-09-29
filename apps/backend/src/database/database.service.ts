@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
-import { Db, DB } from './types';
+import { Injectable } from "@nestjs/common";
+import { Inject } from "@nestjs/common";
+import { type Db, DB } from "./types";
 
 @Injectable()
 export class DatabaseService {

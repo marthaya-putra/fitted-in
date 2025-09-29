@@ -2,13 +2,13 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
-} from '@nestjs/common';
-import { ResumeProfileRepository } from '@/database/repositories/resume-profile.repository';
-import { Inject } from '@nestjs/common';
-import { Db, DB } from '@/database/types';
-import { ResumeProfile } from '@/db/schema';
-import { CreateResumeDto } from '../dto/create-resume.dto';
-import { UpdateResumeDto } from '../dto/update-resume.dto';
+} from "@nestjs/common";
+import { ResumeProfileRepository } from "@/database/repositories/resume-profile.repository";
+import { Inject } from "@nestjs/common";
+import { type Db, DB } from "@/database/types";
+import { ResumeProfile } from "@/db/schema";
+import { CreateResumeDto } from "../dto/create-resume.dto";
+import { UpdateResumeDto } from "../dto/update-resume.dto";
 
 @Injectable()
 export class ResumeService {
@@ -17,9 +17,7 @@ export class ResumeService {
     @Inject(DB) private readonly db: Db
   ) {}
 
-  async create(
-    createResumeDto: CreateResumeDto
-  ): Promise<ResumeProfile> {
+  async create(createResumeDto: CreateResumeDto): Promise<ResumeProfile> {
     // Check if resume profile already exists for this account
     const existingProfile = await this.resumeProfileRepository.findByAccountId(
       this.db,
@@ -32,10 +30,7 @@ export class ResumeService {
       );
     }
 
-    return await this.resumeProfileRepository.create(
-      this.db,
-      createResumeDto
-    );
+    return await this.resumeProfileRepository.create(this.db, createResumeDto);
   }
 
   async findById(id: number): Promise<ResumeProfile> {

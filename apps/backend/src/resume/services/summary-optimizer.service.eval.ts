@@ -32,5 +32,6 @@ evalite("Resume summary optimizer", {
     return summaryOptimizerService.optimizeSummary(input);
   },
   // The scoring methods for the eval
-  scorers: [Levenshtein],
+  // TODO: create custom scorer
+  scorers: [],
 });
