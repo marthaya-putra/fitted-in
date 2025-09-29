@@ -6,7 +6,7 @@ import {
   IsEmail,
 } from 'class-validator';
 
-export class CreateResumeProfileDto {
+export class CreateResumeDto {
   @IsString()
   @IsNotEmpty()
   fullName: string;

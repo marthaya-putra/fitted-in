@@ -46,7 +46,7 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
       file.name
     );
 
-    const response = await fetch('http://localhost:3001/parse-resume', {
+    const response = await fetch('http://localhost:3001/resumes/parse', {
       method: 'POST',
       body: backendFormData,
     });
@@ -80,7 +80,7 @@ export async function saveResume(data: ResumeData): Promise<void> {
       accountId: 1, // Hardcoded for now - should come from authentication
     };
 
-    const response = await fetch('http://localhost:3001/resume-profiles', {
+    const response = await fetch('http://localhost:3001/resumes', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

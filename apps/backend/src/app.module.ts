@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ResumeProfileModule } from './resume-profile/resume-profile.module';
+import { ResumeModule } from './resume/resume.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
@@ -15,7 +15,7 @@ import { DatabaseModule } from './database/database.module';
       connectionString: process.env.DATABASE_URL!,
       ssl: process.env.NODE_ENV === 'production',
     }),
-    ResumeProfileModule,
+    ResumeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

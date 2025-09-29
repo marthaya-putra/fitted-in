@@ -7,34 +7,34 @@ import { ResumeProfileRepository } from '@/database/repositories/resume-profile.
 import { Inject } from '@nestjs/common';
 import { Db, DB } from '@/database/types';
 import { ResumeProfile } from '@/db/schema';
-import { CreateResumeProfileDto } from '../dto/create-resume-profile.dto';
-import { UpdateResumeProfileDto } from '../dto/update-resume-profile.dto';
+import { CreateResumeDto } from '../dto/create-resume.dto';
+import { UpdateResumeDto } from '../dto/update-resume.dto';
 
 @Injectable()
-export class ResumeProfileService {
+export class ResumeService {
   constructor(
     private readonly resumeProfileRepository: ResumeProfileRepository,
     @Inject(DB) private readonly db: Db
   ) {}
 
   async create(
-    createResumeProfileDto: CreateResumeProfileDto
+    createResumeDto: CreateResumeDto
   ): Promise<ResumeProfile> {
     // Check if resume profile already exists for this account
     const existingProfile = await this.resumeProfileRepository.findByAccountId(
       this.db,
-      createResumeProfileDto.accountId
+      createResumeDto.accountId
     );
 
     if (existingProfile) {
       throw new ConflictException(
-        `Resume profile for account ${createResumeProfileDto.accountId} already exists`
+        `Resume profile for account ${createResumeDto.accountId} already exists`
       );
     }
 
     return await this.resumeProfileRepository.create(
       this.db,
-      createResumeProfileDto
+      createResumeDto
     );
   }
 
@@ -61,7 +61,7 @@ export class ResumeProfileService {
 
   async update(
     id: number,
-    updateResumeProfileDto: UpdateResumeProfileDto
+    updateResumeDto: UpdateResumeDto
   ): Promise<ResumeProfile> {
     // Check if profile exists
     const existingProfile = await this.resumeProfileRepository.findById(
@@ -74,17 +74,17 @@ export class ResumeProfileService {
 
     // If accountId is being updated, check if the new accountId already has a profile
     if (
-      updateResumeProfileDto.accountId &&
-      updateResumeProfileDto.accountId !== existingProfile.accountId
+      updateResumeDto.accountId &&
+      updateResumeDto.accountId !== existingProfile.accountId
     ) {
       const existingProfileForAccount =
         await this.resumeProfileRepository.findByAccountId(
           this.db,
-          updateResumeProfileDto.accountId
+          updateResumeDto.accountId
         );
       if (existingProfileForAccount) {
         throw new ConflictException(
-          `Resume profile for account ${updateResumeProfileDto.accountId} already exists`
+          `Resume profile for account ${updateResumeDto.accountId} already exists`
         );
       }
     }
@@ -92,7 +92,7 @@ export class ResumeProfileService {
     const updatedProfile = await this.resumeProfileRepository.update(
       this.db,
       id,
-      updateResumeProfileDto
+      updateResumeDto
     );
     if (!updatedProfile) {
       throw new NotFoundException(`Resume profile with ID ${id} not found`);
