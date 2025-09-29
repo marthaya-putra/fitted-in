@@ -9,7 +9,6 @@ import { DatabaseModule } from './database/database.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
     }),
     DatabaseModule.forRoot({
       connectionString: process.env.DATABASE_URL!,

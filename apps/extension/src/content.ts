@@ -82,7 +82,7 @@ chrome.runtime.onMessage.addListener(
     if (request.action === "extract-job-description") {
       const el = document.getElementById("job-details");
       console.log({ el });
-      const data = el ? el.innerText : "";
+      const data = el ? el.textContent : "";
       sendResponse({ data });
       return true; // Keep message channel open for async response
     }

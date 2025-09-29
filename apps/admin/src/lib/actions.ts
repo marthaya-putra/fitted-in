@@ -3,19 +3,14 @@
 import { revalidatePath } from 'next/cache';
 
 export interface ResumeData {
-  personalInfo: {
-    fullName: string;
-    email: string;
-    phone: string;
-    location: string;
-    website: string;
-  };
-  resume: {
-    summary: string;
-    experiences: string;
-    educations: string;
-    skills: string;
-  };
+  fullName: string;
+  email: string;
+  phone: string;
+  location: string;
+  summary: string;
+  experiences: string;
+  educations: string;
+  skills: string;
 }
 
 export async function parseResume(formData: FormData): Promise<ResumeData> {
@@ -68,15 +63,15 @@ export async function saveResume(data: ResumeData): Promise<void> {
   try {
     // Transform the data to match the backend API format
     const resumeProfileData = {
-      fullName: data.personalInfo.fullName,
-      location: data.personalInfo.location,
-      email: data.personalInfo.email,
-      website: data.personalInfo.website,
-      phone: data.personalInfo.phone,
-      summary: data.resume.summary,
-      workExperiences: data.resume.experiences,
-      educations: data.resume.educations,
-      technicalSkills: data.resume.skills,
+      fullName: data.fullName,
+      location: data.location,
+      email: data.email,
+      website: '', // Website is no longer in the flat schema
+      phone: data.phone,
+      summary: data.summary,
+      workExperiences: data.experiences,
+      educations: data.educations,
+      technicalSkills: data.skills,
       accountId: 1, // Hardcoded for now - should come from authentication
     };
 

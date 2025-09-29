@@ -25,7 +25,6 @@ ${jobDescription}`;
       const { text } = await generateText({
         model: this.model,
         prompt: prompt,
-        temperature: 0.3,
         system:
           "You are a helpful assistant that summarizes job descriptions concisely while preserving all key information. Keep summaries under 500 tokens.",
       });

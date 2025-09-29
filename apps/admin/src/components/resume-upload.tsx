@@ -40,19 +40,14 @@ import dynamic from 'next/dynamic';
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
 const formSchema = z.object({
-  personalInfo: z.object({
-    fullName: z.string().min(1, 'Full name is required'),
-    email: z.string().email('Invalid email address'),
-    phone: z.string(),
-    location: z.string(),
-    website: z.string(),
-  }),
-  resume: z.object({
-    summary: z.string(),
-    experiences: z.string(),
-    educations: z.string(),
-    skills: z.string(),
-  }),
+  fullName: z.string().min(1, 'Full name is required'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string(),
+  location: z.string(),
+  summary: z.string(),
+  experiences: z.string(),
+  educations: z.string(),
+  skills: z.string(),
 });
 
 interface ResumeFormProps {
@@ -72,19 +67,14 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
-      personalInfo: {
-        fullName: '',
-        email: '',
-        phone: '',
-        location: '',
-        website: '',
-      },
-      resume: {
-        summary: '',
-        experiences: '',
-        educations: '',
-        skills: '',
-      },
+      fullName: '',
+      email: '',
+      phone: '',
+      location: '',
+      summary: '',
+      experiences: '',
+      educations: '',
+      skills: '',
     },
   });
 
@@ -105,29 +95,18 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
 
         const result = await parseResume(formData);
         const normalized: ResumeData = {
-          personalInfo: {
-            fullName: result.personalInfo.fullName || '',
-            email: result.personalInfo.email || '',
-            phone: result.personalInfo.phone || '',
-            location: result.personalInfo.location || '',
-            website: result.personalInfo.website || '',
-          },
-          resume: {
-            summary: result.resume.summary || '',
-            experiences: result.resume.experiences || '',
-            educations: result.resume.educations || '',
-            skills: result.resume.skills || '',
-          },
+          fullName: result.fullName || '',
+          email: result.email || '',
+          phone: result.phone || '',
+          location: result.location || '',
+          summary: result.summary || '',
+          experiences: result.experiences || '',
+          educations: result.educations || '',
+          skills: result.skills || '',
         };
         // Auto-fill form with parsed data
-        Object.entries(normalized.personalInfo).forEach(([key, value]) => {
-          setValue(
-            `personalInfo.${key as keyof ResumeData['personalInfo']}`,
-            value
-          );
-        });
-        Object.entries(normalized.resume).forEach(([key, value]) => {
-          setValue(`resume.${key as keyof ResumeData['resume']}`, value);
+        Object.entries(normalized).forEach(([key, value]) => {
+          setValue(key as keyof ResumeData, value);
         });
         toast.success('Resume parsed successfully!');
       } catch (error) {
@@ -194,7 +173,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
             <CardContent className="space-y-4">
               <FormField
                 control={control}
-                name="personalInfo.fullName"
+                name="fullName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
@@ -207,7 +186,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
               />
               <FormField
                 control={control}
-                name="personalInfo.email"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
@@ -224,7 +203,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
               />
               <FormField
                 control={control}
-                name="personalInfo.phone"
+                name="phone"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
@@ -237,7 +216,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
               />
               <FormField
                 control={control}
-                name="personalInfo.location"
+                name="location"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Location</FormLabel>
@@ -248,24 +227,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={control}
-                name="personalInfo.website"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Website</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="url"
-                        placeholder="https://yourwebsite.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
+              </CardContent>
           </Card>
 
           {/* Summary Section */}
@@ -300,7 +262,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
             <CardContent>
               <FormField
                 control={control}
-                name="resume.summary"
+                name="summary"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Professional Summary</FormLabel>
@@ -356,7 +318,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
             <CardContent>
               <FormField
                 control={control}
-                name="resume.experiences"
+                name="experiences"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Work Experience</FormLabel>
@@ -412,7 +374,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
             <CardContent>
               <FormField
                 control={control}
-                name="resume.educations"
+                name="educations"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Education</FormLabel>
@@ -468,7 +430,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
             <CardContent>
               <FormField
                 control={control}
-                name="resume.skills"
+                name="skills"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Technical Skills</FormLabel>

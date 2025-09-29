@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { generateObject } from "ai";
 import { z } from "zod";
-import { google } from "@ai-sdk/google";
+import { defaultModel } from "../models";
 
 const prompt = `Parse this resume and extract the information in a structured format. Please extract:
 1. Personal information (full name, email, phone, location)
@@ -18,24 +18,20 @@ Return ALL attributes as raw markdown formatting with proper structure, bullet p
 - Technical skills: Use categorized lists with proper markdown formatting`;
 
 export const resumeSchema = z.object({
-  personalInfo: z.object({
-    fullName: z.string().describe("The person's full name"),
-    email: z.string().describe("The person's email address"),
-    phone: z.string().describe("The person's phone number"),
-    location: z.string().describe("The person's location/city"),
-  }),
-  resume: z.object({
-    summary: z.string().describe("Professional summary or objective statement"),
-    experiences: z
-      .string()
-      .describe(
-        "Work experience details with job titles, companies, and dates"
-      ),
-    educations: z
-      .string()
-      .describe("Education history with degrees, institutions, and dates"),
-    skills: z.string().describe("Skills and proficiencies"),
-  }),
+  fullName: z.string().describe("The person's full name"),
+  email: z.string().describe("The person's email address"),
+  phone: z.string().describe("The person's phone number"),
+  location: z.string().describe("The person's location/city"),
+  summary: z.string().describe("Professional summary or objective statement"),
+  experiences: z
+    .string()
+    .describe(
+      "Work experience details with job titles, companies, and dates"
+    ),
+  educations: z
+    .string()
+    .describe("Education history with degrees, institutions, and dates"),
+  skills: z.string().describe("Skills and proficiencies"),
 });
 
 export type ResumeData = z.infer<typeof resumeSchema>;
@@ -49,7 +45,7 @@ export class ResumeParserService {
 
       // Generate structured data using AI with direct file input
       const { object } = await generateObject({
-        model: google("gemini-2.5-flash"),
+        model: defaultModel,
         system: prompt,
         messages: [
           {
