@@ -1,6 +1,5 @@
 import "dotenv/config";
 import { evalite } from "evalite";
-import { Levenshtein } from "autoevals";
 import { SummaryOptimizerService } from "./summary-optimizer.service";
 
 const data: { input: any; expected: string }[] = [
