@@ -10,12 +10,14 @@ const prompt = `Parse this resume and extract the information in a structured fo
 4. Education details
 5. Technical skills
 
-Return ALL attributes as raw markdown formatting with proper structure, bullet points, headings, and formatting where appropriate. Include markdown formatting for:
-- Personal info: Use proper text formatting
-- Summary: Use paragraphs and emphasis
-- Experiences: Use bullet points, bold text for job titles, regular for companies, italic for company descriptions
-- Education: Use bullet points, bold for degrees, italics for institutions
-- Technical skills: Use categorized lists with proper markdown formatting`;
+Return ALL attributes as plain text without any markdown formatting. Use simple text formatting only:
+- Personal info: Use plain text with basic line breaks
+- Summary: Use plain text paragraphs
+- Experiences: Use plain text with basic line breaks and simple formatting
+- Education: Use plain text with basic line breaks
+- Technical skills: Use plain text lists with simple line breaks
+
+DO NOT use markdown formatting, headings, bullet points with asterisks, bold text, italics, or any other markdown syntax.`;
 
 export const resumeSchema = z.object({
   fullName: z.string().describe("The person's full name"),
