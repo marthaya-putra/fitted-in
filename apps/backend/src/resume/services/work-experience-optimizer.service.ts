@@ -48,6 +48,8 @@ Do not exaggerate or misrepresent the candidate's background.
 
 Output format:
 Return only the optimized Work Experience section, formatted as plain text with the same structure as the input (company names, dates, positions, bullet points).
+DO NOT use markdown formatting, headings, bullet points with asterisks, or any other markdown syntax.
+Use plain text formatting only with simple line breaks and text formatting.
 
 IMPORTANT: DO NOT MAKE THIS UP!!! IF THE RESUME DON'T CONTAIN REQUIRED SKILLS OR EXPERIENCES, DO NOT ADD THEM. ONLY OPTIMIZE THE EXISTING CONTENT.`;
 

@@ -53,6 +53,8 @@ Keep only skills that add value to the target position.
 
 Output format:
 Return only the optimized Skills section, formatted as plain text with the same categorization structure as the input.
+DO NOT use markdown formatting, headings, bullet points with asterisks, or any other markdown syntax.
+Use plain text formatting only with simple line breaks and text formatting.
 
 IMPORTANT: DO NOT MAKE THIS UP!!! IF THE RESUME DON'T CONTAIN REQUIRED SKILLS OR EXPERIENCES, DO NOT ADD THEM. ONLY OPTIMIZE AND REORGANIZE THE EXISTING CONTENT.`;
 
