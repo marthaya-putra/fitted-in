@@ -4,12 +4,7 @@ import { defaultModel } from "../models";
 
 export interface OptimizeSkillsParams {
   jobDescription: string;
-  resume: {
-    summary: string;
-    experiences: string;
-    educations: string;
-    skills: string;
-  };
+  skills: string;
 }
 
 const systemPrompt = `You are an expert CV/Resume optimization assistant specializing in Applicant Tracking Systems (ATS) and AI resume screening.
@@ -63,7 +58,7 @@ IMPORTANT: DO NOT MAKE THIS UP!!! IF THE RESUME DON'T CONTAIN REQUIRED SKILLS OR
 
 @Injectable()
 export class SkillsOptimizerService {
-  async optimizeSkills(params: OptimizeSkillsParams): Promise<string> {
+  async optimize(params: OptimizeSkillsParams): Promise<string> {
     const { text } = await generateText({
       model: defaultModel,
       system: systemPrompt,
@@ -73,7 +68,7 @@ export class SkillsOptimizerService {
       </job-description>
       <resume>
         <existing-skills>
-        ${params.resume.skills}
+        ${params.skills}
         </existing-skills>
       </resume>
       `,

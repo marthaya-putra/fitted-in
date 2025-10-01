@@ -87,7 +87,7 @@ evalite("Resume skills optimizer", {
   },
   task: async (input: any) => {
     const skillsOptimizerService = new SkillsOptimizerService();
-    return skillsOptimizerService.optimizeSkills(input);
+    return skillsOptimizerService.optimize(input);
   },
   scorers: [],
 });

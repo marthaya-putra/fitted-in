@@ -87,7 +87,7 @@ evalite("Resume work experience optimizer", {
   },
   task: async (input: any) => {
     const workExperienceOptimizerService = new WorkExperienceOptimizerService();
-    return workExperienceOptimizerService.optimizeWorkExperience(input);
+    return workExperienceOptimizerService.optimize(input);
   },
   scorers: [],
 });

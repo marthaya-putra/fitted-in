@@ -120,3 +120,8 @@ Refer to `.env` for environment file in development server
 
 Use type import for type e.g :
 import {type Type} from './somewhere'
+
+## Adding setter and getter for class
+
+- use `get-MEMBER_VARIABLE_NAME` convention for getter, do not use `get` keyword.
+  example: getName() {} instead of get name() {}

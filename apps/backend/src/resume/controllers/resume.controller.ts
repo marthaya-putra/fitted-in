@@ -23,13 +23,15 @@ import {
 } from "../services/resume-parser.service";
 import { JobDescriptionSummarizerService } from "../services/job-description-summarizer.service";
 import { CustomizeDto } from "../dto/customize-job.dto";
+import { ResumeOptimizerService } from "../services/resume-optimizer.service";
 
 @Controller("resumes")
 export class ResumeController {
   constructor(
     private readonly resumeService: ResumeService,
     private readonly resumeParserService: ResumeParserService,
-    private readonly jobDescriptionSummarizerService: JobDescriptionSummarizerService
+    private readonly jobDescriptionSummarizerService: JobDescriptionSummarizerService,
+    private readonly resumeOptimizerService: ResumeOptimizerService
   ) {}
 
   @Post()
@@ -91,15 +93,15 @@ export class ResumeController {
 
   @Post("customize")
   @HttpCode(HttpStatus.OK)
-  async customize(
-    @Body(ValidationPipe) customizeDto: CustomizeDto
-  ): Promise<{ summarizedJobDescription: string }> {
+  async customize(@Body(ValidationPipe) customizeDto: CustomizeDto) {
     try {
       const summarizedJobDescription =
         await this.jobDescriptionSummarizerService.summarize(
           customizeDto.jobDescription
         );
-      return { summarizedJobDescription };
+      return this.resumeOptimizerService.optimize({
+        jobDescription: summarizedJobDescription,
+      });
     } catch (error) {
       throw new Error("Failed to customize job description");
     }

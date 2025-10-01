@@ -71,7 +71,7 @@ export async function saveResume(data: ResumeData): Promise<void> {
       summary: data.summary,
       workExperiences: data.experiences,
       educations: data.educations,
-      technicalSkills: data.skills,
+      skills: data.skills,
       accountId: 1, // Hardcoded for now - should come from authentication
     };
 

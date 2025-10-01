@@ -15,7 +15,7 @@ export const schema = {
     summary: text('summary'),
     workExperiences: text('work_experiences'),
     educations: text('educations'),
-    technicalSkills: text('technical_skills'),
+    skills: text('skills'),
 
     accountId: integer('account_id').notNull(),
 

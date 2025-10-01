@@ -4,12 +4,10 @@ import { defaultModel } from "../models";
 
 export interface OptimizeSummaryParams {
   jobDescription: string;
-  resume: {
-    summary: string;
-    experiences: string;
-    educations: string;
-    skills: string;
-  };
+  summary: string;
+  experiences: string;
+  educations: string;
+  skills: string;
 }
 
 const systemPrompt = `You are an expert CV/Resume optimization assistant specializing in Applicant Tracking Systems (ATS) and AI resume screening.
@@ -52,26 +50,26 @@ IMPORTANT: DO NOT MAKE THIS UP!!! IF THE RESUME DON'T CONTAIN REQUIRED SKILLS OR
 
 @Injectable()
 export class SummaryOptimizerService {
-  async optimizeSummary(params: OptimizeSummaryParams): Promise<string> {
+  async optimize(params: OptimizeSummaryParams): Promise<string> {
     const { text } = await generateText({
       model: defaultModel,
       system: systemPrompt,
-      prompt: `Optimize CV Summary section with data provided below: 
+      prompt: `Optimize CV Summary section with data provided below:
       <job-description>
       ${params.jobDescription}
       </job-description>
       <resume>
         <existing-summary>
-        ${params.resume.summary}
+        ${params.summary}
         </existing-summary>
         <work-experiences>
-        ${params.resume.experiences}
+        ${params.experiences}
         </work-experiences>
         <educations>
-        ${params.resume.educations}
+        ${params.educations}
         </educations>
         <skills>
-        ${params.resume.educations}
+        ${params.skills}
         </skills>
       </resume>
       `,

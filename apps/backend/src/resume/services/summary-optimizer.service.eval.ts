@@ -28,7 +28,7 @@ evalite("Resume summary optimizer", {
   task: async (input: any) => {
     const summaryOptimizerService = new SummaryOptimizerService();
 
-    return summaryOptimizerService.optimizeSummary(input);
+    return summaryOptimizerService.optimize(input);
   },
   // The scoring methods for the eval
   // TODO: create custom scorer

@@ -1,0 +1,1 @@
+ALTER TABLE "resume_profile" RENAME COLUMN "technical_skills" TO "skills";

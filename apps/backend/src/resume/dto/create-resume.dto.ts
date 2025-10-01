@@ -41,7 +41,7 @@ export class CreateResumeDto {
 
   @IsString()
   @IsOptional()
-  technicalSkills?: string;
+  skills?: string;
 
   @IsNumber()
   @IsNotEmpty()

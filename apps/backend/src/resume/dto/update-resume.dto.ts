@@ -35,7 +35,7 @@ export class UpdateResumeDto {
 
   @IsString()
   @IsOptional()
-  technicalSkills?: string;
+  skills?: string;
 
   @IsNumber()
   @IsOptional()

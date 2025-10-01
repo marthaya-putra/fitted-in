@@ -1,4 +1,4 @@
-CREATE TABLE "resume_profile" (
+CREATE TABLE IF NOT EXISTS "resume_profile" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"full_name" text NOT NULL,
 	"location" text,
