@@ -116,4 +116,7 @@ Turbo handles build dependencies with the following pipeline:
 - Outputs cached to `.next/` and `dist/` directories
 - Development mode runs with `cache: false` and `persistent: true`
 
-Refer to `.env.local` for environment file in development server
+Refer to `.env` for environment file in development server
+
+Use type import for type e.g :
+import {type Type} from './somewhere'
