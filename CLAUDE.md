@@ -125,3 +125,39 @@ import {type Type} from './somewhere'
 
 - use `get-MEMBER_VARIABLE_NAME` convention for getter, do not use `get` keyword.
   example: getName() {} instead of get name() {}
+
+## NestJS Resource Generation
+
+**IMPORTANT**: When generating any NestJS resources (controllers, services, modules, etc.), always use the Nest CLI commands instead of manually creating files. The backend app has a configured `nest-cli.json` that ensures consistent code generation patterns.
+
+### Available CLI Commands
+
+```bash
+# Always work from the backend directory
+cd apps/backend
+
+# Resource (full CRUD setup with controller, service, module, DTOs, entities)
+nest g resource <name>                    # or nest g res <name>
+nest g resource users                      # Example: generates complete user resource
+
+# Individual components
+nest g controller <name>                   # or nest g co <name>
+nest g service <name>                      # or nest g s <name>
+nest g module <name>                       # or nest g mo <name>
+nest g guard <name>                        # or nest g gu <name>
+nest g pipe <name>                         # or nest g pi <name>
+nest g filter <name>                       # or nest g f <name>
+nest g interceptor <name>                 # or nest g i <name>
+```
+
+### Usage Examples
+
+```bash
+cd apps/backend
+nest g resource products                    # Creates complete product CRUD
+nest g controller notifications            # Creates notification controller with test
+nest g service payment                     # Creates payment service with test
+nest g module auth                         # Creates auth module
+```
+
+This ensures consistency with the existing codebase structure and patterns.
