@@ -1,6 +1,6 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from "next/cache";
 
 export interface ResumeData {
   fullName: string;
@@ -15,18 +15,18 @@ export interface ResumeData {
 
 export async function parseResume(formData: FormData): Promise<ResumeData> {
   try {
-    const file = formData.get('pdf') as File;
+    const file = formData.get("pdf") as File;
 
     if (!file) {
-      throw new Error('No file provided');
+      throw new Error("No file provided");
     }
 
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
-      throw new Error('Please select a PDF file');
+    if (!file.name.toLowerCase().endsWith(".pdf")) {
+      throw new Error("Please select a PDF file");
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      throw new Error('File size must be less than 10MB');
+      throw new Error("File size must be less than 10MB");
     }
 
     // Convert File to Buffer for the backend API
@@ -36,25 +36,25 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
     // Create FormData for the backend
     const backendFormData = new FormData();
     backendFormData.append(
-      'pdf',
-      new Blob([buffer], { type: 'application/pdf' }),
+      "pdf",
+      new Blob([buffer], { type: "application/pdf" }),
       file.name
     );
 
-    const response = await fetch('http://localhost:3001/resumes/parse', {
-      method: 'POST',
+    const response = await fetch("http://localhost:3001/api/resumes/parse", {
+      method: "POST",
       body: backendFormData,
     });
 
     if (!response.ok) {
-      throw new Error('Failed to parse resume');
+      throw new Error("Failed to parse resume");
     }
 
     const result = await response.json();
-    revalidatePath('/');
+    revalidatePath("/");
     return result;
   } catch (error) {
-    console.error('Error parsing resume:', error);
+    console.error("Error parsing resume:", error);
     throw error;
   }
 }
@@ -66,7 +66,7 @@ export async function saveResume(data: ResumeData): Promise<void> {
       fullName: data.fullName,
       location: data.location,
       email: data.email,
-      website: '', // Website is no longer in the flat schema
+      website: "", // Website is no longer in the flat schema
       phone: data.phone,
       summary: data.summary,
       workExperiences: data.experiences,
@@ -75,22 +75,22 @@ export async function saveResume(data: ResumeData): Promise<void> {
       accountId: 1, // Hardcoded for now - should come from authentication
     };
 
-    const response = await fetch('http://localhost:3001/resumes', {
-      method: 'POST',
+    const response = await fetch("http://localhost:3001/api/resumes", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(resumeProfileData),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to save resume profile');
+      throw new Error(errorData.message || "Failed to save resume profile");
     }
 
-    revalidatePath('/');
+    revalidatePath("/");
   } catch (error) {
-    console.error('Error saving resume:', error);
+    console.error("Error saving resume:", error);
     throw error;
   }
 }

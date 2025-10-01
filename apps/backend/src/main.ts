@@ -17,6 +17,9 @@ async function bootstrap() {
     })
   );
 
+  // Set global API prefix for all routes
+  app.setGlobalPrefix('api');
+
   // Enable CORS for the frontend
   app.enableCors({
     origin: 'http://localhost:3000',
