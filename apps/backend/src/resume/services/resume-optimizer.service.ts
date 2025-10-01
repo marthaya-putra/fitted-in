@@ -3,6 +3,7 @@ import { SummaryOptimizerService } from "./summary-optimizer.service";
 import { WorkExperienceOptimizerService } from "./work-experience-optimizer.service";
 import { SkillsOptimizerService } from "./skills-optimizer.service";
 import { ResumeService } from "./resume.service";
+import { JobDescriptionSummarizerService } from "./job-description-summarizer.service";
 
 export interface OptimizeResumeParams {
   jobDescription: string;
@@ -17,6 +18,7 @@ export interface OptimizedResume {
 @Injectable()
 export class ResumeOptimizerService {
   constructor(
+    private readonly jobDescriptionSummarizerService: JobDescriptionSummarizerService,
     private readonly summaryOptimizerService: SummaryOptimizerService,
     private readonly workExperienceOptimizerService: WorkExperienceOptimizerService,
     private readonly skillsOptimizerService: SkillsOptimizerService,
@@ -29,22 +31,27 @@ export class ResumeOptimizerService {
       throw new Error("Master resume not found");
     }
 
+    const summarizedJobDescription =
+      await this.jobDescriptionSummarizerService.summarize(
+        params.jobDescription
+      );
+
     const [optimizedSummary, optimizedWorkExperiences, optimizedSkills] =
       await Promise.all([
         this.summaryOptimizerService.optimize({
-          jobDescription: params.jobDescription,
+          jobDescription: summarizedJobDescription,
           summary: savedResume.summary,
           experiences: savedResume.workExperiences,
           educations: savedResume.educations,
           skills: savedResume.skills,
         }),
         this.workExperienceOptimizerService.optimize({
-          jobDescription: params.jobDescription,
+          jobDescription: summarizedJobDescription,
           experiences: savedResume.workExperiences,
           skills: savedResume.skills,
         }),
         this.skillsOptimizerService.optimize({
-          jobDescription: params.jobDescription,
+          jobDescription: summarizedJobDescription,
           skills: savedResume.skills,
         }),
       ]);
