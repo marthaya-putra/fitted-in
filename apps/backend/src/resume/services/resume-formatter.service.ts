@@ -9,72 +9,85 @@ export interface FormatResumeParams {
 
 @Injectable()
 export class ResumeFormatterService {
-  async format(params: FormatResumeParams): Promise<string> {
-    const systemPrompt = `You are an expert resume formatter specializing in creating ATS-friendly and LLM-optimized resumes that maintain formatting when copied to Google Docs.
+  async format(params: FormatResumeParams) {
+    const systemPrompt = `You are a professional CV formatter and optimization assistant. 
+Your task is to take raw/plain text resumes and transform them into a clean, well-structured CV that is both ATS-compatible and optimized for AI-based hiring systems. 
 
-Your task is to format the provided resume content with the following requirements:
+Guidelines:  
+1. Use a clear, minimal layout with consistent section headings (e.g., "Summary", "Experience", "Education", "Skills", "Projects").  
+2. Ensure correct ordering: Summary → Skills → Experience → Education → Projects (if any).  
+3. Use standard fonts and bullet points. No tables, images, columns, or graphics.  
+4. Experience should be in reverse chronological order, each with:  
+   - Job Title  
+   - Company Name  
+   - Location (optional if missing)  
+   - Start & End Dates  
+   - Achievements/responsibilities in bullet points (quantify results where possible).  
+5. Skills should be listed in a keyword-rich, ATS-friendly way. Group them by category (e.g., Programming Languages, Frameworks, Tools).  
+6. Do not invent experience or skills. Use only the information provided in the raw text.  
+7. Rewrite sentences concisely and in a professional, action-oriented style.  
+8. Ensure correct grammar, punctuation, and consistent tense.  
+9. Avoid personal details that can bias hiring (age, marital status, photo, religion, etc.).  
+10. Output the final CV in plain text or Markdown with clean formatting.  
 
-1. ATS Optimization:
-- Use clean, standard formatting with clear headings
-- Incorporate relevant keywords naturally
-- Avoid graphics, tables, or special symbols
-- Use standard bullet points (• or -)
-- Maintain consistent structure
-
-2. Google Docs Compatibility:
-- Use standard HTML tags that Google Docs preserves: <h1>, <h2>, <h3>, <strong>, <em>, <ul>, <li>, <p>, <br>
-- Avoid complex CSS or styling
-- Use semantic HTML structure
-- Ensure proper heading hierarchy
-
-3. LLM Friendly:
-- Clear, professional language
-- Well-structured content
-- Proper spacing and readability
-- Consistent formatting patterns
-
-Format Structure:
-- Use <h1> for name
-- Use <h2> for major sections (Summary, Experience, Education, Skills)
-- Use <h3> for job titles and company names
-- Use <strong> for emphasis on key achievements
-- Use <em> for subtle emphasis
-- Use <ul> and <li> for bullet points
-- Use <p> for paragraphs
-- Use <br> for line breaks when needed
-
-Output Format:
-Return ONLY the HTML version (for Google Docs compatibility). Do not include any labels, explanations, or plain text versions.
-
-Important: Do not invent or add information that isn't present in the original resume. Only format and optimize the existing content.`;
+Your final output should look like a polished resume suitable for job applications, passing ATS filters, and understandable by both recruiters and AI screeners.
+`;
 
     const { text } = await generateText({
       model: defaultModel,
       system: systemPrompt,
-      prompt: `Format the following resume data for ATS optimization and Google Docs compatibility:
+      prompt: `Here is the CV data. Please reformat it into a professional, ATS-friendly resume following the system guidelines:
 
-Resume Data:
-- Name: ${params.resumeProfile.fullName}
-- Location: ${params.resumeProfile.location || "N/A"}
-- Email: ${params.resumeProfile.email || "N/A"}
-- Phone: ${params.resumeProfile.phone || "N/A"}
-- Website: ${params.resumeProfile.website || "N/A"}
+<CV>
+    <Personal-Info>
+      <Name>
+        ${params.resumeProfile.fullName}
+      </Name>
+      <Location> 
+        ${params.resumeProfile.location}
+      </Location>
+      <Email>
+        ${params.resumeProfile.email}
+      </Email>
+      <Phone>
+        ${params.resumeProfile.phone}
+      </Phone>
+      <Website>
+        ${params.resumeProfile.website}
+      </Website>
+    </Personal-Info>
+  <Summary>
+    ${params.resumeProfile.summary}
+  </Summary>
+  <Work-Experience>
+    ${params.resumeProfile.workExperiences}
+  </Work-Experience>
+  <Education>
+    ${params.resumeProfile.educations}
+  </Education>
+  <Skills>
+    ${params.resumeProfile.skills} 
+  </Skills>  
+</CV>
 
-Summary:
-${params.resumeProfile.summary || "N/A"}
+Make sure the final version:
 
-Work Experience:
-${params.resumeProfile.workExperiences || "N/A"}
+- Use **Markdown formatting**:
+  - Full name as an "# H1" heading at the very top.  
+  - Contact info under the name in plain text, separated by "|".  
+  - Section titles as "## H2" (e.g., "## SUMMARY").  
+  - Job titles in **bold**, companies in *italic*, and dates/locations in plain text.  
+  - Achievements as bullet points with **bold metrics** (percentages, dollar values, user counts, etc.) highlighted.  
 
-Education:
-${params.resumeProfile.educations || "N/A"}
-
-Skills:
-${params.resumeProfile.skills || "N/A"}
-
-Please format this resume following the requirements in the system prompt. Return only the HTML version without any labels or explanations.`,
+- Structure must include: SUMMARY, SKILLS, EXPERIENCE, EDUCATION, PROJECTS (if any).  
+- Use bullet points for achievements and skills.  
+- Make measurable results **stand out** (e.g., “Improved performance by **30%**”).  
+- Keep it keyword-rich but truthful (do not invent).  
+- Be concise, grammatically correct, and professional.  
+- Output only the final resume in Markdown, no explanations.
+`,
     });
 
-    return text;
+    return { resume: text };
   }
 }

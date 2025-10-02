@@ -1,9 +1,29 @@
 import { actions, ActionType } from "./actions";
 
-// Background service worker for fitted-in extension
-console.log("fitted-in background script loaded");
+async function optimizeResume(jobDescription: string) {
+  try {
+    const response = await fetch("http://localhost:3001/api/resumes/optimize", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        jobDescription: jobDescription,
+      }),
+    });
 
-// Listen for messages from content script
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result.resume;
+  } catch (error) {
+    console.error("Error optimizing resume:", error);
+    throw error;
+  }
+}
+
 chrome.runtime.onMessage.addListener(
   (request: { action: ActionType }, sender, sendResponse) => {
     if (request.action === actions.openSidePanel) {
@@ -17,10 +37,9 @@ chrome.runtime.onMessage.addListener(
       }
     }
 
-    if (request.action === actions.extractJobDescription) {
+    if (request.action === actions.optimizeResume) {
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         const tabId = tabs[0]?.id;
-        console.log({ tabId });
 
         if (!tabId) {
           sendResponse({ data: "" });
@@ -31,9 +50,9 @@ chrome.runtime.onMessage.addListener(
         chrome.tabs.sendMessage(
           tabId,
           { action: actions.extractJobDescription },
-          response => {
-            console.log({ response });
-            sendResponse({ data: response?.data || "" });
+          async response => {
+            const optimizedResume = await optimizeResume(response?.data || "");
+            sendResponse({ data: optimizedResume });
           }
         );
       });

@@ -20,11 +20,25 @@ async function bootstrap() {
   // Set global API prefix for all routes
   app.setGlobalPrefix('api');
 
-  // Enable CORS for the frontend
+  // Enable CORS for the frontend and Chrome extension
   app.enableCors({
-    origin: 'http://localhost:3000',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      // Allow localhost origins
+      if (origin.startsWith('http://localhost:')) return callback(null, true);
+
+      // Allow Chrome extensions
+      if (origin.startsWith('chrome-extension://')) return callback(null, true);
+
+      callback(new Error('Not allowed by CORS'));
+    },
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   await app.listen(3001);
