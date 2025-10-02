@@ -7,6 +7,7 @@ import { SummaryOptimizerService } from "./services/summary-optimizer.service";
 import { ResumeOptimizerService } from "./services/resume-optimizer.service";
 import { WorkExperienceOptimizerService } from "./services/work-experience-optimizer.service";
 import { SkillsOptimizerService } from "./services/skills-optimizer.service";
+import { ResumeFormatterService } from "./services/resume-formatter.service";
 
 @Module({
   controllers: [ResumeController],
@@ -18,6 +19,7 @@ import { SkillsOptimizerService } from "./services/skills-optimizer.service";
     WorkExperienceOptimizerService,
     SkillsOptimizerService,
     ResumeOptimizerService,
+    ResumeFormatterService,
   ],
   exports: [
     ResumeService,
@@ -27,6 +29,7 @@ import { SkillsOptimizerService } from "./services/skills-optimizer.service";
     WorkExperienceOptimizerService,
     SkillsOptimizerService,
     ResumeOptimizerService,
+    ResumeFormatterService,
   ],
 })
 export class ResumeModule {}

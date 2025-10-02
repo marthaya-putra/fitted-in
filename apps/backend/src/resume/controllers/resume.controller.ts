@@ -23,6 +23,10 @@ import {
 } from "../services/resume-parser.service";
 import { CustomizeDto } from "../dto/customize-job.dto";
 import { ResumeOptimizerService } from "../services/resume-optimizer.service";
+import {
+  ResumeFormatterService,
+  FormatResumeParams,
+} from "../services/resume-formatter.service";
 
 @Controller("resumes")
 export class ResumeController {

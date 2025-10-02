@@ -34,11 +34,11 @@ export class ResumeService {
   }
 
   async findById(id: number): Promise<ResumeProfile> {
-    const profile = await this.resumeProfileRepository.findById(this.db, id);
+    const profile = await this.resumeProfileRepository.findAll(this.db);
     if (!profile) {
       throw new NotFoundException(`Resume profile with ID ${id} not found`);
     }
-    return profile;
+    return profile[0];
   }
 
   async findByAccountId(accountId: number): Promise<ResumeProfile> {

@@ -4,6 +4,8 @@ import { WorkExperienceOptimizerService } from "./work-experience-optimizer.serv
 import { SkillsOptimizerService } from "./skills-optimizer.service";
 import { ResumeService } from "./resume.service";
 import { JobDescriptionSummarizerService } from "./job-description-summarizer.service";
+import { ResumeFormatterService } from "./resume-formatter.service";
+import { ResumeProfile } from "@/db/schema";
 
 export interface OptimizeResumeParams {
   jobDescription: string;
@@ -22,10 +24,11 @@ export class ResumeOptimizerService {
     private readonly summaryOptimizerService: SummaryOptimizerService,
     private readonly workExperienceOptimizerService: WorkExperienceOptimizerService,
     private readonly skillsOptimizerService: SkillsOptimizerService,
-    private readonly resumeService: ResumeService
+    private readonly resumeService: ResumeService,
+    private readonly resumeFormatterService: ResumeFormatterService
   ) {}
 
-  async optimize(params: OptimizeResumeParams): Promise<OptimizedResume> {
+  async optimize(params: OptimizeResumeParams) {
     const savedResume = await this.resumeService.findById(3);
     if (!savedResume) {
       throw new Error("Master resume not found");
@@ -56,10 +59,15 @@ export class ResumeOptimizerService {
         }),
       ]);
 
-    return {
+    const optimizedResume: ResumeProfile = {
+      ...savedResume,
       summary: optimizedSummary,
-      experiences: optimizedWorkExperiences,
+      workExperiences: optimizedWorkExperiences,
       skills: optimizedSkills,
     };
+
+    return this.resumeFormatterService.format({
+      resumeProfile: optimizedResume,
+    });
   }
 }
