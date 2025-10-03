@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   padding: 0;
@@ -10,4 +14,78 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  html {
+    font-size: 16px;
+  }
+}
+
+@layer components {
+  .prose {
+    color: rgb(55, 65, 81);
+    max-width: none;
+  }
+
+  .prose h1 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #111827;
+  }
+
+  .prose h2 {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: #111827;
+  }
+
+  .prose h3 {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+    color: #111827;
+  }
+
+  .prose p {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: #374151;
+  }
+
+  .prose ul, .prose ol {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    color: #374151;
+  }
+
+  .prose li {
+    margin-bottom: 0.25rem;
+  }
+
+  .prose strong {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .prose em {
+    font-style: italic;
+    color: #374151;
+  }
+
+  .prose hr {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 0;
+    border-top: 1px solid #e5e7eb;
+  }
 }

@@ -87,12 +87,16 @@ chrome.runtime.onMessage.addListener(
     }
 
     if (request.action === "reset-panel") {
-      const el = document.querySelector(
+      const companyEl = document.querySelector(
+        ".job-details-jobs-unified-top-card__company-name"
+      );
+      const positionEl = document.querySelector(
         ".job-details-jobs-unified-top-card__job-title"
       );
-      console.log({ el });
-      const data = el ? el.textContent : "";
-      sendResponse({ data });
+
+      const company = companyEl ? companyEl.textContent : "";
+      const position = positionEl ? positionEl.textContent : "";
+      sendResponse({ data: `${position} at ${company}` });
       return true; // Keep message channel open for async response
     }
     return false; // No async response needed for other actions
