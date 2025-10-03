@@ -26,14 +26,44 @@ async function optimizeResume(jobDescription: string) {
 
 chrome.runtime.onMessage.addListener(
   (request: { action: ActionType }, sender, sendResponse) => {
+    if (request.action === actions.sidePanelReady) {
+      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+        const tabId = tabs[0]?.id;
+
+        if (!tabId) {
+          sendResponse({ data: "" });
+          return true;
+        }
+
+        chrome.tabs.sendMessage(
+          tabId,
+          { action: actions.resetPanel },
+          response => {
+            if (chrome.runtime.lastError) {
+              console.warn(
+                "No side panel open to receive message:",
+                chrome.runtime.lastError.message
+              );
+              return;
+            }
+            chrome.runtime.sendMessage({
+              action: actions.updateJobTitle,
+              data: response.data,
+            });
+          }
+        );
+      });
+    }
     if (request.action === actions.openSidePanel) {
       // User clicked the notification, so we can open the sidepanel
       // This is allowed because it's in response to a user gesture (click)
       if (sender.tab) {
         chrome.sidePanel.open({ windowId: sender.tab.windowId });
         sendResponse({ success: true });
+        return true;
       } else {
         sendResponse({ success: false, error: "No tab available" });
+        return false;
       }
     }
 
@@ -77,12 +107,25 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       chrome.action.setBadgeText({ text: "", tabId: tabId });
     }
   }
+  if (changeInfo.url) {
+    chrome.tabs.sendMessage(tabId, { action: actions.resetPanel }, response => {
+      if (chrome.runtime.lastError) {
+        console.warn(
+          "No side panel open to receive message:",
+          chrome.runtime.lastError.message
+        );
+        return;
+      }
+      chrome.runtime.sendMessage({
+        action: actions.updateJobTitle,
+        data: response.data,
+      });
+    });
+  }
 });
 
 // Extension install/update event
 chrome.runtime.onInstalled.addListener(() => {
-  console.log("fitted-in extension installed/updated");
-
   // Clear any existing notification data
   chrome.storage.local.remove(["lastNotificationTime"]);
 

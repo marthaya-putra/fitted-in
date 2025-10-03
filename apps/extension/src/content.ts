@@ -81,6 +81,15 @@ chrome.runtime.onMessage.addListener(
   (request: { action: ActionType }, _sender, sendResponse) => {
     if (request.action === "extract-job-description") {
       const el = document.getElementById("job-details");
+      const data = el ? el.textContent : "";
+      sendResponse({ data });
+      return true; // Keep message channel open for async response
+    }
+
+    if (request.action === "reset-panel") {
+      const el = document.querySelector(
+        ".job-details-jobs-unified-top-card__job-title"
+      );
       console.log({ el });
       const data = el ? el.textContent : "";
       sendResponse({ data });

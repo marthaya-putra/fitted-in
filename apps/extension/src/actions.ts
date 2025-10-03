@@ -1,4 +1,7 @@
 export const actions = {
+  sidePanelReady: "side-panel-ready",
+  resetPanel: "reset-panel",
+  updateJobTitle: "update-job-title",
   extractJobDescription: "extract-job-description",
   openSidePanel: "open-side-panel",
   optimizeResume: "optimize-resume",

@@ -1,10 +1,34 @@
-import { useState } from "react";
-import { actions } from "./actions";
+import { useEffect, useState } from "react";
+import { actions, ActionType } from "./actions";
 import { ResumePreview } from "./resume-preview";
 
 function App() {
   const [resume, setResume] = useState("");
   const [loading, setLoading] = useState(false);
+  const [currentJobTitle, setCurrentJobTitle] = useState("");
+
+  useEffect(() => {
+    chrome.runtime.sendMessage({ action: actions.sidePanelReady });
+  }, []);
+
+  useEffect(() => {
+    const handler = (msg: { action: ActionType; data: any }) => {
+      if (
+        msg.action === actions.updateJobTitle &&
+        typeof msg.data === "string"
+      ) {
+        setCurrentJobTitle(msg.data);
+        setResume("");
+      }
+    };
+
+    chrome.runtime.onMessage.addListener(handler);
+
+    // Cleanup: remove listener on unmount
+    return () => {
+      chrome.runtime.onMessage.removeListener(handler);
+    };
+  }, []);
 
   const handleOptimizeCV = () => {
     setLoading(true);
@@ -17,6 +41,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
+      <h1>{currentJobTitle}</h1>
       <div className="max-w-md mx-auto">
         <div className="mt-6">
           <button
