@@ -1,27 +1,22 @@
 import { actions, ActionType } from "./actions";
 
 async function optimizeResume(jobDescription: string) {
-  try {
-    const response = await fetch("http://localhost:3001/api/resumes/optimize", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        jobDescription: jobDescription,
-      }),
-    });
+  const response = await fetch("http://localhost:3001/api/resumes/optimize", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      jobDescription: jobDescription,
+    }),
+  });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const result = await response.json();
-    return result.resume;
-  } catch (error) {
-    console.error("Error optimizing resume:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
+
+  const result = await response.json();
+  return result.resume;
 }
 
 chrome.runtime.onMessage.addListener(
@@ -81,8 +76,15 @@ chrome.runtime.onMessage.addListener(
           tabId,
           { action: actions.extractJobDescription },
           async response => {
-            const optimizedResume = await optimizeResume(response?.data || "");
-            sendResponse({ data: optimizedResume });
+            try {
+              const optimizedResume = await optimizeResume(
+                response?.data || ""
+              );
+              sendResponse({ data: optimizedResume });
+            } catch (err) {
+              console.log(err);
+              sendResponse({ error: "Unexpected error" });
+            }
           }
         );
       });

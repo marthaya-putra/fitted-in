@@ -6,6 +6,7 @@ function App() {
   const [resume, setResume] = useState("");
   const [loading, setLoading] = useState(false);
   const [currentJobTitle, setCurrentJobTitle] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     chrome.runtime.sendMessage({ action: actions.sidePanelReady });
@@ -19,6 +20,7 @@ function App() {
       ) {
         setCurrentJobTitle(msg.data);
         setResume("");
+        setError("");
       }
     };
 
@@ -31,9 +33,14 @@ function App() {
   }, []);
 
   const handleOptimizeCV = () => {
+    setError("");
     setLoading(true);
     chrome.runtime.sendMessage({ action: actions.optimizeResume }, response => {
-      console.log({ response });
+      if (response.error) {
+        setError(response.error);
+        setLoading(false);
+        return;
+      }
       setResume(response?.data || "");
       setLoading(false);
     });
@@ -50,6 +57,7 @@ function App() {
           >
             {loading ? `Optimizing` : `Optimize My CV for this job`}
           </button>
+          <div>{error}</div>
         </div>
         {/* <div className="mt-4 p-4 bg-white rounded border">
           <div
