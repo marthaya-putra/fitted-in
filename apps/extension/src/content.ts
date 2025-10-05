@@ -1,8 +1,6 @@
-import { ActionType } from "./actions";
-// Simple content script without React dependencies
+import { ActionType } from "./types";
 
 function createNotification(): void {
-  // Remove any existing notification
   const existing = document.getElementById("fitted-in-notification");
   if (existing) {
     existing.remove();
@@ -53,7 +51,6 @@ function createNotification(): void {
   notificationInner.appendChild(closeButton);
   notification.appendChild(notificationInner);
 
-  // Add CSS animation
   const style = document.createElement("style");
   style.textContent = `
     @keyframes slideIn {
@@ -64,26 +61,23 @@ function createNotification(): void {
   document.head.appendChild(style);
 
   notification.addEventListener("click", () => {
-    // Send message to background to toggle sidepanel
     chrome.runtime.sendMessage({ action: "open-side-panel" });
   });
 
   document.body.appendChild(notification);
 }
 
-// Show notification whenever LinkedIn jobs page is visited
 setTimeout(() => {
   createNotification();
-}, 500); // Show after 500ms
+}, 500);
 
-// Listen for messages from background script
 chrome.runtime.onMessage.addListener(
   (request: { action: ActionType }, _sender, sendResponse) => {
     if (request.action === "extract-job-description") {
       const el = document.getElementById("job-details");
       const data = el ? el.textContent : "";
       sendResponse({ data });
-      return true; // Keep message channel open for async response
+      return true;
     }
 
     if (request.action === "reset-panel") {
@@ -97,10 +91,8 @@ chrome.runtime.onMessage.addListener(
       const company = companyEl ? companyEl.textContent : "";
       const position = positionEl ? positionEl.textContent : "";
       sendResponse({ data: `${position} at ${company}` });
-      return true; // Keep message channel open for async response
+      return true;
     }
-    return false; // No async response needed for other actions
+    return false;
   }
 );
-
-console.log("fitted-in content script loaded on LinkedIn Jobs");

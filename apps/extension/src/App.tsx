@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { actions, ActionType } from "./actions";
+import { actions, ActionType } from "./types";
 import { ResumePreview } from "./resume-preview";
 import {
   Briefcase,
@@ -17,7 +17,11 @@ function App() {
   const [isOptimized, setIsOptimized] = useState(false);
 
   useEffect(() => {
-    chrome.runtime.sendMessage({ action: actions.sidePanelReady });
+    const port = chrome.runtime.connect({ name: "sidepanel" });
+
+    return () => {
+      port.disconnect();
+    };
   }, []);
 
   useEffect(() => {
