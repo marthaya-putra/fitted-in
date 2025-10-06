@@ -121,10 +121,10 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Upload className="h-5 w-5" />
-                Upload Resume
+                Upload CV
               </CardTitle>
               <CardDescription>
-                Upload your existing PDF resume to auto-fill the form
+                Upload your CV to auto-fill the form
               </CardDescription>
             </CardHeader>
             <CardContent>
