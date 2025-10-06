@@ -11,7 +11,9 @@ import {
   ValidationPipe,
   UploadedFile,
   UseInterceptors,
+  Res,
 } from "@nestjs/common";
+import { type Response } from "express";
 import { ResumeService } from "../services/resume.service";
 import { CreateResumeDto } from "../dto/create-resume.dto";
 import { UpdateResumeDto } from "../dto/update-resume.dto";
@@ -95,13 +97,14 @@ export class ResumeController {
 
   @Post("optimize")
   @HttpCode(HttpStatus.OK)
-  async optimize(@Body(ValidationPipe) customizeDto: CustomizeDto) {
-    try {
-      return this.resumeOptimizerService.optimize({
-        jobDescription: customizeDto.jobDescription,
-      });
-    } catch (error) {
-      throw new Error("Failed to customize job description");
-    }
+  async optimize(
+    @Body(ValidationPipe) customizeDto: CustomizeDto,
+    @Res() res: Response
+  ) {
+    const result = await this.resumeOptimizerService.optimize({
+      jobDescription: customizeDto.jobDescription,
+    });
+
+    result.pipeTextStreamToResponse(res);
   }
 }

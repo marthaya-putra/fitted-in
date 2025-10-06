@@ -20,8 +20,26 @@ async function optimizeResume(jobDescription: string) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
-  const result = await response.json();
-  return result.resume;
+  if (!response.body) {
+    chrome.runtime.sendMessage({ action: actions.streamingEnded });
+    return false;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      chrome.runtime.sendMessage({ action: actions.streamingEnded });
+      break;
+    }
+    chrome.runtime.sendMessage({
+      action: actions.streaming,
+      data: decoder.decode(value, { stream: true }),
+    });
+  }
+  return true;
 }
 
 chrome.runtime.onConnect.addListener(port => {
@@ -87,10 +105,8 @@ chrome.runtime.onMessage.addListener(
           { action: actions.extractJobDescription },
           async response => {
             try {
-              const optimizedResume = await optimizeResume(
-                response?.data || ""
-              );
-              sendResponse({ data: optimizedResume });
+              const data = await optimizeResume(response?.data || "");
+              sendResponse({ data });
             } catch (err) {
               sendResponse({ error: "Unexpected error" });
             }

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { generateText } from "ai";
+import { generateText, streamText } from "ai";
 import { defaultModel } from "../models";
 import { type ResumeProfile } from "../../db/schema";
 
@@ -33,7 +33,7 @@ Guidelines:
 Your final output should look like a polished resume suitable for job applications, passing ATS filters, and understandable by both recruiters and AI screeners.
 `;
 
-    const { text } = await generateText({
+    return streamText({
       model: defaultModel,
       system: systemPrompt,
       prompt: `Here is the CV data. Please reformat it into a professional, ATS-friendly resume following the system guidelines:
@@ -87,7 +87,5 @@ Make sure the final version:
 - Output only the final resume in Markdown, no explanations.
 `,
     });
-
-    return { resume: text };
   }
 }

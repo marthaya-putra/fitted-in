@@ -25,15 +25,22 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const handler = (msg: { action: ActionType; data: any }) => {
-      if (
-        msg.action === actions.updateJobTitle &&
-        typeof msg.data === "string"
-      ) {
+    const handler = (msg: { action: ActionType; data: string }) => {
+      if (msg.action === actions.updateJobTitle) {
         setCurrentJobTitle(msg.data);
         setResume("");
         setError("");
         setIsOptimized(false);
+      }
+      if (msg.action === "streaming") {
+        setResume(prev => prev + msg.data);
+        return;
+      }
+
+      if (msg.action === "streaming-ended") {
+        setLoading(false);
+        setIsOptimized(true);
+        return;
       }
     };
 
@@ -55,9 +62,6 @@ function App() {
         setLoading(false);
         return;
       }
-      setResume(response?.data || "");
-      setLoading(false);
-      setIsOptimized(true);
     });
   };
 
@@ -154,7 +158,7 @@ function App() {
               </div>
             </div>
             <div className="p-4">
-              <ResumePreview markdown={resume} />
+              <ResumePreview markdown={resume} canCopy={isOptimized} />
             </div>
           </div>
         )}
