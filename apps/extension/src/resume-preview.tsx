@@ -26,19 +26,15 @@ export const ResumePreview = ({
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <FileText className="w-4 h-4 text-gray-500" />
-          <span className="text-sm text-gray-600">Formatted Content</span>
-        </div>
+    <div className="p-4 relative">
+      <div className="flex items-center justify-end absolute top-0 right-0 -translate-y-1/2 -translate-x-[10px]">
         {canCopy && (
           <button
             onClick={handleCopy}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200  ${
               copied
                 ? "bg-green-100 text-green-700 hover:bg-green-200"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                : "bg-white text-gray-700 hover:bg-gray-50 shadow-sm"
             }`}
           >
             {copied ? (
@@ -49,7 +45,7 @@ export const ResumePreview = ({
             ) : (
               <>
                 <Copy className="w-4 h-4" />
-                <span>Copy to Clipboard</span>
+                <span>Copy</span>
               </>
             )}
           </button>
@@ -57,7 +53,7 @@ export const ResumePreview = ({
       </div>
 
       <StickToBottom
-        className="w-full h-[27rem] overflow-y-auto  [&>div]:overflow-y-auto"
+        className="w-full h-[33rem] overflow-y-auto [&>div]:overflow-y-auto"
         resize="smooth"
         initial="smooth"
       >

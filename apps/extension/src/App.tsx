@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { actions, ActionType } from "./types";
 import { ResumePreview } from "./resume-preview";
-import { Briefcase, Sparkles, AlertCircle, User, Loader2 } from "lucide-react";
+import { Briefcase, Sparkles, AlertCircle, Loader2 } from "lucide-react";
 
 function App() {
   const [resume, setResume] = useState("");
@@ -114,17 +114,8 @@ function App() {
         )}
 
         {resume && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-gray-700">
-                  Optimized CV
-                </h2>
-              </div>
-            </div>
-            <div className="p-4">
-              <ResumePreview markdown={resume} canCopy={isOptimized} />
-            </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <ResumePreview markdown={resume} canCopy={isOptimized} />
           </div>
         )}
         {!resume && !loading && currentJobTitle && (
