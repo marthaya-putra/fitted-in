@@ -1,4 +1,3 @@
-// src/content/index.tsx
 import ReactDOM from "react-dom/client";
 import { Content } from "./content";
 

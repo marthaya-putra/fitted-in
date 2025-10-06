@@ -64,7 +64,6 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="p-6">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -90,7 +89,6 @@ function App() {
           )}
         </div>
 
-        {/* Main Action Button */}
         <div className="mb-6">
           <button
             onClick={handleOptimizeCV}
@@ -121,7 +119,6 @@ function App() {
           )}
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -132,7 +129,6 @@ function App() {
           </div>
         )}
 
-        {/* Success Message */}
         {isOptimized && resume && !error && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
             <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -148,7 +144,6 @@ function App() {
           </div>
         )}
 
-        {/* Resume Preview */}
         {resume && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
@@ -164,7 +159,6 @@ function App() {
           </div>
         )}
 
-        {/* Empty State */}
         {!resume && !loading && currentJobTitle && (
           <div className="text-center py-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">

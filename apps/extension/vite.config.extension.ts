@@ -15,14 +15,13 @@ export default defineConfig({
   ],
   build: {
     outDir: "dist",
-    emptyOutDir: true, // clean before this first build
+    emptyOutDir: true,
     rollupOptions: {
       input: {
         main: resolve(__dirname, "sidepanel.html"),
         background: resolve(__dirname, "src/background.ts"),
       },
       output: {
-        // ES module output for background (service worker)
         format: "es",
         entryFileNames: "[name].js",
         chunkFileNames: "assets/[name]-[hash].js",

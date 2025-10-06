@@ -6,13 +6,12 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: "dist",
-    emptyOutDir: false, // don't wipe previous dist
+    emptyOutDir: false,
     rollupOptions: {
       input: {
         content: resolve(__dirname, "src/content/index.tsx"),
       },
       output: {
-        // IIFE so content.js is self-contained and has no `import` at runtime
         format: "iife",
         entryFileNames: "content.js",
         chunkFileNames: "assets/[name]-[hash].js",
@@ -20,5 +19,5 @@ export default defineConfig({
       },
     },
   },
-  publicDir: false, // content build doesn't need to copy manifest/icons
+  publicDir: false,
 });
