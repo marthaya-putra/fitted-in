@@ -57,7 +57,7 @@ export const ResumePreview = ({
       </div>
 
       <StickToBottom
-        className="w-full overflow-y-auto relative [&>div]:overflow-y-auto"
+        className="w-full h-[27rem] overflow-y-auto  [&>div]:overflow-y-auto"
         resize="smooth"
         initial="smooth"
       >
