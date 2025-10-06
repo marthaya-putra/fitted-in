@@ -8,54 +8,38 @@ function createNotification(): void {
 
   const notification = document.createElement("div");
   notification.id = "fitted-in-notification";
-
-  const notificationInner = document.createElement("div");
-  notificationInner.style.cssText = `
+  notification.style.cssText = `
     position: fixed;
-    top: 20px;
+    top: 50%;
     right: 20px;
-    background: #3b82f6;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-50%);
+    width: 60px;
+    height: 60px;
+    background: #0A66C2;
+    border-radius: 50%;
+    box-shadow: 0 4px 16px rgba(10, 102, 194, 0.3);
     z-index: 999999;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    animation: slideIn 0.3s ease-out;
+    justify-content: center;
+    animation: slideInRight 0.3s ease-out;
+    transition: all 0.2s ease;
   `;
 
-  const span = document.createElement("span");
-  span.textContent = "fitted-in is available! Click to open";
-
-  const closeButton = document.createElement("button");
-  closeButton.innerHTML = "&times;";
-  closeButton.style.cssText = `
-    background: none;
-    border: none;
-    color: white;
-    margin-left: 8px;
-    cursor: pointer;
-    font-size: 16px;
-  `;
-  closeButton.addEventListener("click", e => {
-    e.stopPropagation();
-    notification.remove();
-  });
-
-  notificationInner.appendChild(span);
-  notificationInner.appendChild(closeButton);
-  notification.appendChild(notificationInner);
+  const icon = createIcon();
+  notification.appendChild(icon);
 
   const style = document.createElement("style");
   style.textContent = `
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
+    @keyframes slideInRight {
+      from { transform: translateX(100%) translateY(-50%); opacity: 0; }
+      to { transform: translateX(0) translateY(-50%); opacity: 1; }
+    }
+
+    #fitted-in-notification:hover {
+      transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 6px 20px rgba(10, 102, 194, 0.4);
     }
   `;
   document.head.appendChild(style);
@@ -65,6 +49,35 @@ function createNotification(): void {
   });
 
   document.body.appendChild(notification);
+}
+
+function createIcon() {
+  const iconSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  iconSvg.setAttribute("width", "32");
+  iconSvg.setAttribute("height", "32");
+  iconSvg.setAttribute("viewBox", "0 0 24 24");
+
+  // Blue square background
+  const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  rect.setAttribute("width", "24");
+  rect.setAttribute("height", "24");
+  rect.setAttribute("rx", "4");
+  rect.setAttribute("fill", "#0A66C2");
+
+  // FI text
+  const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  text.setAttribute("x", "7");
+  text.setAttribute("y", "18");
+  text.setAttribute("font-family", "Arial, Helvetica, sans-serif");
+  text.setAttribute("font-weight", "bold");
+  text.setAttribute("font-size", "16");
+  text.setAttribute("fill", "white");
+  text.textContent = "fi";
+
+  iconSvg.appendChild(rect);
+  iconSvg.appendChild(text);
+
+  return iconSvg;
 }
 
 setTimeout(() => {

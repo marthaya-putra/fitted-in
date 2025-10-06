@@ -1,5 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-  <rect width="128" height="128" rx="20" fill="#3b82f6"/>
-  <path d="M32 64 L96 64 M64 32 L64 96" stroke="white" stroke-width="8" stroke-linecap="round"/>
-  <circle cx="64" cy="64" r="8" fill="white"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24">
+  <!-- Blue square background -->
+  <rect width="24" height="24" rx="4" fill="#0A66C2" />
+  
+  <!-- FI text -->
+  <text x="7" y="18" font-family="Arial, Helvetica, sans-serif"
+        font-weight="bold" font-size="16" fill="white">fi</text>
 </svg>
