@@ -6,12 +6,20 @@ export const Content: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    console.log("location.href: ", location.href);
     const timer = setTimeout(() => {
-      setIsVisible(true);
+      if (
+        location.href.includes("linkedin.com/jobs") &&
+        location.href.includes("currentJobId")
+      ) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [location.href]);
 
   useEffect(() => {
     const handleRuntimeMessage = (
@@ -36,6 +44,9 @@ export const Content: React.FC = () => {
 
         const company = companyEl ? companyEl.textContent : "";
         const position = positionEl ? positionEl.textContent : "";
+        if (!company && !position) {
+          sendResponse({ data: null });
+        }
         sendResponse({ data: `${position} at ${company}` });
         return true;
       }

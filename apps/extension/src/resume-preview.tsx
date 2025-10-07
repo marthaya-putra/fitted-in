@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Copy, Check, FileText } from "lucide-react";
+import { Copy, Check } from "lucide-react";
 import { StickToBottom } from "use-stick-to-bottom";
 
 export const ResumePreview = ({
@@ -34,7 +34,7 @@ export const ResumePreview = ({
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200  ${
               copied
                 ? "bg-green-100 text-green-700 hover:bg-green-200"
-                : "bg-white text-gray-700 hover:bg-gray-50 shadow-sm"
+                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-lg hover:shadow-xl hover:border-gray-400"
             }`}
           >
             {copied ? (

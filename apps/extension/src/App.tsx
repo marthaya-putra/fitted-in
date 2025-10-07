@@ -46,6 +46,7 @@ function App() {
   }, []);
 
   const handleOptimizeCV = () => {
+    setResume("");
     setError("");
     setLoading(true);
     setIsOptimized(false);
