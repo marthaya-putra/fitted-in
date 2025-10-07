@@ -31,7 +31,7 @@ export const ResumePreview = ({
         {canCopy && (
           <button
             onClick={handleCopy}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200  ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all animate-bounce duration-1000  ${
               copied
                 ? "bg-green-100 text-green-700 hover:bg-green-200"
                 : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-lg hover:shadow-xl hover:border-gray-400"

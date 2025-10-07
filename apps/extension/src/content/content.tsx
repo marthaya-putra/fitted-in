@@ -57,25 +57,27 @@ export const Content: React.FC = () => {
   };
 
   return (
-    <div id="fitted-in-floating-banner" onClick={handleClick}>
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <rect width="24" height="24" rx="4" fill="#0A66C2" />
-        <text
-          x="7"
-          y="18"
-          fontFamily="Arial, Helvetica, sans-serif"
-          fontWeight="bold"
-          fontSize="16"
-          fill="white"
+    <div id="fitted-in-floating-wrapper">
+      <div id="fitted-in-floating-banner" onClick={handleClick}>
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          fi
-        </text>
-      </svg>
+          <rect width="24" height="24" rx="4" fill="#0A66C2" />
+          <text
+            x="7"
+            y="18"
+            fontFamily="Arial, Helvetica, sans-serif"
+            fontWeight="bold"
+            fontSize="16"
+            fill="white"
+          >
+            fi
+          </text>
+        </svg>
+      </div>
     </div>
   );
 };

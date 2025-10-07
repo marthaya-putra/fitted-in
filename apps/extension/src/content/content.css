@@ -1,45 +1,58 @@
-#fitted-in-floating-banner {
+#fitted-in-floating-wrapper {
   position: fixed;
   top: 50%;
   right: 20px;
+  z-index: 999999;
   transform: translateY(-50%);
+  animation: fiSlideInRight 0.35s ease forwards;
+  /* optionally: will-change for smoother animation */
+  will-change: transform, opacity;
+}
+
+#fitted-in-floating-banner {
   width: 60px;
   height: 60px;
   background: #0a66c2;
   border-radius: 50%;
   box-shadow: 0 4px 16px rgba(10, 102, 194, 0.3);
-  z-index: 999999;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fiSlideInRight 0.3s ease-out;
-  transition: all 0.2s ease;
+  cursor: pointer;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.2s ease;
+  transform: rotate(0deg); /* base rotation */
 }
+
 #fitted-in-floating-banner:hover {
-  animation: fiBannerHover 0.3s ease-out;
-  transition: all 0.2s ease;
+  box-shadow: 0 8px 20px rgba(10, 102, 194, 0.35);
+  animation: fiBannerHover 0.35s ease forwards;
+  /* optionally: will-change for smoother animation */
+  will-change: transform;
 }
 
 @keyframes fiSlideInRight {
   from {
-    transform: translateX(100%) translateY(-50%);
+    transform: translateY(-50%) translateX(120%);
     opacity: 0;
   }
   to {
-    transform: translateX(0) translateY(-50%);
+    transform: translateY(-50%) translateX(0);
     opacity: 1;
   }
 }
 
 @keyframes fiBannerHover {
   0% {
-    transform: translateX(0) translateY(-50%) rotate(45deg);
+    transform: rotate(45deg);
   }
   50% {
-    transform: translateX(0) translateY(-50%) rotate(-45deg);
+    transform: rotate(-45deg);
   }
   100% {
-    transform: translateX(0) translateY(-50%) rotate(0);
+    transform: rotate(0);
   }
 }
+
