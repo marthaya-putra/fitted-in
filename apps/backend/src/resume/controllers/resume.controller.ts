@@ -101,7 +101,7 @@ export class ResumeController {
     @Body(ValidationPipe) customizeDto: CustomizeDto,
     @Res() res: Response
   ) {
-    const result = await this.resumeOptimizerService.optimize({
+    const result = await this.resumeOptimizerService.streamOptimizedCV({
       jobDescription: customizeDto.jobDescription,
     });
 

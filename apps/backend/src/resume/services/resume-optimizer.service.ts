@@ -28,7 +28,7 @@ export class ResumeOptimizerService {
     private readonly resumeFormatterService: ResumeFormatterService
   ) {}
 
-  async optimize(params: OptimizeResumeParams) {
+  async streamOptimizedCV(params: OptimizeResumeParams) {
     const savedResume = await this.resumeService.findById(3);
     if (!savedResume) {
       throw new Error("Master resume not found");
@@ -66,7 +66,7 @@ export class ResumeOptimizerService {
       skills: optimizedSkills,
     };
 
-    return this.resumeFormatterService.format({
+    return this.resumeFormatterService.streamFormattedResume({
       resumeProfile: optimizedResume,
     });
   }
