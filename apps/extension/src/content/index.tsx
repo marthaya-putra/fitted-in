@@ -70,25 +70,4 @@ observer.observe(document.body, {
   attributeFilter: ["href"],
 });
 
-const originalPushState = history.pushState;
-const originalReplaceState = history.replaceState;
-
-history.pushState = function (
-  this: History,
-  ...args: Parameters<typeof originalPushState>
-) {
-  const result = originalPushState.apply(this, args);
-  handleUrlChange();
-  return result;
-};
-
-history.replaceState = function (
-  this: History,
-  ...args: Parameters<typeof originalReplaceState>
-) {
-  const result = originalReplaceState.apply(this, args);
-  handleUrlChange();
-  return result;
-};
-
 window.addEventListener("popstate", handleUrlChange);
