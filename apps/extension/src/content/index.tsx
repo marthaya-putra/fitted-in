@@ -73,6 +73,5 @@ window.addEventListener("popstate", handleUrlChange);
 chrome.runtime.onMessage.addListener((msg: { action: ActionType }) => {
   if (msg.action === "history-state-updated") {
     injectApp();
-    return true;
   }
 });

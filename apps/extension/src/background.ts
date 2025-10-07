@@ -104,7 +104,6 @@ chrome.runtime.onMessage.addListener(
 );
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  console.log("URL Changed");
   if (changeInfo.status === "complete" && tab.url) {
     console.log("URL Changed complete");
 
@@ -177,7 +176,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
               action: actions.updateJobTitle,
               data: response.data,
             });
-            console.log("actions.updateJobTitle");
           }
         );
       }
