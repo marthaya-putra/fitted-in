@@ -1,5 +1,6 @@
 import ReactDOM from "react-dom/client";
 import { Content } from "./content";
+import { ActionType } from "../types";
 
 let root: ReactDOM.Root | null = null;
 let container: HTMLDivElement | null = null;
@@ -69,8 +70,8 @@ observer.observe(document.body, {
 
 window.addEventListener("popstate", handleUrlChange);
 
-chrome.runtime.onMessage.addListener(msg => {
-  if (msg.action === "testing-bos") {
+chrome.runtime.onMessage.addListener((msg: { action: ActionType }) => {
+  if (msg.action === "history-state-updated") {
     injectApp();
     return true;
   }

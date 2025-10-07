@@ -50,8 +50,7 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(details => {
         return true;
       }
 
-      console.log("Sending message testing boss");
-      chrome.tabs.sendMessage(tabId, { action: "testing-bos" });
+      chrome.tabs.sendMessage(tabId, { action: actions.historyStateUpdated });
     });
   }
 });

@@ -1,4 +1,5 @@
 export const actions = {
+  historyStateUpdated: "history-state-updated",
   sidePanelReady: "side-panel-ready",
   resetPanel: "reset-panel",
   updateJobTitle: "update-job-title",
