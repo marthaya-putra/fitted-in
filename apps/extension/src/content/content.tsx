@@ -8,14 +8,7 @@ export const Content: React.FC = () => {
   useEffect(() => {
     console.log("location.href: ", location.href);
     const timer = setTimeout(() => {
-      if (
-        location.href.includes("linkedin.com/jobs") &&
-        location.href.includes("currentJobId")
-      ) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+      setIsVisible(true);
     }, 500);
 
     return () => clearTimeout(timer);

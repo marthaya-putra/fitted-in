@@ -5,10 +5,7 @@ let root: ReactDOM.Root | null = null;
 let container: HTMLDivElement | null = null;
 
 function shouldInjectApp(): boolean {
-  return (
-    location.href.includes("linkedin.com/jobs") &&
-    location.href.includes("currentJobId")
-  );
+  return location.href.includes("linkedin.com/jobs");
 }
 
 function injectApp() {
@@ -71,3 +68,10 @@ observer.observe(document.body, {
 });
 
 window.addEventListener("popstate", handleUrlChange);
+
+chrome.runtime.onMessage.addListener(msg => {
+  if (msg.action === "testing-bos") {
+    injectApp();
+    return true;
+  }
+});

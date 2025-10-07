@@ -5,43 +5,6 @@ import {
   sidePanelStateStorageKey,
 } from "./types";
 
-async function optimizeResume(jobDescription: string) {
-  const response = await fetch("http://localhost:3001/api/resumes/optimize", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      jobDescription: jobDescription,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  if (!response.body) {
-    chrome.runtime.sendMessage({ action: actions.streamingEnded });
-    return false;
-  }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      chrome.runtime.sendMessage({ action: actions.streamingEnded });
-      break;
-    }
-    chrome.runtime.sendMessage({
-      action: actions.streaming,
-      data: decoder.decode(value, { stream: true }),
-    });
-  }
-  return true;
-}
-
 chrome.runtime.onConnect.addListener(port => {
   if (port.name === "sidepanel") {
     chrome.storage.local.set({ [sidePanelStateStorageKey]: "opened" }, () => {
@@ -74,6 +37,21 @@ chrome.runtime.onConnect.addListener(port => {
 
     port.onDisconnect.addListener(() => {
       chrome.storage.local.set({ [sidePanelStateStorageKey]: null });
+    });
+  }
+});
+
+chrome.webNavigation.onHistoryStateUpdated.addListener(details => {
+  if (details.frameId === 0) {
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+      const tabId = tabs[0]?.id;
+
+      if (!tabId) {
+        return true;
+      }
+
+      console.log("Sending message testing boss");
+      chrome.tabs.sendMessage(tabId, { action: "testing-bos" });
     });
   }
 });
@@ -195,6 +173,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
               return false;
             }
             console.log("response from resetting panel: ", response);
+
             chrome.runtime.sendMessage({
               action: actions.updateJobTitle,
               data: response.data,
@@ -212,8 +191,58 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.action.disable();
   chrome.action.setBadgeText({ text: "" });
 });
+
 chrome.action.onClicked.addListener(tab => {
   if (tab.url && tab.url.includes("linkedin.com/jobs")) {
     chrome.sidePanel.open({ windowId: tab.windowId });
   }
 });
+
+async function optimizeResume(jobDescription: string) {
+  const response = await fetch("http://localhost:3001/api/resumes/optimize", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      jobDescription: jobDescription,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  if (!response.body) {
+    chrome.runtime.sendMessage({ action: actions.streamingEnded });
+    return false;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      chrome.runtime.sendMessage({ action: actions.streamingEnded });
+      break;
+    }
+    chrome.runtime.sendMessage({
+      action: actions.streaming,
+      data: decoder.decode(value, { stream: true }),
+    });
+  }
+  return true;
+}
+
+function injectContentScript(tabId: number) {
+  chrome.scripting
+    .executeScript({
+      target: { tabId },
+      files: ["content.js"],
+    })
+    .catch(err => {
+      // Happens if tab is no longer available or restricted (like chrome:// pages)
+      console.debug("Injection skipped:", err.message);
+    });
+}

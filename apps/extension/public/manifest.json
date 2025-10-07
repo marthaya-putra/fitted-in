@@ -3,7 +3,13 @@
   "name": "FittedIn",
   "version": "0.1.0",
   "description": "Chrome extension for fitted-in",
-  "permissions": ["storage", "activeTab", "sidePanel", "scripting"],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "sidePanel",
+    "scripting",
+    "webNavigation"
+  ],
   "host_permissions": ["https://www.linkedin.com/jobs/**"],
   "background": {
     "service_worker": "background.js",
