@@ -82,8 +82,16 @@ chrome.runtime.onMessage.addListener(
   (request: { action: ActionType }, sender, sendResponse) => {
     if (request.action === actions.openSidePanel) {
       if (sender.tab) {
-        chrome.sidePanel.open({ windowId: sender.tab.windowId });
-        sendResponse({ success: true });
+        // Check if current URL is LinkedIn jobs before opening
+        if (sender.tab.url && sender.tab.url.includes("linkedin.com/jobs")) {
+          chrome.sidePanel.open({ windowId: sender.tab.windowId });
+          sendResponse({ success: true });
+        } else {
+          sendResponse({
+            success: false,
+            error: "Side panel is only available on LinkedIn job pages",
+          });
+        }
         return true;
       } else {
         sendResponse({ success: false, error: "No tab available" });
@@ -119,35 +127,79 @@ chrome.runtime.onMessage.addListener(
 );
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  console.log("URL Changed");
   if (changeInfo.status === "complete" && tab.url) {
-    if (tab.url.includes("linkedin.com/jobs")) {
+    console.log("URL Changed complete");
+
+    const isLinkedInJobs = tab.url.includes("linkedin.com/jobs");
+
+    if (isLinkedInJobs) {
       chrome.action.enable(tabId);
       chrome.action.setBadgeText({ text: "ON", tabId: tabId });
       chrome.action.setBadgeBackgroundColor({ color: "#3b82f6", tabId: tabId });
+
+      // Enable sidepanel for this tab
+      chrome.sidePanel
+        .setOptions({
+          tabId,
+          enabled: true,
+          path: "sidepanel.html",
+        })
+        .catch(err => {
+          console.warn("Failed to enable sidepanel:", err);
+        });
     } else {
       chrome.action.disable(tabId);
       chrome.action.setBadgeText({ text: "", tabId: tabId });
+
+      // Disable sidepanel for this tab
+      chrome.sidePanel
+        .setOptions({
+          tabId,
+          enabled: false,
+        })
+        .catch(err => {
+          console.warn("Failed to disable sidepanel:", err);
+        });
     }
   }
 
   if (changeInfo.url) {
+    const isLinkedInJobs = changeInfo.url.includes("linkedin.com/jobs");
+    console.log("isLinkedInJobs : ", isLinkedInJobs);
+
+    // Update sidepanel options based on URL
+    chrome.sidePanel
+      .setOptions({
+        tabId,
+        enabled: isLinkedInJobs,
+        path: isLinkedInJobs ? "sidepanel.html" : undefined,
+      })
+      .catch(err => {
+        console.warn("Failed to update sidepanel options:", err);
+      });
+
     chrome.storage.local.get([sidePanelStateStorageKey], res => {
       if ((res[sidePanelStateStorageKey] as SidePanelState) === "opened") {
+        console.log("SidePanelState: ", res[sidePanelStateStorageKey]);
+
         chrome.tabs.sendMessage(
           tabId,
           { action: actions.resetPanel },
           response => {
             if (chrome.runtime.lastError) {
               console.warn(
-                "No side panel open to receive message:",
+                "No side panel open to receive message when changed url: ",
                 chrome.runtime.lastError.message
               );
-              return;
+              return false;
             }
+            console.log("response from resetting panel: ", response);
             chrome.runtime.sendMessage({
               action: actions.updateJobTitle,
               data: response.data,
             });
+            console.log("actions.updateJobTitle");
           }
         );
       }
