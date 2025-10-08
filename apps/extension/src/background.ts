@@ -4,6 +4,7 @@ import {
   SidePanelState,
   sidePanelStateStorageKey,
 } from "./types";
+import { shouldEnableSidePanel } from "./utils";
 
 chrome.runtime.onConnect.addListener(port => {
   if (port.name === "sidepanel") {
@@ -59,8 +60,7 @@ chrome.runtime.onMessage.addListener(
   (request: { action: ActionType }, sender, sendResponse) => {
     if (request.action === actions.openSidePanel) {
       if (sender.tab) {
-        // Check if current URL is LinkedIn jobs before opening
-        if (sender.tab.url && sender.tab.url.includes("linkedin.com/jobs")) {
+        if (sender.tab.url && shouldEnableSidePanel(sender.tab.url)) {
           chrome.sidePanel.open({ windowId: sender.tab.windowId });
           sendResponse({ success: true });
         } else {
@@ -105,11 +105,7 @@ chrome.runtime.onMessage.addListener(
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete" && tab.url) {
-    console.log("URL Changed complete");
-
-    const isLinkedInJobs = tab.url.includes("linkedin.com/jobs");
-
-    if (isLinkedInJobs) {
+    if (shouldEnableSidePanel(tab.url)) {
       chrome.action.enable(tabId);
       chrome.action.setBadgeText({ text: "ON", tabId: tabId });
       chrome.action.setBadgeBackgroundColor({ color: "#3b82f6", tabId: tabId });
@@ -141,15 +137,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 
   if (changeInfo.url) {
-    const isLinkedInJobs = changeInfo.url.includes("linkedin.com/jobs");
-    console.log("isLinkedInJobs : ", isLinkedInJobs);
+    const enabled = shouldEnableSidePanel(changeInfo.url);
 
-    // Update sidepanel options based on URL
     chrome.sidePanel
       .setOptions({
         tabId,
-        enabled: isLinkedInJobs,
-        path: isLinkedInJobs ? "sidepanel.html" : undefined,
+        enabled,
+        path: enabled ? "sidepanel.html" : undefined,
       })
       .catch(err => {
         console.warn("Failed to update sidepanel options:", err);
@@ -190,7 +184,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.action.onClicked.addListener(tab => {
-  if (tab.url && tab.url.includes("linkedin.com/jobs")) {
+  if (tab.url && shouldEnableSidePanel(tab.url)) {
     chrome.sidePanel.open({ windowId: tab.windowId });
   }
 });
@@ -230,16 +224,4 @@ async function optimizeResume(jobDescription: string) {
     });
   }
   return true;
-}
-
-function injectContentScript(tabId: number) {
-  chrome.scripting
-    .executeScript({
-      target: { tabId },
-      files: ["content.js"],
-    })
-    .catch(err => {
-      // Happens if tab is no longer available or restricted (like chrome:// pages)
-      console.debug("Injection skipped:", err.message);
-    });
 }
