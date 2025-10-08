@@ -15,6 +15,13 @@
       "when": 1759298332518,
       "tag": "0001_cuddly_shaman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1759898546563,
+      "tag": "0002_shallow_whizzer",
+      "breakpoints": true
     }
   ]
 }

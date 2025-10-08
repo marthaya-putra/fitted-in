@@ -5,6 +5,7 @@ import { DB } from "./types";
 import { schema } from "../db/schema";
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
+import postgres from "postgres";
 
 @Global()
 @Module({})
@@ -22,6 +23,11 @@ export class DatabaseModule {
             const pool = new Pool({
               connectionString: options.connectionString,
               ssl: options.ssl ?? false,
+            });
+
+            const connection = postgres(options.connectionString, {
+              max: 1,
+              ssl: options.ssl,
             });
 
             // Test connection
