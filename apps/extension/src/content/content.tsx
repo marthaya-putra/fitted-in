@@ -1,18 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import type { ActionType } from "../types";
 import "./content.css";
 
 export const Content: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(false);
-
   useEffect(() => {
-    console.log("location.href: ", location.href);
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 500);
+    const port = chrome.runtime.connect({ name: "content" });
 
-    return () => clearTimeout(timer);
-  }, [location.href]);
+    return () => {
+      port.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     const handleRuntimeMessage = (
@@ -49,8 +46,6 @@ export const Content: React.FC = () => {
     chrome.runtime.onMessage.addListener(handleRuntimeMessage);
     return () => chrome.runtime.onMessage.removeListener(handleRuntimeMessage);
   }, []);
-
-  if (!isVisible) return null;
 
   const handleClick = () => {
     chrome.runtime.sendMessage({ action: "open-side-panel" });

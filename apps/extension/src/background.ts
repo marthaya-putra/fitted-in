@@ -1,58 +1,44 @@
-import {
-  actions,
-  ActionType,
-  SidePanelState,
-  sidePanelStateStorageKey,
-} from "./types";
+import { actions, ActionType } from "./types";
 import { shouldEnableSidePanel } from "./utils";
 
+let isContentReady = false;
+let isSidePanelReady = false;
+
 chrome.runtime.onConnect.addListener(port => {
-  if (port.name === "sidepanel") {
-    chrome.storage.local.set({ [sidePanelStateStorageKey]: "opened" }, () => {
-      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-        const tabId = tabs[0]?.id;
+  if (port.name === "content") {
+    isContentReady = true;
 
-        if (!tabId) {
-          return false;
-        }
+    if (!isSidePanelReady) {
+      return;
+    }
 
-        chrome.tabs.sendMessage(
-          tabId,
-          { action: actions.resetPanel },
-          response => {
-            if (chrome.runtime.lastError) {
-              console.warn(
-                "No side panel open to receive message:",
-                chrome.runtime.lastError.message
-              );
-              return;
-            }
-            chrome.runtime.sendMessage({
-              action: actions.updateJobTitle,
-              data: response.data,
-            });
-          }
-        );
-      });
-    });
+    sendResetPanelAndUpdateJobTitle("onConnect:content");
 
     port.onDisconnect.addListener(() => {
-      chrome.storage.local.set({ [sidePanelStateStorageKey]: null });
+      isContentReady = false;
+    });
+  }
+
+  if (port.name === "sidepanel") {
+    isSidePanelReady = true;
+
+    if (!isContentReady) {
+      return;
+    }
+
+    sendResetPanelAndUpdateJobTitle("onConnect:sidepanel");
+
+    port.onDisconnect.addListener(() => {
+      isSidePanelReady = false;
     });
   }
 });
 
 chrome.webNavigation.onHistoryStateUpdated.addListener(details => {
   if (details.frameId === 0) {
-    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-      const tabId = tabs[0]?.id;
-
-      if (!tabId) {
-        return true;
-      }
-
-      chrome.tabs.sendMessage(tabId, { action: actions.historyStateUpdated });
-    });
+    // chrome.tabs.sendMessage(details.tabId, {
+    //   action: actions.historyStateUpdated,
+    // });
   }
 });
 
@@ -149,31 +135,11 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         console.warn("Failed to update sidepanel options:", err);
       });
 
-    chrome.storage.local.get([sidePanelStateStorageKey], res => {
-      if ((res[sidePanelStateStorageKey] as SidePanelState) === "opened") {
-        console.log("SidePanelState: ", res[sidePanelStateStorageKey]);
-
-        chrome.tabs.sendMessage(
-          tabId,
-          { action: actions.resetPanel },
-          response => {
-            if (chrome.runtime.lastError) {
-              console.warn(
-                "No side panel open to receive message when changed url: ",
-                chrome.runtime.lastError.message
-              );
-              return false;
-            }
-            console.log("response from resetting panel: ", response);
-
-            chrome.runtime.sendMessage({
-              action: actions.updateJobTitle,
-              data: response.data,
-            });
-          }
-        );
-      }
-    });
+    console.log("isContentReady: ", isContentReady);
+    console.log("isSidePanelReady: ", isSidePanelReady);
+    if (isSidePanelReady && isContentReady) {
+      sendResetPanelAndUpdateJobTitle("changed url");
+    }
   }
 });
 
@@ -224,4 +190,31 @@ async function optimizeResume(jobDescription: string) {
     });
   }
   return true;
+}
+
+function sendResetPanelAndUpdateJobTitle(context?: string) {
+  chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+    const tabId = tabs[0]?.id;
+
+    if (!tabId) {
+      return false;
+    }
+
+    chrome.tabs.sendMessage(tabId, { action: actions.resetPanel }, response => {
+      if (chrome.runtime.lastError) {
+        const errorMessage = context
+          ? `No side panel open to receive message when ${context}: ${chrome.runtime.lastError.message}`
+          : `No side panel open to receive message: ${chrome.runtime.lastError.message}`;
+        console.warn(errorMessage);
+        return;
+      }
+      if (context) {
+        console.log(`response from resetting panel (${context}): `, response);
+      }
+      chrome.runtime.sendMessage({
+        action: actions.updateJobTitle,
+        data: response.data,
+      });
+    });
+  });
 }

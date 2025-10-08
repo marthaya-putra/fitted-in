@@ -11,7 +11,3 @@ export const actions = {
 } as const;
 
 export type ActionType = (typeof actions)[keyof typeof actions];
-
-export const sidePanelStateStorageKey = "side-panel-state";
-
-export type SidePanelState = "opened" | null;
