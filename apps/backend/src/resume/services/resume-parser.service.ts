@@ -25,7 +25,7 @@ export const resumeSchema = z.object({
   phone: z.string().describe("The person's phone number"),
   location: z.string().describe("The person's location/city"),
   summary: z.string().describe("Professional summary or objective statement"),
-  experiences: z
+  workExperiences: z
     .string()
     .describe("Work experience details with job titles, companies, and dates"),
   educations: z

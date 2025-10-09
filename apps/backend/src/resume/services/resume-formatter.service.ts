@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { streamText } from "ai";
-import { defaultModel } from "../models";
-import { type ResumeProfile } from "../../db/types";
+import { Injectable } from '@nestjs/common';
+import { streamText } from 'ai';
+import { defaultModel } from '../models';
+import { type ResumeProfile } from '../../db/types';
 
 export interface FormatResumeParams {
   resumeProfile: ResumeProfile;

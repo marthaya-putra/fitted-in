@@ -1,5 +1,5 @@
-import { Global, Module } from "@nestjs/common";
-import { ResumeProfileRepository } from "./resume-profile.repository";
+import { Global, Module } from '@nestjs/common';
+import { ResumeProfileRepository } from './resume-profile.repository';
 
 @Global()
 @Module({

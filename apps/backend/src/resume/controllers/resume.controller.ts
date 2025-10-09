@@ -8,21 +8,16 @@ import {
   HttpCode,
   HttpStatus,
   ParseIntPipe,
-  ValidationPipe,
   UploadedFile,
   UseInterceptors,
   Res,
   UnauthorizedException,
 } from "@nestjs/common";
 import { type Response } from "express";
-import {
-  AllowAnonymous,
-  Session,
-  type UserSession,
-} from "@thallesp/nestjs-better-auth";
+import { Session, type UserSession } from "@thallesp/nestjs-better-auth";
 
 import { ResumeService } from "../services/resume.service";
-import { CreateResumeDto } from "../dto/create-resume.dto";
+import { resumeDto } from "../dto/create-resume.dto";
 import { UpdateResumeDto } from "../dto/update-resume.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
@@ -43,14 +38,14 @@ export class ResumeController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(
+  async save(
     @Session() session: UserSession,
-    @Body(ValidationPipe) createResumeDto: CreateResumeDto
-  ): Promise<ResumeProfile> {
+    @Body() createResumeDto: resumeDto
+  ): Promise<ResumeProfile | null> {
     if (session.user.id !== createResumeDto.userId) {
       throw new UnauthorizedException();
     }
-    return await this.resumeService.create(createResumeDto);
+    return await this.resumeService.save(createResumeDto);
   }
 
   @Get(":id")
@@ -65,14 +60,6 @@ export class ResumeController {
     @Session() session: UserSession
   ): Promise<ResumeProfile | null> {
     return this.resumeService.findByUserId(session.user.id);
-  }
-
-  @Patch(":id")
-  async update(
-    @Param("id", ParseIntPipe) id: number,
-    @Body(ValidationPipe) updateResumeDto: UpdateResumeDto
-  ): Promise<ResumeProfile> {
-    return await this.resumeService.update(id, updateResumeDto);
   }
 
   @Post("parse")
@@ -102,8 +89,13 @@ export class ResumeController {
 
   @Post("optimize")
   @HttpCode(HttpStatus.OK)
-  async optimize(@Body() customizeDto: CustomizeDto, @Res() res: Response) {
+  async optimize(
+    @Session() session: UserSession,
+    @Body() customizeDto: CustomizeDto,
+    @Res() res: Response
+  ) {
     const result = await this.resumeOptimizerService.streamOptimizedCV({
+      userId: session.user.id,
       jobDescription: customizeDto.jobDescription,
     });
 

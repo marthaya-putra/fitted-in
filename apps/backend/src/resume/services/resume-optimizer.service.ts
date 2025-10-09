@@ -8,6 +8,7 @@ import { ResumeFormatterService } from "./resume-formatter.service";
 import { ResumeProfile } from "../../db/types";
 
 export interface OptimizeResumeParams {
+  userId: string;
   jobDescription: string;
 }
 
@@ -29,7 +30,7 @@ export class ResumeOptimizerService {
   ) {}
 
   async streamOptimizedCV(params: OptimizeResumeParams) {
-    const savedResume = await this.resumeService.findById(3);
+    const savedResume = await this.resumeService.findByUserId(params.userId);
     if (!savedResume) {
       throw new Error("Master resume not found");
     }

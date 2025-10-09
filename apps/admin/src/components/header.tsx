@@ -18,7 +18,7 @@ export function Header() {
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <span className="hidden font-bold sm:inline-block">
-              Admin Dashboard
+              FittedIn Admin
             </span>
           </Link>
         </div>
@@ -42,15 +42,8 @@ export function Header() {
                 </Button>
               </div>
             ) : (
-              <Button
-                asChild
-                variant="default"
-                size="sm"
-                className="h-8"
-              >
-                <Link href="/sign-in">
-                  Sign In
-                </Link>
+              <Button asChild variant="default" size="sm" className="h-8">
+                <Link href="/sign-in">Sign In</Link>
               </Button>
             )}
           </nav>

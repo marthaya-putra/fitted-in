@@ -77,8 +77,8 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
         formData.append("pdf", file);
 
         const result = await parseResume(formData);
-        console.log({ result });
         const normalized: ResumeData = {
+          id: result.id,
           fullName: result.fullName || "",
           email: result.email || "",
           phone: result.phone || "",
@@ -100,9 +100,10 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
 
   const onSubmit = async (data: ResumeData) => {
     setIsSaving(true);
-
+    const dataToSave = { ...data, id: initialData?.id };
+    console.log({ dataToSave });
     try {
-      await saveResume(data);
+      await saveResume(dataToSave);
       toast.success("Resume saved successfully!");
     } catch (error) {
       toast.error("Failed to save resume");

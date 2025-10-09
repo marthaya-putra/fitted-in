@@ -2,12 +2,13 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from "@nestjs/common";
 import { ResumeProfileRepository } from "../../repositories/resume-profile.repository";
 import { Inject } from "@nestjs/common";
 import { type Db } from "../../db/types";
 import { type ResumeProfile } from "../../db/types";
-import { CreateResumeDto } from "../dto/create-resume.dto";
+import { resumeDto } from "../dto/create-resume.dto";
 import { UpdateResumeDto } from "../dto/update-resume.dto";
 import { DRIZZLE_DB } from "src/drizzle/drizzle.module";
 
@@ -18,16 +19,21 @@ export class ResumeService {
     @Inject(DRIZZLE_DB) private readonly db: Db
   ) {}
 
-  async create(createResumeDto: CreateResumeDto): Promise<ResumeProfile> {
-    // Check if resume profile already exists for this user
+  async save(createResumeDto: resumeDto): Promise<ResumeProfile | null> {
     const existingProfile = await this.resumeProfileRepository.findByUserId(
       this.db,
       createResumeDto.userId
     );
 
+    if (!createResumeDto.id) {
+      throw new BadRequestException("id is required for update!");
+    }
+
     if (existingProfile) {
-      throw new ConflictException(
-        `Resume profile for user ${createResumeDto.userId} already exists`
+      return this.resumeProfileRepository.update(
+        this.db,
+        createResumeDto.id,
+        createResumeDto
       );
     }
 

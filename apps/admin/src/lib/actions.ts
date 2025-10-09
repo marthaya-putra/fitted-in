@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { serverFetch } from "./server-fetch";
 
 export interface ResumeData {
+  id?: number;
   fullName: string;
   email: string;
   phone: string;
@@ -72,10 +73,11 @@ export async function saveResume(data: ResumeData): Promise<void> {
   }
 
   const resumeProfileData = {
+    id: data.id,
     fullName: data.fullName,
     location: data.location,
     email: data.email,
-    website: "", // Website is no longer in the flat schema
+    website: undefined,
     phone: data.phone,
     summary: data.summary,
     workExperiences: data.workExperiences,

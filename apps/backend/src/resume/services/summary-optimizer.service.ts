@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { generateText } from "ai";
-import { defaultModel } from "../models";
+import { Injectable } from '@nestjs/common';
+import { generateText } from 'ai';
+import { defaultModel } from '../models';
 
 export interface OptimizeSummaryParams {
   jobDescription: string;

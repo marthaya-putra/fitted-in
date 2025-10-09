@@ -1,5 +1,5 @@
-import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import { schema } from ".";
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { schema } from '.';
 
 export type Db = PostgresJsDatabase<typeof schema>;
 

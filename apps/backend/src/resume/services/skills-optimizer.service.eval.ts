@@ -1,6 +1,6 @@
-import "dotenv/config";
-import { evalite } from "evalite";
-import { SkillsOptimizerService } from "./skills-optimizer.service";
+import 'dotenv/config';
+import { evalite } from 'evalite';
+import { SkillsOptimizerService } from './skills-optimizer.service';
 
 const data: { input: any; expected: string }[] = [
   {
@@ -77,11 +77,11 @@ Jan 2020 - Mar 2022
 *   Agile/Scrum`,
       },
     },
-    expected: "",
+    expected: '',
   },
 ];
 
-evalite("Resume skills optimizer", {
+evalite('Resume skills optimizer', {
   data: async () => {
     return data;
   },

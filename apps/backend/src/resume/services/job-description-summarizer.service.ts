@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { google } from "@ai-sdk/google";
-import { generateText } from "ai";
-import { defaultModel } from "../models";
+import { Injectable } from '@nestjs/common';
+import { google } from '@ai-sdk/google';
+import { generateText } from 'ai';
+import { defaultModel } from '../models';
 
 @Injectable()
 export class JobDescriptionSummarizerService {
@@ -27,13 +27,13 @@ ${jobDescription}`;
         model: this.model,
         prompt: prompt,
         system:
-          "You are a helpful assistant that summarizes job descriptions concisely while preserving all key information. Keep summaries under 500 tokens.",
+          'You are a helpful assistant that summarizes job descriptions concisely while preserving all key information. Keep summaries under 500 tokens.',
       });
 
       return text.trim();
     } catch (error) {
-      console.error("Error summarizing job description:", error);
-      throw new Error("Failed to summarize job description");
+      console.error('Error summarizing job description:', error);
+      throw new Error('Failed to summarize job description');
     }
   }
 }

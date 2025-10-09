@@ -1,26 +1,26 @@
-import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
-import { user } from "./auth-schema";
+import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { user } from './auth-schema';
 
-export const resumeProfile = pgTable("resume_profile", {
-  id: serial("id").primaryKey(),
+export const resumeProfile = pgTable('resume_profile', {
+  id: serial('id').primaryKey(),
 
   // personal info
-  fullName: text("full_name").notNull(),
-  location: text("location"),
-  email: text("email"),
-  website: text("website"),
-  phone: text("phone"),
+  fullName: text('full_name').notNull(),
+  location: text('location'),
+  email: text('email'),
+  website: text('website'),
+  phone: text('phone'),
 
   // resume info
-  summary: text("summary"),
-  workExperiences: text("work_experiences"),
-  educations: text("educations"),
-  skills: text("skills"),
+  summary: text('summary'),
+  workExperiences: text('work_experiences'),
+  educations: text('educations'),
+  skills: text('skills'),
 
-  userId: text("user_id")
+  userId: text('user_id')
     .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
+    .references(() => user.id, { onDelete: 'cascade' }),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

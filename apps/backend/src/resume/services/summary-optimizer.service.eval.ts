@@ -1,6 +1,6 @@
-import "dotenv/config";
-import { evalite } from "evalite";
-import { SummaryOptimizerService } from "./summary-optimizer.service";
+import 'dotenv/config';
+import { evalite } from 'evalite';
+import { SummaryOptimizerService } from './summary-optimizer.service';
 
 const data: { input: any; expected: string }[] = [
   {
@@ -13,11 +13,11 @@ const data: { input: any; expected: string }[] = [
         skills: `**Languages & Frameworks:**\n*   JavaScript\n*   TypeScript\n*   HTML\n*   CSS\n*   Node.js\n*   React\n*   Next.js\n*   Angular\n*   NestJS\n*   Tailwind CSS\n*   styled-components\n\n**Databases & APIs:**\n*   PostgreSQL\n*   REST\n*   tRPC\n\n**Testing Tools:**\n*   Cypress\n*   Playwright\n*   Jest\n*   Vitest\n\n**Other Skills:**\n*   Performance Optimization\n*   Design Systems\n*   CI/CD Automation\n*   Accessibility (a11y)\n*   AI Integration\n*   SEO Optimization\n*   Agile/Scrum`,
       },
     },
-    expected: "",
+    expected: '',
   },
 ];
 
-evalite("Resume summary optimizer", {
+evalite('Resume summary optimizer', {
   // A function that returns an array of test data
   // - TODO: Replace with your test data
   data: async () => {

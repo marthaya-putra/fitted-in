@@ -1,43 +1,18 @@
-import { IsString, IsOptional, IsNotEmpty, IsEmail } from "class-validator";
+import { z } from "zod";
+import { createZodDto } from "nestjs-zod";
 
-export class CreateResumeDto {
-  @IsString()
-  @IsNotEmpty()
-  fullName: string;
+const resumeSchema = z.object({
+  id: z.number().optional(),
+  fullName: z.string().min(1, "Full name is required"),
+  location: z.string().optional(),
+  email: z.email("Invalid email format").optional(),
+  website: z.url("Invalid URL format").optional(),
+  phone: z.string().optional(),
+  summary: z.string().optional(),
+  workExperiences: z.string().optional(),
+  educations: z.string().optional(),
+  skills: z.string().optional(),
+  userId: z.string().min(1, "User ID is required"),
+});
 
-  @IsString()
-  @IsOptional()
-  location?: string;
-
-  @IsEmail()
-  @IsOptional()
-  email?: string;
-
-  @IsString()
-  @IsOptional()
-  website?: string;
-
-  @IsString()
-  @IsOptional()
-  phone?: string;
-
-  @IsString()
-  @IsOptional()
-  summary?: string;
-
-  @IsString()
-  @IsOptional()
-  workExperiences?: string;
-
-  @IsString()
-  @IsOptional()
-  educations?: string;
-
-  @IsString()
-  @IsOptional()
-  skills?: string;
-
-  @IsString()
-  @IsNotEmpty()
-  userId: string;
-}
+export class resumeDto extends createZodDto(resumeSchema) {}
