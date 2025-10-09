@@ -26,7 +26,7 @@ import {
 } from "../services/resume-parser.service";
 import { CustomizeDto } from "../dto/customize-job.dto";
 import { ResumeOptimizerService } from "../services/resume-optimizer.service";
-import { ResumeProfile } from "src/db/schema";
+import { ResumeProfile } from "../../db/types";
 
 @Controller("resumes")
 export class ResumeController {

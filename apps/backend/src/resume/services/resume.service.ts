@@ -6,7 +6,7 @@ import {
 import { ResumeProfileRepository } from "../../repositories/resume-profile.repository";
 import { Inject } from "@nestjs/common";
 import { type Db } from "../../db/types";
-import { ResumeProfile } from "../../db/schema";
+import { type ResumeProfile } from "../../db/types";
 import { CreateResumeDto } from "../dto/create-resume.dto";
 import { UpdateResumeDto } from "../dto/update-resume.dto";
 import { DRIZZLE_DB } from "src/drizzle/drizzle.module";

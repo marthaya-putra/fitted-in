@@ -5,7 +5,7 @@ import { SkillsOptimizerService } from "./skills-optimizer.service";
 import { ResumeService } from "./resume.service";
 import { JobDescriptionSummarizerService } from "./job-description-summarizer.service";
 import { ResumeFormatterService } from "./resume-formatter.service";
-import { ResumeProfile } from "../../db/schema";
+import { ResumeProfile } from "../../db/types";
 
 export interface OptimizeResumeParams {
   jobDescription: string;

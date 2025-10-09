@@ -1,10 +1,6 @@
-import {
-  resumeProfile,
-  type ResumeProfile,
-  type NewResumeProfile,
-} from "../db/schema";
-import { eq, sql } from "drizzle-orm";
-import { Db } from "../db/types";
+import { Db, NewResumeProfile, ResumeProfile } from "../db/types";
+import { resumeProfile } from "../db/schema/resume-profile.schema";
+import { eq } from "drizzle-orm";
 
 export class ResumeProfileRepository {
   async create(
