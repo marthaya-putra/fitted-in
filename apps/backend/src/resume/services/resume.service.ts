@@ -3,18 +3,19 @@ import {
   NotFoundException,
   ConflictException,
 } from "@nestjs/common";
-import { ResumeProfileRepository } from "@/database/repositories/resume-profile.repository";
+import { ResumeProfileRepository } from "../../repositories/resume-profile.repository";
 import { Inject } from "@nestjs/common";
-import { type Db, DB } from "@/database/types";
-import { ResumeProfile } from "@/db/schema";
+import { type Db } from "../../db/types";
+import { ResumeProfile } from "../../db/schema";
 import { CreateResumeDto } from "../dto/create-resume.dto";
 import { UpdateResumeDto } from "../dto/update-resume.dto";
+import { DRIZZLE_DB } from "src/drizzle/drizzle.module";
 
 @Injectable()
 export class ResumeService {
   constructor(
     private readonly resumeProfileRepository: ResumeProfileRepository,
-    @Inject(DB) private readonly db: Db
+    @Inject(DRIZZLE_DB) private readonly db: Db
   ) {}
 
   async create(createResumeDto: CreateResumeDto): Promise<ResumeProfile> {

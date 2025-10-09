@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 
 export interface ResumeData {
   fullName: string;
@@ -29,11 +30,9 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
       throw new Error("File size must be less than 10MB");
     }
 
-    // Convert File to Buffer for the backend API
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Create FormData for the backend
     const backendFormData = new FormData();
     backendFormData.append(
       "pdf",
@@ -41,7 +40,10 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
       file.name
     );
 
+    const cookieStore = await cookies();
+
     const response = await fetch("http://localhost:3001/api/resumes/parse", {
+      headers: { Cookie: cookieStore.toString() },
       method: "POST",
       body: backendFormData,
     });

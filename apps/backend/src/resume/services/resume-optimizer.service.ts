@@ -5,7 +5,7 @@ import { SkillsOptimizerService } from "./skills-optimizer.service";
 import { ResumeService } from "./resume.service";
 import { JobDescriptionSummarizerService } from "./job-description-summarizer.service";
 import { ResumeFormatterService } from "./resume-formatter.service";
-import { ResumeProfile } from "@/db/schema";
+import { ResumeProfile } from "../../db/schema";
 
 export interface OptimizeResumeParams {
   jobDescription: string;
@@ -43,19 +43,19 @@ export class ResumeOptimizerService {
       await Promise.all([
         this.summaryOptimizerService.optimize({
           jobDescription: summarizedJobDescription,
-          summary: savedResume.summary,
-          experiences: savedResume.workExperiences,
-          educations: savedResume.educations,
-          skills: savedResume.skills,
+          summary: savedResume.summary!,
+          experiences: savedResume.workExperiences!,
+          educations: savedResume.educations!,
+          skills: savedResume.skills!,
         }),
         this.workExperienceOptimizerService.optimize({
           jobDescription: summarizedJobDescription,
-          experiences: savedResume.workExperiences,
-          skills: savedResume.skills,
+          experiences: savedResume.workExperiences!,
+          skills: savedResume.skills!,
         }),
         this.skillsOptimizerService.optimize({
           jobDescription: summarizedJobDescription,
-          skills: savedResume.skills,
+          skills: savedResume.skills!,
         }),
       ]);
 

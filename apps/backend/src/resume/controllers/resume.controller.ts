@@ -14,12 +14,11 @@ import {
   Res,
 } from "@nestjs/common";
 import { type Response } from "express";
-import { AllowAnonymous, OptionalAuth } from "@thallesp/nestjs-better-auth";
+import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
 
 import { ResumeService } from "../services/resume.service";
 import { CreateResumeDto } from "../dto/create-resume.dto";
 import { UpdateResumeDto } from "../dto/update-resume.dto";
-import { ResumeProfile } from "@/db/schema";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
   ResumeParserService,
@@ -27,8 +26,8 @@ import {
 } from "../services/resume-parser.service";
 import { CustomizeDto } from "../dto/customize-job.dto";
 import { ResumeOptimizerService } from "../services/resume-optimizer.service";
+import { ResumeProfile } from "src/db/schema";
 
-@AllowAnonymous()
 @Controller("resumes")
 export class ResumeController {
   constructor(
@@ -86,7 +85,6 @@ export class ResumeController {
     @Body("accountId") accountId: string
   ): Promise<ResumeData> {
     try {
-      // TODO: Use accountId for authentication/authorization if needed
       const result = await this.resumeParserService.parse(pdf);
       return result;
     } catch (error) {
@@ -96,6 +94,7 @@ export class ResumeController {
 
   @Post("optimize")
   @HttpCode(HttpStatus.OK)
+  @AllowAnonymous()
   async optimize(@Body() customizeDto: CustomizeDto, @Res() res: Response) {
     const result = await this.resumeOptimizerService.streamOptimizedCV({
       jobDescription: customizeDto.jobDescription,

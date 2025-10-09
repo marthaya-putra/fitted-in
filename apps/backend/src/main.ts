@@ -1,44 +1,34 @@
 import { NestFactory } from "@nestjs/core";
-import { ValidationPipe } from "@nestjs/common";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
-import * as express from "express";
+import { cleanupOpenApiDoc } from "nestjs-zod";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bodyParser: false });
 
-  app.use(express.json({ limit: "10mb" }));
-  app.use(express.urlencoded({ extended: true }));
+  const openApiDoc = SwaggerModule.createDocument(
+    app,
+    new DocumentBuilder()
+      .setTitle("Example API")
+      .setDescription("Example API description")
+      .setVersion("1.0")
+      .build()
+  );
 
-  // Set global API prefix for all routes
-  app.setGlobalPrefix("api");
+  SwaggerModule.setup("api", app, cleanupOpenApiDoc(openApiDoc));
 
-  // Enable CORS for the frontend and Chrome extension
+  // Enable CORS for frontend development
   app.enableCors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-
-      // Allow localhost origins
-      if (origin.startsWith("http://localhost:")) return callback(null, true);
-
-      // Allow Chrome extensions
-      if (origin.startsWith("chrome-extension://")) return callback(null, true);
-
-      callback(new Error("Not allowed by CORS"));
-    },
-    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Accept",
-      "Origin",
-      "X-Requested-With",
-    ],
+    origin: true,
     credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
   });
 
-  await app.listen(3001);
+  // Global prefix for all routes
+  app.setGlobalPrefix("api");
+
+  const port = process.env.PORT ?? 3001;
+  await app.listen(port);
+
+  console.log(`🚀 Application is running on: http://localhost:${port}/api`);
 }
-bootstrap();
+void bootstrap();

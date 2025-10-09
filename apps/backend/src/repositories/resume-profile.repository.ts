@@ -2,14 +2,14 @@ import {
   resumeProfile,
   type ResumeProfile,
   type NewResumeProfile,
-} from '@/db/schema';
-import { eq, sql } from 'drizzle-orm';
-import { Db } from '../types';
+} from "../db/schema";
+import { eq, sql } from "drizzle-orm";
+import { Db } from "../db/types";
 
 export class ResumeProfileRepository {
   async create(
     db: Db,
-    data: Omit<NewResumeProfile, 'id'>
+    data: Omit<NewResumeProfile, "id">
   ): Promise<ResumeProfile> {
     const [newProfile] = await db
       .insert(resumeProfile)
@@ -44,7 +44,7 @@ export class ResumeProfileRepository {
   async update(
     db: Db,
     id: number,
-    data: Partial<Omit<NewResumeProfile, 'id'>>
+    data: Partial<Omit<NewResumeProfile, "id">>
   ): Promise<ResumeProfile | null> {
     const [updatedProfile] = await db
       .update(resumeProfile)

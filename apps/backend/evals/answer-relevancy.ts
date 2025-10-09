@@ -1,8 +1,8 @@
 import { generateObject } from "ai";
 import { createScorer } from "evalite";
+import { defaultModel } from "src/resume/models";
+import { OptimizeSummaryParams } from "src/resume/services/summary-optimizer.service";
 import { z } from "zod";
-import { defaultModel } from "@/resume/models";
-import { OptimizeSummaryParams } from "@/resume/services/summary-optimizer.service";
 
 // Statement generation prompt from Mastra
 export function generateEvaluationStatementsPrompt({
@@ -273,7 +273,7 @@ export const AnswerRelevancy = createScorer<
   scorer: async ({ output, expected }) => {
     return checkAnswerRelevancy({
       question: output,
-      output: expected,
+      output: expected!,
     });
   },
 });

@@ -27,9 +27,7 @@ export const resumeSchema = z.object({
   summary: z.string().describe("Professional summary or objective statement"),
   experiences: z
     .string()
-    .describe(
-      "Work experience details with job titles, companies, and dates"
-    ),
+    .describe("Work experience details with job titles, companies, and dates"),
   educations: z
     .string()
     .describe("Education history with degrees, institutions, and dates"),

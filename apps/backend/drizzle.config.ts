@@ -1,13 +1,18 @@
-import type { Config } from "drizzle-kit";
-import { config } from "dotenv";
+import { defineConfig } from 'drizzle-kit';
+import * as dotenv from 'dotenv';
 
-config({ path: ".env" });
+// Load environment variables
+dotenv.config();
 
-export default {
-  schema: "./src/db/schema/*",
-  out: "./drizzle",
-  dialect: "postgresql",
+export default defineConfig({
+  schema: './src/db/schema/index.ts',
+  out: './drizzle',
+  dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url:
+      process.env.DATABASE_URL ||
+      'postgresql://postgres:password@localhost:5430/nestdb',
   },
-} satisfies Config;
+  verbose: true,
+  strict: true,
+});
