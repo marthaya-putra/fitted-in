@@ -42,17 +42,8 @@ export class ResumeService {
     return profile[0];
   }
 
-  async findByUserId(userId: string): Promise<ResumeProfile> {
-    const profile = await this.resumeProfileRepository.findByUserId(
-      this.db,
-      userId
-    );
-    if (!profile) {
-      throw new NotFoundException(
-        `Resume profile for user ${userId} not found`
-      );
-    }
-    return profile;
+  async findByUserId(userId: string): Promise<ResumeProfile | null> {
+    return this.resumeProfileRepository.findByUserId(this.db, userId);
   }
 
   async update(

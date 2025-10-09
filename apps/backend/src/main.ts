@@ -2,6 +2,7 @@ import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import { cleanupOpenApiDoc } from "nestjs-zod";
+import { ResponseWrapperInterceptor } from "./common/interceptors/response-wrapper.interceptor";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bodyParser: false });
@@ -25,6 +26,9 @@ async function bootstrap() {
 
   // Global prefix for all routes
   app.setGlobalPrefix("api");
+
+  // Register global interceptor
+  app.useGlobalInterceptors(new ResponseWrapperInterceptor());
 
   const port = process.env.PORT ?? 3001;
   await app.listen(port);

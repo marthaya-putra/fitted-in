@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, text as pgText } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { user } from "./auth-schema";
 
 export const resumeProfile = pgTable("resume_profile", {
@@ -17,7 +17,7 @@ export const resumeProfile = pgTable("resume_profile", {
   educations: text("educations"),
   skills: text("skills"),
 
-  userId: pgText("user_id")
+  userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
 

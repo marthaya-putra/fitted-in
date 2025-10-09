@@ -1,11 +1,4 @@
-import {
-  IsString,
-  IsOptional,
-  IsNumber,
-  IsNotEmpty,
-  IsEmail,
-  IsUUID,
-} from 'class-validator';
+import { IsString, IsOptional, IsNotEmpty, IsEmail } from "class-validator";
 
 export class CreateResumeDto {
   @IsString()
@@ -44,7 +37,7 @@ export class CreateResumeDto {
   @IsOptional()
   skills?: string;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   userId: string;
 }

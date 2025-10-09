@@ -55,19 +55,20 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      fullName: "",
-      email: "",
-      phone: "",
-      location: "",
-      summary: "",
-      experiences: "",
-      educations: "",
-      skills: "",
+    defaultValues: {
+      fullName: initialData?.fullName || "",
+      email: initialData?.email || "",
+      phone: initialData?.phone || "",
+      location: initialData?.location || "",
+      summary: initialData?.summary || "",
+      experiences: initialData?.experiences || "",
+      educations: initialData?.educations || "",
+      skills: initialData?.skills || "",
     },
+    mode: "onChange",
   });
 
-  const { control, handleSubmit, setValue } = form;
+  const { control, handleSubmit, reset } = form;
 
   const handleFileSelect = async (file: File) => {
     startTransition(async () => {
@@ -76,6 +77,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
         formData.append("pdf", file);
 
         const result = await parseResume(formData);
+        console.log({ result });
         const normalized: ResumeData = {
           fullName: result.fullName || "",
           email: result.email || "",
@@ -87,10 +89,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
           skills: result.skills || "",
         };
         // Auto-fill form with parsed data
-        Object.entries(normalized).forEach(([key, value]) => {
-          setValue(key as keyof ResumeData, value);
-        });
-        toast.success("Resume parsed successfully!");
+        reset(normalized);
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Failed to parse resume"

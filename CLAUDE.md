@@ -161,3 +161,5 @@ nest g module auth                         # Creates auth module
 ```
 
 This ensures consistency with the existing codebase structure and patterns.
+
+When importing type, always import with type ====> import { type SomeType } from "somewhere"

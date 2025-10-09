@@ -8,7 +8,6 @@ import { ResumeOptimizerService } from "./services/resume-optimizer.service";
 import { WorkExperienceOptimizerService } from "./services/work-experience-optimizer.service";
 import { SkillsOptimizerService } from "./services/skills-optimizer.service";
 import { ResumeFormatterService } from "./services/resume-formatter.service";
-import { ResumeProfileRepository } from "../repositories/resume-profile.repository";
 
 @Module({
   controllers: [ResumeController],

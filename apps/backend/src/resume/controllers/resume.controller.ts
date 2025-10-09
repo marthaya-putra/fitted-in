@@ -12,9 +12,14 @@ import {
   UploadedFile,
   UseInterceptors,
   Res,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { type Response } from "express";
-import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
+import {
+  AllowAnonymous,
+  Session,
+  type UserSession,
+} from "@thallesp/nestjs-better-auth";
 
 import { ResumeService } from "../services/resume.service";
 import { CreateResumeDto } from "../dto/create-resume.dto";
@@ -39,8 +44,12 @@ export class ResumeController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(
+    @Session() session: UserSession,
     @Body(ValidationPipe) createResumeDto: CreateResumeDto
   ): Promise<ResumeProfile> {
+    if (session.user.id !== createResumeDto.userId) {
+      throw new UnauthorizedException();
+    }
     return await this.resumeService.create(createResumeDto);
   }
 
@@ -53,9 +62,9 @@ export class ResumeController {
 
   @Get("user/:userId")
   async findByUserId(
-    @Param("userId") userId: string
-  ): Promise<ResumeProfile> {
-    return await this.resumeService.findByUserId(userId);
+    @Session() session: UserSession
+  ): Promise<ResumeProfile | null> {
+    return this.resumeService.findByUserId(session.user.id);
   }
 
   @Patch(":id")
@@ -81,8 +90,7 @@ export class ResumeController {
     })
   )
   async parseResume(
-    @UploadedFile() pdf: Express.Multer.File,
-    @Body("userId") userId: string
+    @UploadedFile() pdf: Express.Multer.File
   ): Promise<ResumeData> {
     try {
       const result = await this.resumeParserService.parse(pdf);

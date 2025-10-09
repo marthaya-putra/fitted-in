@@ -61,8 +61,7 @@ export default function SignUpPage() {
         return;
       }
 
-      toast.success("Account created successfully! Please sign in.");
-      router.push("/sign-in");
+      router.push("/");
     } catch (error) {
       toast.error("An unexpected error occurred");
       console.error("Sign up error:", error);
