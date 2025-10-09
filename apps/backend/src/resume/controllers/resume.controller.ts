@@ -102,7 +102,6 @@ export class ResumeController {
 
   @Post("optimize")
   @HttpCode(HttpStatus.OK)
-  @AllowAnonymous()
   async optimize(@Body() customizeDto: CustomizeDto, @Res() res: Response) {
     const result = await this.resumeOptimizerService.streamOptimizedCV({
       jobDescription: customizeDto.jobDescription,

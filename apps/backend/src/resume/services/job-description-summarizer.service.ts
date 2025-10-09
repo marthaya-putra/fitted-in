@@ -1,10 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
+import { defaultModel } from "../models";
 
 @Injectable()
 export class JobDescriptionSummarizerService {
-  private readonly model = google("gemini-2.0-flash-lite");
+  private readonly model = defaultModel;
 
   async summarize(jobDescription: string): Promise<string> {
     try {
