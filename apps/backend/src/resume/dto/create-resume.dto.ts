@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsNotEmpty,
   IsEmail,
+  IsUUID,
 } from 'class-validator';
 
 export class CreateResumeDto {
@@ -43,7 +44,7 @@ export class CreateResumeDto {
   @IsOptional()
   skills?: string;
 
-  @IsNumber()
+  @IsUUID()
   @IsNotEmpty()
-  accountId: number;
+  userId: string;
 }

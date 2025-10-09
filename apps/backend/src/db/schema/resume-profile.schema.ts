@@ -1,4 +1,5 @@
-import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, text as pgText } from "drizzle-orm/pg-core";
+import { user } from "./auth-schema";
 
 export const resumeProfile = pgTable("resume_profile", {
   id: serial("id").primaryKey(),
@@ -16,7 +17,9 @@ export const resumeProfile = pgTable("resume_profile", {
   educations: text("educations"),
   skills: text("skills"),
 
-  accountId: integer("account_id").notNull(),
+  userId: pgText("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

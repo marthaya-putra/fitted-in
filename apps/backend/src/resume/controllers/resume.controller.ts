@@ -51,11 +51,11 @@ export class ResumeController {
     return await this.resumeService.findById(id);
   }
 
-  @Get("account/:accountId")
-  async findByAccountId(
-    @Param("accountId", ParseIntPipe) accountId: number
+  @Get("user/:userId")
+  async findByUserId(
+    @Param("userId") userId: string
   ): Promise<ResumeProfile> {
-    return await this.resumeService.findByAccountId(accountId);
+    return await this.resumeService.findByUserId(userId);
   }
 
   @Patch(":id")
@@ -82,7 +82,7 @@ export class ResumeController {
   )
   async parseResume(
     @UploadedFile() pdf: Express.Multer.File,
-    @Body("accountId") accountId: string
+    @Body("userId") userId: string
   ): Promise<ResumeData> {
     try {
       const result = await this.resumeParserService.parse(pdf);

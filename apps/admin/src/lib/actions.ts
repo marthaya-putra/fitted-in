@@ -3,6 +3,27 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
+type FetchInput = Parameters<typeof fetch>[0];
+type FetchInit = NonNullable<Parameters<typeof fetch>[1]>;
+
+export async function serverFetch(
+  input: FetchInput,
+  init?: FetchInit
+): Promise<Response> {
+  const cookieStore = await cookies();
+
+  const headers = new Headers(init?.headers);
+
+  if (!headers.has("Cookie")) {
+    headers.set("Cookie", cookieStore.toString());
+  }
+
+  return fetch(input, {
+    ...init,
+    headers,
+  });
+}
+
 export interface ResumeData {
   fullName: string;
   email: string;
@@ -40,13 +61,13 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
       file.name
     );
 
-    const cookieStore = await cookies();
-
-    const response = await fetch("http://localhost:3001/api/resumes/parse", {
-      headers: { Cookie: cookieStore.toString() },
-      method: "POST",
-      body: backendFormData,
-    });
+    const response = await serverFetch(
+      "http://localhost:3001/api/resumes/parse",
+      {
+        method: "POST",
+        body: backendFormData,
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Failed to parse resume");
@@ -74,10 +95,10 @@ export async function saveResume(data: ResumeData): Promise<void> {
       workExperiences: data.experiences,
       educations: data.educations,
       skills: data.skills,
-      accountId: 1, // Hardcoded for now - should come from authentication
+      userId: 1, // Hardcoded for now - should come from authentication
     };
 
-    const response = await fetch("http://localhost:3001/api/resumes", {
+    const response = await serverFetch("http://localhost:3001/api/resumes", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

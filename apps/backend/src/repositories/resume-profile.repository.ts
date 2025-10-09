@@ -22,14 +22,14 @@ export class ResumeProfileRepository {
     return profile || null;
   }
 
-  async findByAccountId(
+  async findByUserId(
     db: Db,
-    accountId: number
+    userId: string
   ): Promise<ResumeProfile | null> {
     const [profile] = await db
       .select()
       .from(resumeProfile)
-      .where(eq(resumeProfile.accountId, accountId));
+      .where(eq(resumeProfile.userId, userId));
     return profile || null;
   }
 
@@ -58,10 +58,10 @@ export class ResumeProfileRepository {
     return !!deletedProfile;
   }
 
-  async deleteByAccountId(db: Db, accountId: number): Promise<boolean> {
+  async deleteByUserId(db: Db, userId: string): Promise<boolean> {
     const [deletedProfile] = await db
       .delete(resumeProfile)
-      .where(eq(resumeProfile.accountId, accountId))
+      .where(eq(resumeProfile.userId, userId))
       .returning();
     return !!deletedProfile;
   }
