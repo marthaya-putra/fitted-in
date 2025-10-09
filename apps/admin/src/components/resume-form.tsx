@@ -40,7 +40,7 @@ const formSchema = z.object({
   phone: z.string(),
   location: z.string(),
   summary: z.string(),
-  experiences: z.string(),
+  workExperiences: z.string(),
   educations: z.string(),
   skills: z.string(),
 });
@@ -61,7 +61,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
       phone: initialData?.phone || "",
       location: initialData?.location || "",
       summary: initialData?.summary || "",
-      experiences: initialData?.experiences || "",
+      workExperiences: initialData?.workExperiences || "",
       educations: initialData?.educations || "",
       skills: initialData?.skills || "",
     },
@@ -84,7 +84,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
           phone: result.phone || "",
           location: result.location || "",
           summary: result.summary || "",
-          experiences: result.experiences || "",
+          workExperiences: result.workExperiences || "",
           educations: result.educations || "",
           skills: result.skills || "",
         };
@@ -251,7 +251,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
             <CardContent>
               <FormField
                 control={control}
-                name="experiences"
+                name="workExperiences"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>

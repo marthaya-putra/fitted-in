@@ -12,7 +12,7 @@ export interface ResumeData {
   phone: string;
   location: string;
   summary: string;
-  experiences: string;
+  workExperiences: string;
   educations: string;
   skills: string;
 }
@@ -78,7 +78,7 @@ export async function saveResume(data: ResumeData): Promise<void> {
     website: "", // Website is no longer in the flat schema
     phone: data.phone,
     summary: data.summary,
-    workExperiences: data.experiences,
+    workExperiences: data.workExperiences,
     educations: data.educations,
     skills: data.skills,
     userId: sessionData.user.id, // Hardcoded for now - should come from authentication
