@@ -61,7 +61,10 @@ class HttpExceptionFilter extends BaseExceptionFilter {
           emailAndPassword: {
             enabled: true,
           },
-          trustedOrigins: ["*localhost*"],
+          trustedOrigins: [
+            "*localhost*",
+            "chrome-extension://jhhpmkomkllohgcbjggpjjnlnplimpfj",
+          ],
         }),
       }),
     }),
