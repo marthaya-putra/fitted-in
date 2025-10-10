@@ -9,19 +9,24 @@ export default async function Home() {
 
   const nextHeaders = await headers();
 
-  const h = new Headers(nextHeaders);
+  const h = new Headers();
 
-  if (!nextHeaders.has("Cookie")) {
-    nextHeaders.set("Cookie", cookieStore.toString());
+  // Manually copy all headers from ReadOnlyHeaders
+  nextHeaders.forEach((value, key) => {
+    h.set(key, value);
+  });
+
+  if (!h.has("Cookie")) {
+    h.set("Cookie", cookieStore.toString());
   }
 
   console.log("Cookie: ", cookieStore.toString());
 
-  console.log("headerss: ", JSON.stringify(nextHeaders));
+  console.log("headerss: ", JSON.stringify(h));
 
   const { data } = await authClient.getSession({
     fetchOptions: {
-      headers: nextHeaders,
+      headers: h,
       credentials: "include",
     },
   });
