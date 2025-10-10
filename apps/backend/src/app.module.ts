@@ -60,6 +60,7 @@ class HttpExceptionFilter extends BaseExceptionFilter {
             defaultCookieAttributes: {
               sameSite: "None",
               secure: true,
+              partitioned: true,
             },
           },
           database: drizzleAdapter(db, { provider: "pg" }),
