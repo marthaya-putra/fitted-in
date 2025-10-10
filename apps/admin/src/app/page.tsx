@@ -11,15 +11,17 @@ export default async function Home() {
 
   const h = new Headers(nextHeaders);
 
-  if (!h.has("Cookie")) {
-    h.set("Cookie", cookieStore.toString());
+  if (!nextHeaders.has("Cookie")) {
+    nextHeaders.set("Cookie", cookieStore.toString());
   }
 
-  console.log("headerss: ", JSON.stringify(h));
+  console.log("Cookie: ", cookieStore.toString());
+
+  console.log("headerss: ", JSON.stringify(nextHeaders));
 
   const { data } = await authClient.getSession({
     fetchOptions: {
-      headers: h,
+      headers: nextHeaders,
       credentials: "include",
     },
   });
