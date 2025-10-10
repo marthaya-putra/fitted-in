@@ -102,7 +102,7 @@
     "testEnvironment": "node"
   },
   "engines": {
-    "npm": ">11.5.1",
-    "node": ">=24"
+    "pnpm": ">=9",
+    "node": ">=22"
   }
 }
