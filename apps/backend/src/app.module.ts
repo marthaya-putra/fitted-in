@@ -4,31 +4,31 @@ import {
   HttpException,
   Logger,
   Module,
-} from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+} from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
 import {
   APP_FILTER,
   APP_INTERCEPTOR,
   APP_PIPE,
   BaseExceptionFilter,
-} from '@nestjs/core';
+} from "@nestjs/core";
 import {
   ZodSerializationException,
   ZodSerializerInterceptor,
   ZodValidationPipe,
-} from 'nestjs-zod';
-import { ZodError } from 'zod';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { DRIZZLE_DB, DrizzleModule } from './drizzle/drizzle.module';
+} from "nestjs-zod";
+import { ZodError } from "zod";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { DRIZZLE_DB, DrizzleModule } from "./drizzle/drizzle.module";
 
-import { AuthModule } from '@thallesp/nestjs-better-auth';
-import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { betterAuth } from 'better-auth';
-import { Db } from './db/types';
-import { ResumeModule } from './resume/resume.module';
-import { ResumeProfileRepository } from './repositories/resume-profile.repository';
-import { RepositoryModule } from './repositories/repository.module';
+import { AuthModule } from "@thallesp/nestjs-better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { betterAuth } from "better-auth";
+import { Db } from "./db/types";
+import { ResumeModule } from "./resume/resume.module";
+import { ResumeProfileRepository } from "./repositories/resume-profile.repository";
+import { RepositoryModule } from "./repositories/repository.module";
 
 @Catch(HttpException)
 class HttpExceptionFilter extends BaseExceptionFilter {
@@ -51,19 +51,20 @@ class HttpExceptionFilter extends BaseExceptionFilter {
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ".env",
     }),
     AuthModule.forRootAsync({
       inject: [DRIZZLE_DB],
       useFactory: (db: Db) => ({
         auth: betterAuth({
-          database: drizzleAdapter(db, { provider: 'pg' }),
+          database: drizzleAdapter(db, { provider: "pg" }),
           emailAndPassword: {
             enabled: true,
           },
           trustedOrigins: [
-            '*localhost*',
-            'chrome-extension://jhhpmkomkllohgcbjggpjjnlnplimpfj',
+            "*localhost*",
+            "https://fitted-in-admin.marthayaputra-han.workers.dev/",
+            "chrome-extension://jhhpmkomkllohgcbjggpjjnlnplimpfj",
           ],
         }),
       }),
