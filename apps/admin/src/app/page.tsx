@@ -6,7 +6,7 @@ import { headers } from "next/headers";
 
 export default async function Home() {
   const h = await headers();
-  console.log("headers: ", h);
+  console.log("headers: ", JSON.stringify(h));
   const { data } = await authClient.getSession({
     fetchOptions: {
       headers: await headers(),
