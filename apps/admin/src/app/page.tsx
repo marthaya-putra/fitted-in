@@ -8,6 +8,7 @@ export default async function Home() {
   const { data } = await authClient.getSession({
     fetchOptions: {
       headers: await headers(),
+      credentials: "include",
     },
   });
 
