@@ -2,14 +2,22 @@ import { ResumeForm } from "@/components/resume-form";
 import { authClient } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { serverFetch } from "@/lib/server-fetch";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export default async function Home() {
-  const h = await headers();
-  console.log("headers: ", JSON.stringify(h));
+  const cookieStore = await cookies();
+
+  const nextHeaders = await headers();
+
+  const h = new Headers(nextHeaders);
+
+  if (!h.has("Cookie")) {
+    h.set("Cookie", cookieStore.toString());
+  }
+
   const { data } = await authClient.getSession({
     fetchOptions: {
-      headers: await headers(),
+      headers: h,
       credentials: "include",
     },
   });
