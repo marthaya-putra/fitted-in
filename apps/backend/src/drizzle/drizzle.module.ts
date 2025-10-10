@@ -13,12 +13,12 @@ export const DRIZZLE_DB = Symbol("DRIZZLE_DB");
       provide: DRIZZLE_DB,
       useFactory: (configService: ConfigService) => {
         const connectionString = configService.get<string>("DATABASE_URL");
+        console.log("connectionString :", connectionString);
         if (!connectionString) {
           throw new Error("DATABASE_URL is not configured");
         }
         const sql = postgres(connectionString, {
           max: 1,
-          ssl: process.env.NODE_ENV === "production" ? "require" : undefined,
         });
         return drizzle(sql, { schema });
       },
