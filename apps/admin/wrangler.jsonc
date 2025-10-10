@@ -4,6 +4,11 @@
   "name": "admin",
   "compatibility_date": "2025-10-08",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "observability": {
+    "enabled": true,
+    // Optional: Configure head_sampling_rate to control the percentage of requests logged
+    "head_sampling_rate": 1.0, // Logs 100% of requests
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",

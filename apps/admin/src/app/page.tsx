@@ -15,6 +15,8 @@ export default async function Home() {
     h.set("Cookie", cookieStore.toString());
   }
 
+  console.log("headerss: ", JSON.stringify(h));
+
   const { data } = await authClient.getSession({
     fetchOptions: {
       headers: h,
