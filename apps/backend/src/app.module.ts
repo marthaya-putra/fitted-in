@@ -27,7 +27,6 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth";
 import { Db } from "./db/types";
 import { ResumeModule } from "./resume/resume.module";
-import { ResumeProfileRepository } from "./repositories/resume-profile.repository";
 import { RepositoryModule } from "./repositories/repository.module";
 
 @Catch(HttpException)
@@ -57,13 +56,19 @@ class HttpExceptionFilter extends BaseExceptionFilter {
       inject: [DRIZZLE_DB],
       useFactory: (db: Db) => ({
         auth: betterAuth({
+          advanced: {
+            defaultCookieAttributes: {
+              sameSite: "None",
+              secure: true,
+            },
+          },
           database: drizzleAdapter(db, { provider: "pg" }),
           emailAndPassword: {
             enabled: true,
           },
           trustedOrigins: [
             "*localhost*",
-            "https://fitted-in-admin.marthayaputra-han.workers.dev/",
+            "https://fitted-in-admin.marthayaputra-han.workers.dev",
             "chrome-extension://jhhpmkomkllohgcbjggpjjnlnplimpfj",
           ],
         }),
