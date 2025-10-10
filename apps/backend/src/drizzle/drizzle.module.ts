@@ -1,10 +1,10 @@
-import { Module, Global } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import * as schema from '../db/schema';
+import { Module, Global } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "../db/schema";
 
-export const DRIZZLE_DB = Symbol('DRIZZLE_DB');
+export const DRIZZLE_DB = Symbol("DRIZZLE_DB");
 
 @Global()
 @Module({
@@ -12,11 +12,14 @@ export const DRIZZLE_DB = Symbol('DRIZZLE_DB');
     {
       provide: DRIZZLE_DB,
       useFactory: (configService: ConfigService) => {
-        const connectionString = configService.get<string>('DATABASE_URL');
+        const connectionString = configService.get<string>("DATABASE_URL");
         if (!connectionString) {
-          throw new Error('DATABASE_URL is not configured');
+          throw new Error("DATABASE_URL is not configured");
         }
-        const sql = postgres(connectionString, { max: 1 });
+        const sql = postgres(connectionString, {
+          max: 1,
+          ssl: process.env.NODE_ENV === "production" ? "require" : undefined,
+        });
         return drizzle(sql, { schema });
       },
       inject: [ConfigService],
