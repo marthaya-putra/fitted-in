@@ -16,7 +16,7 @@ export default async function Home() {
   }
 
   const savedResume = await serverFetch(
-    `http://localhost:3001/api/resumes/user/${data.user.id}`
+    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/user/${data.user.id}`
   );
 
   return (

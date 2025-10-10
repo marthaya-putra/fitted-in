@@ -76,13 +76,16 @@ export async function saveResume(data: ResumeData): Promise<void> {
     userId: sessionData.user.id, // Hardcoded for now - should come from authentication
   };
 
-  const res = await serverFetch("http://localhost:3001/api/resumes", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(resumeProfileData),
-  });
+  const res = await serverFetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(resumeProfileData),
+    }
+  );
 
   console.log("res from save resume: ", res);
 
