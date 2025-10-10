@@ -68,7 +68,7 @@ class HttpExceptionFilter extends BaseExceptionFilter {
           },
           trustedOrigins: [
             "*localhost*",
-            "https://fitted-in-admin.marthayaputra-han.workers.dev",
+            "*.marthayaputra-han.workers.dev",
             "chrome-extension://jhhpmkomkllohgcbjggpjjnlnplimpfj",
           ],
         }),
