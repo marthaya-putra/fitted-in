@@ -21,10 +21,7 @@ export interface ResumeData {
 export async function parseResume(formData: FormData): Promise<ResumeData> {
   try {
     const file = formData.get("pdf") as File;
-
-    if (!file) {
-      throw new Error("No file provided");
-    }
+    if (!file) throw new Error("No file provided");
 
     if (!file.name.toLowerCase().endsWith(".pdf")) {
       throw new Error("Please select a PDF file");
@@ -34,18 +31,11 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
       throw new Error("File size must be less than 10MB");
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
     const backendFormData = new FormData();
-    backendFormData.append(
-      "pdf",
-      new Blob([buffer], { type: "application/pdf" }),
-      file.name
-    );
+    backendFormData.append("pdf", file, file.name);
 
-    const resume = await serverFetch(
-      "http://localhost:3001/api/resumes/parse",
+    const res = await serverFetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/parse`,
       {
         method: "POST",
         body: backendFormData,
@@ -53,7 +43,7 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
     );
 
     revalidatePath("/");
-    return resume;
+    return res;
   } catch (error) {
     console.error("Error parsing resume:", error);
     throw error;
