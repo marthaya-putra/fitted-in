@@ -5,6 +5,8 @@ import { serverFetch } from "@/lib/server-fetch";
 import { headers } from "next/headers";
 
 export default async function Home() {
+  const h = await headers();
+  console.log("headers: ", h);
   const { data } = await authClient.getSession({
     fetchOptions: {
       headers: await headers(),
