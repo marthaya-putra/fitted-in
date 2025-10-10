@@ -25,7 +25,6 @@ export async function serverFetch(input: FetchInput, init?: FetchInit) {
     console.error(err);
     throw new Error("Something went wrong!");
   }
-  console.log("ServerFetch response: ", response);
 
   const result = await response.json();
   return result.data;
