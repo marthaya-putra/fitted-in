@@ -18,17 +18,6 @@ export interface ResumeData {
   skills: string;
 }
 
-export async function getUserSession() {
-  const { data } = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-      credentials: "include",
-    },
-  });
-
-  return data;
-}
-
 export async function parseResume(formData: FormData): Promise<ResumeData> {
   try {
     const file = formData.get("pdf") as File;

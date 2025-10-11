@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",
-  "name": "admin",
+  "name": "fitted-in-admin",
   "compatibility_date": "2025-10-08",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "observability": {
