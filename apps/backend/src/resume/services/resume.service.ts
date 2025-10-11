@@ -25,19 +25,21 @@ export class ResumeService {
       createResumeDto.userId
     );
 
-    if (!createResumeDto.id) {
-      throw new BadRequestException("id is required for update!");
+    if (!existingProfile) {
+      return this.resumeProfileRepository.create(this.db, createResumeDto);
     }
 
-    if (existingProfile) {
-      return this.resumeProfileRepository.update(
-        this.db,
-        createResumeDto.id,
-        createResumeDto
+    if (!createResumeDto.id) {
+      throw new BadRequestException(
+        "Resume Profile id is required for update!"
       );
     }
 
-    return await this.resumeProfileRepository.create(this.db, createResumeDto);
+    return this.resumeProfileRepository.update(
+      this.db,
+      createResumeDto.id,
+      createResumeDto
+    );
   }
 
   async findById(id: number): Promise<ResumeProfile> {
