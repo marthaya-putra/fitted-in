@@ -1,42 +1,38 @@
 import { ResumeForm } from "@/components/resume-form";
-import { authClient } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { serverFetch } from "@/lib/server-fetch";
 import { cookies, headers } from "next/headers";
+import { authClient } from "@/lib/auth-client";
+import { getUserSession } from "@/lib/actions";
 
 export default async function Home() {
-  const cookieStore = await cookies();
+  // const cookieStore = await cookies();
 
-  const nextHeaders = await headers();
+  // const nextHeaders = await headers();
 
-  const h = new Headers();
+  // const h = new Headers();
 
-  // Manually copy all headers from ReadOnlyHeaders
-  nextHeaders.forEach((value, key) => {
-    h.set(key, value);
-  });
+  // // Manually copy all headers from ReadOnlyHeaders
+  // nextHeaders.forEach((value, key) => {
+  //   h.set(key, value);
+  // });
 
-  if (!h.has("Cookie")) {
-    h.set("Cookie", cookieStore.toString());
-  }
+  // if (!h.has("Cookie")) {
+  //   h.set("Cookie", cookieStore.toString());
+  // }
 
-  console.log("Cookie: ", cookieStore.toString());
+  // console.log("Cookie: ", cookieStore.toString());
 
-  console.log("headerss: ", JSON.stringify(h));
+  // console.log("headerss: ", JSON.stringify(h));
 
-  const { data } = await authClient.getSession({
-    fetchOptions: {
-      headers: h,
-      credentials: "include",
-    },
-  });
+  const session = await getUserSession();
 
-  if (!data || !data.user) {
+  if (!session || !session.user) {
     redirect("/sign-in");
   }
 
   const savedResume = await serverFetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/user/${data.user.id}`
+    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/user/${session.user.id}`
   );
 
   return (

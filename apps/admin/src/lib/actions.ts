@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { authClient } from "./auth";
+import { authClient } from "./auth-client";
 import { redirect } from "next/navigation";
 import { serverFetch } from "./server-fetch";
 
@@ -16,6 +16,17 @@ export interface ResumeData {
   workExperiences: string;
   educations: string;
   skills: string;
+}
+
+export async function getUserSession() {
+  const { data } = await authClient.getSession({
+    fetchOptions: {
+      headers: await headers(),
+      credentials: "include",
+    },
+  });
+
+  return data;
 }
 
 export async function parseResume(formData: FormData): Promise<ResumeData> {
