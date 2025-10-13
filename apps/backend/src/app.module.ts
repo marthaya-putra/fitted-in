@@ -71,6 +71,7 @@ class HttpExceptionFilter extends BaseExceptionFilter {
             "*localhost*",
             "https://fitted-in-admin.marthayaputra-han.workers.dev",
             "chrome-extension://jhhpmkomkllohgcbjggpjjnlnplimpfj",
+            "chrome-extension://cocolialcdmiadcimbjdooppfdmgiiad",
           ],
         }),
       }),
