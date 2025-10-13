@@ -24,7 +24,13 @@ export function Header() {
         </div>
 
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <nav className="flex items-center">
+          <nav className="flex items-center space-x-4">
+            <Link
+              href="/privacy"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Privacy Policy
+            </Link>
             {isLoading ? (
               <div className="h-8 w-20 animate-pulse bg-muted rounded"></div>
             ) : isAuthenticated && user ? (

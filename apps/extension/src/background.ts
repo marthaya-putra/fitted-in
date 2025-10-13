@@ -144,7 +144,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.remove(["lastNotificationTime"]);
   chrome.action.disable();
   chrome.action.setBadgeText({ text: "" });
 });
@@ -156,15 +155,18 @@ chrome.action.onClicked.addListener(tab => {
 });
 
 async function optimizeResume(jobDescription: string) {
-  const response = await fetch(`${import.meta.env.VITE_APP_URL}/api/resumes/optimize`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      jobDescription: jobDescription,
-    }),
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_APP_URL}/api/resumes/optimize`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        jobDescription: jobDescription,
+      }),
+    }
+  );
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
