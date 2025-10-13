@@ -21,6 +21,7 @@ function App() {
   const [error, setError] = useState("");
   const [isOptimized, setIsOptimized] = useState(false);
   const { data: session, isPending } = authClient.useSession();
+  console.log("SEssion data: ", JSON.stringify(session));
 
   useEffect(() => {
     const port = chrome.runtime.connect({ name: "sidepanel" });

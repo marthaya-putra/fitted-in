@@ -156,7 +156,7 @@ chrome.action.onClicked.addListener(tab => {
 });
 
 async function optimizeResume(jobDescription: string) {
-  const response = await fetch("http://localhost:3001/api/resumes/optimize", {
+  const response = await fetch(`${import.meta.env.VITE_APP_URL}/api/resumes/optimize`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

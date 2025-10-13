@@ -4,10 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build:extension": "vite build --config vite.config.extension.ts",
-    "build:content": "vite build --config vite.config.content.ts",
-    "build": "rm -rf dist && pnpm run build:extension && pnpm run build:content",
+    "dev": "vite --mode development",
+    "build:extension:dev": "vite build --config vite.config.extension.ts --mode development",
+    "build:content:dev": "vite build --config vite.config.content.ts --mode development",
+    "build:dev": "rm -rf dist && pnpm run build:extension:dev && pnpm run build:content:dev",
+    "build:extension:prod": "vite build --config vite.config.extension.ts --mode production",
+    "build:content:prod": "vite build --config vite.config.content.ts --mode production",
+    "build": "rm -rf dist && pnpm run build:extension:prod && pnpm run build:content:prod",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "clean": "rm -rf dist"

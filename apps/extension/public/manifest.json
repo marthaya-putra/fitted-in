@@ -11,8 +11,9 @@
     "webNavigation"
   ],
   "host_permissions": [
+    "http://localhost:3000/*",
     "https://www.linkedin.com/jobs/**",
-    "http://localhost:3001/*"
+    "https://fitted-in-admin.marthayaputra-han.workers.dev//*"
   ],
   "background": {
     "service_worker": "background.js",
