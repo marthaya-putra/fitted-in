@@ -24,4 +24,18 @@
     // 	"bucket_name": "cache"
     // }
   ],
+  "env": {
+    "production": {
+      "vars": {
+        "NEXT_PUBLIC_APP_HOST": "https://fitted-in-admin.marthayaputra-han.workers.dev",
+        "API_URL": "https://backend-production-1079.up.railway.app",
+      },
+    },
+    "development": {
+      "vars": {
+        "NEXT_PUBLIC_APP_HOST": "http://localhost:3000",
+        "API_URL": "http://localhost:3001",
+      },
+    },
+  },
 }

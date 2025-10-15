@@ -5,10 +5,6 @@ import { headers } from "next/headers";
 import { authClient } from "@/lib/auth-client";
 
 export default async function Home() {
-  console.log(
-    "process.env.NEXT_PUBLIC_APP_HOST: ",
-    process.env.NEXT_PUBLIC_APP_HOST
-  );
   const { data: session } = await authClient.getSession({
     fetchOptions: {
       headers: await headers(),
@@ -19,12 +15,6 @@ export default async function Home() {
   if (!session || !session.user) {
     redirect("/sign-in");
   }
-
-  console.log("process.env.API_URL: ", process.env.API_URL);
-  console.log(
-    "process.env.NEXT_PUBLIC_API_URL: ",
-    process.env.NEXT_PUBLIC_API_URL
-  );
 
   const savedResume = await serverFetch(
     `${process.env.API_URL}/api/resumes/user/${session.user.id}`
