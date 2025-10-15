@@ -16,6 +16,12 @@ export default async function Home() {
     redirect("/sign-in");
   }
 
+  console.log("process.env.API_URL: ", process.env.API_URL);
+  console.log(
+    "process.env.NEXT_PUBLIC_API_URL: ",
+    process.env.NEXT_PUBLIC_API_URL
+  );
+
   const savedResume = await serverFetch(
     `${process.env.API_URL}/api/resumes/user/${session.user.id}`
   );
