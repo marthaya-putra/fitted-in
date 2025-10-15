@@ -5,6 +5,10 @@ import { headers } from "next/headers";
 import { authClient } from "@/lib/auth-client";
 
 export default async function Home() {
+  console.log(
+    "process.env.NEXT_PUBLIC_APP_HOST: ",
+    process.env.NEXT_PUBLIC_APP_HOST
+  );
   const { data: session } = await authClient.getSession({
     fetchOptions: {
       headers: await headers(),
