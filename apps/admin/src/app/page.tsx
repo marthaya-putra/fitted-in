@@ -17,7 +17,7 @@ export default async function Home() {
   }
 
   const savedResume = await serverFetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/user/${session.user.id}`
+    `${process.env.API_URL}/api/resumes/user/${session.user.id}`
   );
 
   return (
