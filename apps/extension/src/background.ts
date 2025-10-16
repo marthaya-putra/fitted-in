@@ -35,10 +35,10 @@ chrome.runtime.onConnect.addListener(port => {
 });
 
 chrome.webNavigation.onHistoryStateUpdated.addListener(details => {
-  if (details.frameId === 0) {
-    // chrome.tabs.sendMessage(details.tabId, {
-    //   action: actions.historyStateUpdated,
-    // });
+  if (details.frameId === 0 && isContentReady) {
+    chrome.tabs.sendMessage(details.tabId, {
+      action: actions.historyStateUpdated,
+    });
   }
 });
 

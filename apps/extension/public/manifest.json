@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "FittedIn",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Chrome extension for fitted-in",
-  "permissions": ["activeTab", "sidePanel", "scripting", "webNavigation"],
+  "permissions": ["activeTab", "sidePanel", "webNavigation"],
   "host_permissions": [
     "http://localhost:3000/*",
     "https://www.linkedin.com/jobs/**",
