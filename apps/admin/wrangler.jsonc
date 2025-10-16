@@ -31,7 +31,7 @@
         "API_URL": "https://backend-production-1079.up.railway.app",
       },
     },
-    "development": {
+    "dev": {
       "vars": {
         "NEXT_PUBLIC_APP_HOST": "http://localhost:3000",
         "API_URL": "http://localhost:3001",
