@@ -24,14 +24,4 @@
     // 	"bucket_name": "cache"
     // }
   ],
-  "vars": {
-    "API_URL": "http://localhost:3001",
-  },
-  "env": {
-    "production": {
-      "vars": {
-        "API_URL": "https://backend-production-1079.up.railway.app",
-      },
-    },
-  },
 }
