@@ -1,0 +1,1 @@
+ALTER TABLE "resume_profile" ADD COLUMN "projects" text;
