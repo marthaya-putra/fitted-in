@@ -52,7 +52,6 @@ IMPORTANT: DO NOT MAKE THIS UP!!! IF THE RESUME DON'T CONTAIN REQUIRED SKILLS OR
 @Injectable()
 export class SummaryOptimizerService {
   async optimize(params: OptimizeSummaryParams): Promise<string> {
-    console.log("summarizing...");
     const { text } = await generateText({
       model: defaultModel,
       system: systemPrompt,

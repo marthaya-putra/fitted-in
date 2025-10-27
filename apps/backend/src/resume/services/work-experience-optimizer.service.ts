@@ -56,7 +56,6 @@ IMPORTANT: DO NOT MAKE THIS UP!!! IF THE RESUME DON'T CONTAIN REQUIRED SKILLS OR
 @Injectable()
 export class WorkExperienceOptimizerService {
   async optimize(params: OptimizeWorkExperienceParams): Promise<string> {
-    console.log("Optimizing work exp[eriences");
     const { text } = await generateText({
       model: defaultModel,
       system: systemPrompt,

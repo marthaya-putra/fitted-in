@@ -75,7 +75,6 @@ IMPORTANT: DO NOT MAKE THIS UP!!! IF THE RESUME DON'T CONTAIN REQUIRED SKILLS OR
 @Injectable()
 export class SkillsOptimizerService {
   async optimize(params: OptimizeSkillsParams): Promise<string> {
-    console.log("Optimizing skills");
     const { text } = await generateText({
       model: defaultModel,
       system: systemPrompt,

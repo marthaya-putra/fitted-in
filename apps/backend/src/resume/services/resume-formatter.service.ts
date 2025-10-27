@@ -11,7 +11,6 @@ export interface FormatResumeParams {
 export class ResumeFormatterService {
   async streamFormattedResume(params: FormatResumeParams) {
     try {
-      console.log("Streaming...");
       const systemPrompt = `You are a professional CV formatter and optimization assistant.
 Your task is to take raw/plain text resumes and transform them into a clean, well-structured CV that is both ATS-compatible and optimized for AI-based hiring systems.
 
@@ -24,9 +23,10 @@ Guidelines:
    - Company Name
    - Location (optional if missing)
    - Start & End Dates
+   - Company description (preserve any company information provided in raw text)
    - Achievements/responsibilities in bullet points (quantify results where possible).
 5. Skills should be listed in a keyword-rich, ATS-friendly way. Group them by category (e.g., Programming Languages, Frameworks, Tools).
-6. Do not invent experience or skills. Use only the information provided in the raw text.
+6. Do not invent experience or skills. Use only the information provided in the raw text. IMPORTANT: Never remove company descriptions or company information from the raw experiences text - preserve all company-related details provided.
 7. Rewrite sentences concisely and in a professional, action-oriented style.
 8. Ensure correct grammar, punctuation, and consistent tense.
 9. Avoid personal details that can bias hiring (age, marital status, photo, religion, etc.).
