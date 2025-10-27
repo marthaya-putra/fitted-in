@@ -23,16 +23,41 @@ Guidelines:
    - Company Name
    - Location (optional if missing)
    - Start & End Dates
-   - Company description (preserve any company information provided in raw text)
-   - Achievements/responsibilities in bullet points (quantify results where possible).
+   - Company description (preserve any company information provided in raw text, format on a **separate new line**, in *italic*, directly below the dates/location)
+   - Achievements/responsibilities in bullet points (quantify results where possible)
 5. Skills should be listed in a keyword-rich, ATS-friendly way. Group them by category (e.g., Programming Languages, Frameworks, Tools).
-6. Do not invent experience or skills. Use only the information provided in the raw text. IMPORTANT: Never remove company descriptions or company information from the raw experiences text - preserve all company-related details provided.
+6. Do not invent experience or skills. Use only the information provided in the raw text. IMPORTANT: Never remove or merge company descriptions — always preserve them verbatim.
 7. Rewrite sentences concisely and in a professional, action-oriented style.
 8. Ensure correct grammar, punctuation, and consistent tense.
 9. Avoid personal details that can bias hiring (age, marital status, photo, religion, etc.).
-10. Output the final CV in plain text or Markdown with clean formatting.
+10. Output the final CV in Markdown.
 
-Your final output should look like a polished resume suitable for job applications, passing ATS filters, and understandable by both recruiters and AI screeners.
+---
+
+### CRITICAL FORMATTING RULE
+
+For every work experience, you **must follow this exact Markdown layout**:
+
+**Job Title** – *Company Name*  
+Location, Start Date – End Date  
+*Company description goes here on its own line*  
+- Bullet 1  
+- Bullet 2  
+- Bullet 3  
+
+✅ Requirements:
+- The company description must always appear on its own line, *italicized*.
+- Always include a blank line (or two trailing spaces) after the date line before the company description.
+- Never merge company description with job title, company, or date.
+- Never drop or paraphrase company descriptions.
+
+Example:
+
+**Senior Software Engineer** – *We Lysn*  
+New South Wales, Australia (Remote), Feb 2024 – Present  
+*Telehealth platform startup for mental health and workplace wellbeing*  
+- Spearheaded development of a new telehealth platform MVP...
+- Collaborated with product and design...
 `;
 
       return streamText({
@@ -41,53 +66,31 @@ Your final output should look like a polished resume suitable for job applicatio
         prompt: `Here is the CV data. Please reformat it into a professional, ATS-friendly resume following the system guidelines:
 
 <CV>
-    <Personal-Info>
-      <Name>
-        ${params.resumeProfile.fullName}
-      </Name>
-      <Location>
-        ${params.resumeProfile.location}
-      </Location>
-      <Email>
-        ${params.resumeProfile.email}
-      </Email>
-      <Phone>
-        ${params.resumeProfile.phone}
-      </Phone>
-      <Website>
-        ${params.resumeProfile.website}
-      </Website>
-    </Personal-Info>
-  <Summary>
-    ${params.resumeProfile.summary}
-  </Summary>
-  <Work-Experience>
-    ${params.resumeProfile.workExperiences}
-  </Work-Experience>
-  <Education>
-    ${params.resumeProfile.educations}
-  </Education>
-  <Projects>
-    ${params.resumeProfile.projects}
-  </Projects>
-  <Skills>
-    ${params.resumeProfile.skills}
-  </Skills>
+  <Personal-Info>
+    <Name>${params.resumeProfile.fullName}</Name>
+    <Location>${params.resumeProfile.location}</Location>
+    <Email>${params.resumeProfile.email}</Email>
+    <Phone>${params.resumeProfile.phone}</Phone>
+    <Website>${params.resumeProfile.website}</Website>
+  </Personal-Info>
+  <Summary>${params.resumeProfile.summary}</Summary>
+  <Work-Experience>${params.resumeProfile.workExperiences}</Work-Experience>
+  <Education>${params.resumeProfile.educations}</Education>
+  <Projects>${params.resumeProfile.projects}</Projects>
+  <Skills>${params.resumeProfile.skills}</Skills>
 </CV>
 
 Make sure the final version:
 
-- Use **Markdown formatting**:
-  - Full name as an "# H1" heading at the very top.
-  - Contact info under the name in plain text, separated by "|".
-  - Section titles as "## H2" (e.g., "## SUMMARY").
+- Uses **Markdown formatting**:
+  - Full name as "# H1" heading at the top.
+  - Contact info under the name, separated by "|".
+  - Section titles as "## H2".
   - Job titles in **bold**, companies in *italic*, and dates/locations in plain text.
-  - Achievements as bullet points with **bold metrics** (percentages, dollar values, user counts, etc.) highlighted.
+  - CRITICAL: Each company description must be preserved and appear on its own line, in *italic*, immediately below the location/date line.
+  - Achievements as bullet points with **bold metrics** (percentages, counts, etc.) highlighted.
 
-- Structure must include: SUMMARY, EXPERIENCE, SKILLS, EDUCATION, PROJECTS (if any).
-- Use bullet points for achievements and skills.
-- Make measurable results **stand out** (e.g., "Improved performance by **30%**").
-- Keep it keyword-rich but truthful (do not invent).
+- Structure: SUMMARY → EXPERIENCE → SKILLS → EDUCATION → PROJECTS
 - Be concise, grammatically correct, and professional.
 - Output only the final resume in Markdown, no explanations.
 `,

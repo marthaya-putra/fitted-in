@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Copy, Check } from "lucide-react";
 import { StickToBottom } from "use-stick-to-bottom";
+import remarkBreaks from "remark-breaks";
 
 export const ResumePreview = ({
   markdown,
@@ -60,6 +61,7 @@ export const ResumePreview = ({
         <StickToBottom.Content>
           <div ref={htmlRef} className="prose prose-sm max-w-none prose-gray">
             <ReactMarkdown
+              remarkPlugins={[remarkBreaks]}
               components={{
                 h1: ({ children }) => (
                   <h1 className="text-lg font-bold text-gray-900 mb-3">
