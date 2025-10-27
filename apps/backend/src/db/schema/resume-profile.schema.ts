@@ -15,6 +15,7 @@ export const resumeProfile = pgTable('resume_profile', {
   summary: text('summary'),
   workExperiences: text('work_experiences'),
   educations: text('educations'),
+  projects: text('projects'),
   skills: text('skills'),
 
   userId: text('user_id')

@@ -4,8 +4,24 @@ import { AppModule } from "./app.module";
 import { cleanupOpenApiDoc } from "nestjs-zod";
 import { ResponseWrapperInterceptor } from "./common/interceptors/response-wrapper.interceptor";
 
+// Global error handlers for non-HTTP errors
+process.on('uncaughtException', (error: Error) => {
+  console.error(`[${new Date().toISOString()}] UNCAUGHT EXCEPTION: ${error.message}`);
+  console.error('Stack trace:', error.stack);
+});
+
+process.on('unhandledRejection', (reason: any) => {
+  console.error(`[${new Date().toISOString()}] UNHANDLED PROMISE REJECTION:`, reason);
+  if (reason instanceof Error) {
+    console.error('Stack trace:', reason.stack);
+  }
+});
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bodyParser: false });
+  const app = await NestFactory.create(AppModule, {
+    bodyParser: false,
+    logger: ['error', 'warn', 'log', 'debug', 'verbose']
+  });
 
   const openApiDoc = SwaggerModule.createDocument(
     app,
@@ -26,6 +42,9 @@ async function bootstrap() {
   app.setGlobalPrefix("api");
 
   app.useGlobalInterceptors(new ResponseWrapperInterceptor());
+
+  // Set request timeout to 5 minutes (300000ms)
+  app.getHttpAdapter().getHttpServer().requestTimeout = 300000;
 
   const port = process.env.PORT ?? 3001;
   await app.listen(port);

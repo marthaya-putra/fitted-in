@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   HttpCode,
   HttpStatus,
@@ -94,11 +93,31 @@ export class ResumeController {
     @Body() customizeDto: CustomizeDto,
     @Res() res: Response
   ) {
-    const result = await this.resumeOptimizerService.streamOptimizedCV({
-      userId: session.user.id,
-      jobDescription: customizeDto.jobDescription,
-    });
+    try {
+      const result = await this.resumeOptimizerService.streamOptimizedCV({
+        userId: session.user.id,
+        jobDescription: customizeDto.jobDescription,
+      });
 
-    result.pipeTextStreamToResponse(res);
+      result.pipeTextStreamToResponse(res);
+    } catch (error) {
+      console.error("Error in optimize endpoint:", error);
+      console.error("Error details:", {
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : "No stack trace",
+        userId: session.user.id,
+        jobDescriptionLength: customizeDto.jobDescription.length,
+      });
+
+      if (!res.headersSent) {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to optimize resume",
+        });
+      }
+    }
   }
 }

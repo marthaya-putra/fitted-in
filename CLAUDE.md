@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Be extremely concise. Sacrifice grammar for the sake of concision.
+
 ## Project Overview
 
 This is a Turbo monorepo containing three applications: a Next.js admin dashboard, a NestJS backend API, and a Chrome extension with React. The project uses TypeScript across all applications and Turbo for orchestration.
@@ -163,3 +165,5 @@ nest g module auth                         # Creates auth module
 This ensures consistency with the existing codebase structure and patterns.
 
 When importing type, always import with type ====> import { type SomeType } from "somewhere"
+
+**IMPORTANT**: Be extremely concise. Sacrifice grammar for the sake of concision.

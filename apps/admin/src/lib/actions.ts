@@ -15,6 +15,7 @@ export interface ResumeData {
   summary: string;
   workExperiences: string;
   educations: string;
+  projects: string;
   skills: string;
 }
 
@@ -72,6 +73,7 @@ export async function saveResume(data: ResumeData): Promise<void> {
     summary: data.summary,
     workExperiences: data.workExperiences,
     educations: data.educations,
+    projects: data.projects,
     skills: data.skills,
     userId: sessionData.user.id, // Hardcoded for now - should come from authentication
   };

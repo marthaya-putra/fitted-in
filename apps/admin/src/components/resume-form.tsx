@@ -10,6 +10,7 @@ import {
   User,
   Briefcase,
   GraduationCap,
+  Code2,
   Wrench,
 } from "lucide-react";
 import {
@@ -42,6 +43,7 @@ const formSchema = z.object({
   summary: z.string(),
   workExperiences: z.string(),
   educations: z.string(),
+  projects: z.string(),
   skills: z.string(),
 });
 
@@ -63,6 +65,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
       summary: initialData?.summary || "",
       workExperiences: initialData?.workExperiences || "",
       educations: initialData?.educations || "",
+      projects: initialData?.projects || "",
       skills: initialData?.skills || "",
     },
     mode: "onChange",
@@ -86,6 +89,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
           summary: result.summary || "",
           workExperiences: result.workExperiences || "",
           educations: result.educations || "",
+          projects: result.projects || "",
           skills: result.skills || "",
         };
         // Auto-fill form with parsed data
@@ -287,6 +291,35 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
                     <FormControl>
                       <Textarea
                         placeholder="List your education..."
+                        className="min-h-[200px] resize-none"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Projects Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Code2 className="h-5 w-5" />
+                Projects
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={control}
+                name="projects"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea
+                        placeholder="List your projects..."
                         className="min-h-[200px] resize-none"
                         value={field.value}
                         onChange={field.onChange}

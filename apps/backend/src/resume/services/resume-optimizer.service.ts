@@ -15,6 +15,7 @@ export interface OptimizeResumeParams {
 export interface OptimizedResume {
   summary: string;
   experiences: string;
+  projects: string;
   skills: string;
 }
 
@@ -48,6 +49,7 @@ export class ResumeOptimizerService {
           experiences: savedResume.workExperiences!,
           educations: savedResume.educations!,
           skills: savedResume.skills!,
+          projects: savedResume.projects || "",
         }),
         this.workExperienceOptimizerService.optimize({
           jobDescription: summarizedJobDescription,
@@ -57,6 +59,7 @@ export class ResumeOptimizerService {
         this.skillsOptimizerService.optimize({
           jobDescription: summarizedJobDescription,
           skills: savedResume.skills!,
+          projects: savedResume.projects || "",
         }),
       ]);
 
@@ -64,6 +67,7 @@ export class ResumeOptimizerService {
       ...savedResume,
       summary: optimizedSummary,
       workExperiences: optimizedWorkExperiences,
+      projects: savedResume.projects,
       skills: optimizedSkills,
     };
 

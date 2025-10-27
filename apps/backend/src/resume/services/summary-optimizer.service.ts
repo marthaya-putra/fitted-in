@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { generateText } from 'ai';
-import { defaultModel } from '../models';
+import { Injectable } from "@nestjs/common";
+import { generateText } from "ai";
+import { defaultModel } from "../models";
 
 export interface OptimizeSummaryParams {
   jobDescription: string;
@@ -8,6 +8,7 @@ export interface OptimizeSummaryParams {
   experiences: string;
   educations: string;
   skills: string;
+  projects: string;
 }
 
 const systemPrompt = `You are an expert CV/Resume optimization assistant specializing in Applicant Tracking Systems (ATS) and AI resume screening.
@@ -51,6 +52,7 @@ IMPORTANT: DO NOT MAKE THIS UP!!! IF THE RESUME DON'T CONTAIN REQUIRED SKILLS OR
 @Injectable()
 export class SummaryOptimizerService {
   async optimize(params: OptimizeSummaryParams): Promise<string> {
+    console.log("summarizing...");
     const { text } = await generateText({
       model: defaultModel,
       system: systemPrompt,
@@ -71,6 +73,9 @@ export class SummaryOptimizerService {
         <skills>
         ${params.skills}
         </skills>
+        <projects>
+        ${params.projects}
+        </projects>
       </resume>
       `,
     });

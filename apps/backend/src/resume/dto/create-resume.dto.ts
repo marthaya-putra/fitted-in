@@ -11,6 +11,7 @@ const resumeSchema = z.object({
   summary: z.string().optional(),
   workExperiences: z.string().optional(),
   educations: z.string().optional(),
+  projects: z.string().optional(),
   skills: z.string().optional(),
   userId: z.string().min(1, "User ID is required"),
 });
