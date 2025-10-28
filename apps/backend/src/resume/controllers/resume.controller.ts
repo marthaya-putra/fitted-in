@@ -17,7 +17,6 @@ import { Session, type UserSession } from "@thallesp/nestjs-better-auth";
 
 import { ResumeService } from "../services/resume.service";
 import { resumeDto } from "../dto/create-resume.dto";
-import { UpdateResumeDto } from "../dto/update-resume.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
   ResumeParserService,
@@ -78,12 +77,7 @@ export class ResumeController {
   async parseResume(
     @UploadedFile() pdf: Express.Multer.File
   ): Promise<ResumeData> {
-    try {
-      const result = await this.resumeParserService.parse(pdf);
-      return result;
-    } catch (error) {
-      throw new Error("Failed to parse resume");
-    }
+    return this.resumeParserService.parse(pdf);
   }
 
   @Post("optimize")
@@ -93,31 +87,11 @@ export class ResumeController {
     @Body() customizeDto: CustomizeDto,
     @Res() res: Response
   ) {
-    try {
-      const result = await this.resumeOptimizerService.streamOptimizedCV({
-        userId: session.user.id,
-        jobDescription: customizeDto.jobDescription,
-      });
+    const result = await this.resumeOptimizerService.streamOptimizedCV({
+      userId: session.user.id,
+      jobDescription: customizeDto.jobDescription,
+    });
 
-      result.pipeTextStreamToResponse(res);
-    } catch (error) {
-      console.error("Error in optimize endpoint:", error);
-      console.error("Error details:", {
-        message: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : "No stack trace",
-        userId: session.user.id,
-        jobDescriptionLength: customizeDto.jobDescription.length,
-      });
-
-      if (!res.headersSent) {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to optimize resume",
-        });
-      }
-    }
+    result.pipeTextStreamToResponse(res);
   }
 }
