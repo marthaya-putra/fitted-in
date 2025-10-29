@@ -53,8 +53,6 @@ chrome.runtime.onConnect.addListener(port => {
 
 chrome.webNavigation.onHistoryStateUpdated.addListener(details => {
   if (details.frameId === 0 && isContentReady) {
-    const enableSidePanel = shouldEnableSidePanel(details.url);
-    toggleSidePanel(details.tabId, enableSidePanel);
     chrome.tabs.sendMessage(
       details.tabId,
       {

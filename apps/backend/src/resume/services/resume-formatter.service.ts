@@ -23,7 +23,7 @@ Guidelines:
    - Company Name
    - Location (optional if missing)
    - Start & End Dates
-   - Company description (preserve any company information provided in raw text, format on a **separate new line**, in *italic*, directly below the dates/location)
+   - CRITICAL: Company description (preserve any company information provided in raw text, format on a **separate new line**, in *italic*, directly below the dates/location)
    - Achievements/responsibilities in bullet points (quantify results where possible)
 5. Skills should be listed in a keyword-rich, ATS-friendly way. Group them by category (e.g., Programming Languages, Frameworks, Tools).
 6. Do not invent experience or skills. Use only the information provided in the raw text. IMPORTANT: Never remove or merge company descriptions — always preserve them verbatim.
