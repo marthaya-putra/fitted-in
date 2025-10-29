@@ -4,6 +4,7 @@ import { ActionType } from "../types";
 
 let root: ReactDOM.Root | null = null;
 let container: HTMLDivElement | null = null;
+let currentUrl = "";
 
 function shouldInjectApp(): boolean {
   return location.href.includes("linkedin.com/jobs");
@@ -26,6 +27,7 @@ function injectApp() {
 
   root = ReactDOM.createRoot(container);
   root.render(<Content />);
+  currentUrl = location.href;
 }
 
 function removeApp() {
@@ -70,8 +72,11 @@ observer.observe(document.body, {
 
 window.addEventListener("popstate", handleUrlChange);
 
-chrome.runtime.onMessage.addListener((msg: { action: ActionType }) => {
-  if (msg.action === "history-state-updated") {
-    injectApp();
+chrome.runtime.onMessage.addListener(
+  (msg: { action: ActionType; url: string }) => {
+    console.log(`"history-state-updated: `, msg.url);
+    if (msg.action === "history-state-updated" && msg.url !== currentUrl) {
+      window.location.reload();
+    }
   }
-});
+);

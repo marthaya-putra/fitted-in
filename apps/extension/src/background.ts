@@ -4,17 +4,33 @@ import { shouldEnableSidePanel } from "./utils";
 let isContentReady = false;
 let isSidePanelReady = false;
 
+function toggleSidePanel(tabId: number, enabled: boolean): void {
+  chrome.sidePanel
+    .setOptions({
+      tabId,
+      enabled,
+      path: enabled ? "sidepanel.html" : undefined,
+    })
+    .then(() => {
+      isSidePanelReady = enabled;
+    })
+    .catch(err => {
+      console.warn("Failed to update sidepanel options:", err);
+    });
+}
+
 chrome.runtime.onConnect.addListener(port => {
   if (port.name === "content") {
     isContentReady = true;
 
     if (!isSidePanelReady) {
-      return;
+      return true;
     }
 
     sendResetPanelAndUpdateJobTitle("onConnect:content");
 
     port.onDisconnect.addListener(() => {
+      console.log("Content is disconnected");
       isContentReady = false;
     });
   }
@@ -23,12 +39,13 @@ chrome.runtime.onConnect.addListener(port => {
     isSidePanelReady = true;
 
     if (!isContentReady) {
-      return;
+      return true;
     }
 
     sendResetPanelAndUpdateJobTitle("onConnect:sidepanel");
 
     port.onDisconnect.addListener(() => {
+      console.log("Sidepanel is disconnected");
       isSidePanelReady = false;
     });
   }
@@ -36,9 +53,27 @@ chrome.runtime.onConnect.addListener(port => {
 
 chrome.webNavigation.onHistoryStateUpdated.addListener(details => {
   if (details.frameId === 0 && isContentReady) {
-    chrome.tabs.sendMessage(details.tabId, {
-      action: actions.historyStateUpdated,
-    });
+    const enableSidePanel = shouldEnableSidePanel(details.url);
+    toggleSidePanel(details.tabId, enableSidePanel);
+    chrome.tabs.sendMessage(
+      details.tabId,
+      {
+        action: actions.historyStateUpdated,
+        url: details.url,
+      },
+      resp => {
+        console.warn(
+          `[chrome.webNavigation.onHistoryStateUpdated] resp: `,
+          resp
+        );
+
+        if (chrome.runtime.lastError) {
+          const errorMessage = `[chrome.webNavigation.onHistoryStateUpdated] Looks like Content is not ready to receive message: ${chrome.runtime.lastError.message}`;
+          console.warn(errorMessage);
+          return false;
+        }
+      }
+    );
   }
 });
 
@@ -97,43 +132,20 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       chrome.action.setBadgeBackgroundColor({ color: "#3b82f6", tabId: tabId });
 
       // Enable sidepanel for this tab
-      chrome.sidePanel
-        .setOptions({
-          tabId,
-          enabled: true,
-          path: "sidepanel.html",
-        })
-        .catch(err => {
-          console.warn("Failed to enable sidepanel:", err);
-        });
+      toggleSidePanel(tabId, true);
     } else {
       chrome.action.disable(tabId);
       chrome.action.setBadgeText({ text: "", tabId: tabId });
 
       // Disable sidepanel for this tab
-      chrome.sidePanel
-        .setOptions({
-          tabId,
-          enabled: false,
-        })
-        .catch(err => {
-          console.warn("Failed to disable sidepanel:", err);
-        });
+      toggleSidePanel(tabId, false);
     }
   }
 
   if (changeInfo.url) {
     const enabled = shouldEnableSidePanel(changeInfo.url);
 
-    chrome.sidePanel
-      .setOptions({
-        tabId,
-        enabled,
-        path: enabled ? "sidepanel.html" : undefined,
-      })
-      .catch(err => {
-        console.warn("Failed to update sidepanel options:", err);
-      });
+    toggleSidePanel(tabId, enabled);
 
     console.log("isContentReady: ", isContentReady);
     console.log("isSidePanelReady: ", isSidePanelReady);
@@ -208,7 +220,7 @@ function sendResetPanelAndUpdateJobTitle(context?: string) {
           ? `No side panel open to receive message when ${context}: ${chrome.runtime.lastError.message}`
           : `No side panel open to receive message: ${chrome.runtime.lastError.message}`;
         console.warn(errorMessage);
-        return;
+        return false;
       }
       if (context) {
         console.log(`response from resetting panel (${context}): `, response);
