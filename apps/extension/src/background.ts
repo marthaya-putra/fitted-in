@@ -4,6 +4,20 @@ import { shouldEnableSidePanel } from "./utils";
 let isContentReady = false;
 let isSidePanelReady = false;
 
+// Ping server every 14 minutes (840,000 milliseconds)
+setInterval(async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/ping`);
+    if (response.ok) {
+      console.log('Ping successful');
+    } else {
+      console.warn('Ping failed with status:', response.status);
+    }
+  } catch (error) {
+    console.error('Ping error:', error);
+  }
+}, 14 * 60 * 1000); // 14 minutes
+
 function toggleSidePanel(tabId: number, enabled: boolean): void {
   chrome.sidePanel
     .setOptions({
