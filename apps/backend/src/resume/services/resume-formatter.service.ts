@@ -9,7 +9,7 @@ export interface FormatResumeParams {
 
 @Injectable()
 export class ResumeFormatterService {
-  async streamFormattedResume(params: FormatResumeParams) {
+  streamFormattedResume(params: FormatResumeParams) {
     try {
       const systemPrompt = `You are a professional CV formatter and optimization assistant.
 Your task is to take raw/plain text resumes and transform them into a clean, well-structured CV that is both ATS-compatible and optimized for AI-based hiring systems.
@@ -25,7 +25,7 @@ Guidelines:
    - Start & End Dates
    - CRITICAL: Company description (preserve any company information provided in raw text, format on a **separate new line**, in *italic*, directly below the dates/location)
    - Achievements/responsibilities in bullet points (quantify results where possible)
-5. Skills should be listed in a keyword-rich, ATS-friendly way. Group them by category (e.g., Programming Languages, Frameworks, Tools).
+5. Skills should be formatted in bullet points and listed in a keyword-rich, ATS-friendly way. Group them by category (e.g., Programming Languages, Frameworks, Tools). Each skill should be a separate bullet point.
 6. Do not invent experience or skills. Use only the information provided in the raw text. IMPORTANT: Never remove or merge company descriptions — always preserve them verbatim.
 7. Rewrite sentences concisely and in a professional, action-oriented style.
 8. Ensure correct grammar, punctuation, and consistent tense.
@@ -89,6 +89,7 @@ Make sure the final version:
   - Job titles in **bold**, companies in *italic*, and dates/locations in plain text.
   - CRITICAL: Each company description must be preserved and appear on its own line, in *italic*, immediately below the location/date line.
   - Achievements as bullet points with **bold metrics** (percentages, counts, etc.) highlighted.
+  - Skills section: Format each skill as a bullet point, grouped by categories.
 
 - Structure: SUMMARY → EXPERIENCE → SKILLS → EDUCATION → PROJECTS
 - Be concise, grammatically correct, and professional.
