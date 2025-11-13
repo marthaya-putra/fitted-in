@@ -6,6 +6,7 @@
   "permissions": ["activeTab", "sidePanel", "webNavigation"],
   "host_permissions": [
     "http://localhost:3000/*",
+    "http://localhost:3001/*",
     "https://www.linkedin.com/jobs/**",
     "https://fitted-in-admin.marthayaputra-han.workers.dev/*"
   ],

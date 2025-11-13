@@ -47,7 +47,7 @@ Do not add new technologies or experiences not mentioned in the original resume.
 Do not exaggerate or misrepresent the candidate's background.
 
 Output format:
-Return only the optimized Work Experience section, formatted as plain text with the same structure as the input (company names, dates, positions, bullet points).
+Return only the optimized Work Experience section, formatted as plain text with the same structure as the input (company names, dates, company description, positions, bullet points).
 DO NOT use markdown formatting, headings, bullet points with asterisks, or any other markdown syntax.
 Use plain text formatting only with simple line breaks and text formatting.
 
