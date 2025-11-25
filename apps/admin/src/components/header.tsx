@@ -26,6 +26,12 @@ export function Header() {
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center space-x-4">
             <Link
+              href="/optimize"
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+            >
+              Optimize Resume
+            </Link>
+            <Link
               href="/privacy"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >

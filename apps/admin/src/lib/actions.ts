@@ -93,3 +93,39 @@ export async function saveResume(data: ResumeData): Promise<void> {
 
   revalidatePath("/");
 }
+
+export async function optimizeResume(jobDescription: string): Promise<ReadableStream> {
+  const { data: sessionData } = await authClient.getSession({
+    fetchOptions: {
+      headers: await headers(),
+    },
+  });
+
+  if (!sessionData || !sessionData.user) {
+    console.error("User not logged in");
+    redirect("/sign-in");
+  }
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/optimize`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: (await headers()).get("cookie") || "",
+      },
+      body: JSON.stringify({ jobDescription }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to optimize resume: ${response.status} - ${errorText}`);
+  }
+
+  if (!response.body) {
+    throw new Error("No response body from optimization endpoint");
+  }
+
+  return response.body;
+}
