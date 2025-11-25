@@ -184,7 +184,7 @@ The number of verdicts MUST MATCH the number of statements exactly.
   Number of statements: ${statements.length === 0 ? "1" : statements.length}
 
   Statements:
-  ${statements}
+  ${statements.join(" ")}
 
   JSON:
   `;

@@ -35,6 +35,8 @@ Showcase skills that have been practically applied in projects.
 
 Organize skills in logical categories for easy scanning.
 
+MAXIMUM OF 4 SKILL GROUPS: Select and organize only the top 4 most relevant skill categories that align with the job description. Prioritize categories that contain the most relevant and frequently mentioned skills in the job requirements.
+
 Demonstrate alignment with the company's industry, role, and expectations.
 
 Maintains a professional and consistent format:
@@ -67,6 +69,7 @@ Keep only skills that add value to the target position.
 
 Output format:
 Return only the optimized Skills section, formatted as plain text with the same categorization structure as the input.
+LIMIT TO MAXIMUM 4 SKILL GROUPS - select only the most relevant categories based on job description requirements.
 DO NOT use markdown formatting, headings, bullet points with asterisks, or any other markdown syntax.
 Use plain text formatting only with simple line breaks and text formatting.
 

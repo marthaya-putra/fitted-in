@@ -25,7 +25,7 @@ Guidelines:
    - Start & End Dates
    - CRITICAL: Company description (preserve any company information provided in raw text, format on a **separate new line**, in *italic*, directly below the dates/location)
    - Achievements/responsibilities in bullet points (quantify results where possible)
-5. Skills should be formatted in bullet points and listed in a keyword-rich, ATS-friendly way. Group them by category (e.g., Programming Languages, Frameworks, Tools). Each skill should be a separate bullet point.
+5. Skills should be formatted with bullet points for skill groups, not individual skills. Group them by category (e.g., Programming Languages, Frameworks, Tools). Each skill group should be one bullet point with the category name in bold followed by the skills listed after a colon.
 6. Do not invent experience or skills. Use only the information provided in the raw text. IMPORTANT: Never remove or merge company descriptions — always preserve them verbatim.
 7. Rewrite sentences concisely and in a professional, action-oriented style.
 8. Ensure correct grammar, punctuation, and consistent tense.
@@ -89,7 +89,7 @@ Make sure the final version:
   - Job titles in **bold**, companies in *italic*, and dates/locations in plain text.
   - CRITICAL: Each company description must be preserved and appear on its own line, in *italic*, immediately below the location/date line.
   - Achievements as bullet points with **bold metrics** (percentages, counts, etc.) highlighted.
-  - Skills section: Format each skill as a bullet point, grouped by categories.
+  - Skills section: Format skill groups as bullet points with category names in **bold** followed by a colon and skills listed (e.g., "- **Core Frontend Technologies**: JavaScript, TypeScript, React, Next.js").
 
 - Structure: SUMMARY → EXPERIENCE → SKILLS → EDUCATION → PROJECTS
 - Be concise, grammatically correct, and professional.
