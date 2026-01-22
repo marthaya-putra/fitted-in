@@ -25,6 +25,7 @@ import {
 import { CustomizeDto } from "../dto/customize-job.dto";
 import { ResumeOptimizerService } from "../services/resume-optimizer.service";
 import { ResumeProfile } from "../../db/types";
+import { createUIMessageStream, pipeUIMessageStreamToResponse } from "ai";
 
 @Controller("resumes")
 export class ResumeController {
@@ -87,11 +88,16 @@ export class ResumeController {
     @Body() customizeDto: CustomizeDto,
     @Res() res: Response
   ) {
-    const result = await this.resumeOptimizerService.streamOptimizedCV({
-      userId: session.user.id,
-      jobDescription: customizeDto.jobDescription,
+    const stream = createUIMessageStream({
+      execute: async ({ writer }) => {
+        await this.resumeOptimizerService.streamOptimizedCV({
+          userId: session.user.id,
+          jobDescription: customizeDto.jobDescription,
+          writer,
+        });
+      },
     });
 
-    result.pipeTextStreamToResponse(res);
+    return pipeUIMessageStreamToResponse({ stream, response: res });
   }
 }

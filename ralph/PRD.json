@@ -1,0 +1,191 @@
+{
+  "title": "SSE Streaming for Resume Optimization Status Updates",
+  "description": "Stream status updates during resume optimization using Vercel AI SDK's createUIMessageStream while keeping parallel execution",
+  "phases": [
+    {
+      "name": "Phase 1: Backend - Controller",
+      "description": "Update resume controller to use createUIMessageStream for SSE",
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Import createUIMessageStream and pipeUIMessageStreamToResponse from 'ai'",
+          "file": "apps/backend/src/resume/controllers/resume.controller.ts",
+          "status": "done"
+        },
+        {
+          "id": "1.2",
+          "title": "Refactor optimize endpoint to use createUIMessageStream with writer",
+          "file": "apps/backend/src/resume/controllers/resume.controller.ts",
+          "status": "done"
+        },
+        {
+          "id": "1.3",
+          "title": "Replace pipeTextStreamToResponse with pipeUIMessageStreamToResponse",
+          "file": "apps/backend/src/resume/controllers/resume.controller.ts",
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "name": "Phase 2: Backend - Optimizer Service",
+      "description": "Update optimizer service to emit status events via writer",
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Add writer parameter to OptimizeResumeParams interface",
+          "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+          "status": "done"
+        },
+        {
+          "id": "2.2",
+          "title": "Update method signature to accept writer parameter",
+          "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+          "status": "done"
+        },
+        {
+          "id": "2.3",
+          "title": "Add 'summarizing' status event (in-progress + done)",
+          "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+          "status": "done"
+        },
+        {
+          "id": "2.4",
+          "title": "Wrap summary optimizer with in-progress and done events",
+          "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+          "status": "done"
+        },
+        {
+          "id": "2.5",
+          "title": "Wrap experience optimizer with in-progress and done events",
+          "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+          "status": "done"
+        },
+        {
+          "id": "2.6",
+          "title": "Wrap skills optimizer with in-progress and done events",
+          "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+          "status": "done"
+        },
+        {
+          "id": "2.7",
+          "title": "Add 'formatting' in-progress status event",
+          "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "name": "Phase 3: Extension - Types",
+      "description": "Add new action type for status updates",
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Add optimizationStatus action type to types",
+          "file": "apps/extension/src/types.ts",
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "name": "Phase 4: Extension - Background Script",
+      "description": "Update background script to parse and handle status events",
+      "tasks": [
+        {
+          "id": "4.1",
+          "title": "Update SSE parser to handle data-status events",
+          "file": "apps/extension/background.ts",
+          "status": "done"
+        },
+        {
+          "id": "4.2",
+          "title": "Extract stage, message, and status from data-status events",
+          "file": "apps/extension/background.ts",
+          "status": "done"
+        },
+        {
+          "id": "4.3",
+          "title": "Send optimizationStatus message to runtime",
+          "file": "apps/extension/background.ts",
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "name": "Phase 5: Extension - UI",
+      "description": "Update UI to display status and progress",
+      "tasks": [
+        {
+          "id": "5.1",
+          "title": "Add optimizationStatus state variable",
+          "file": "apps/extension/src/App.tsx",
+          "status": "done"
+        },
+        {
+          "id": "5.2",
+          "title": "Add completedStages Set state to track progress",
+          "file": "apps/extension/src/App.tsx",
+          "status": "pending"
+        },
+        {
+          "id": "5.3",
+          "title": "Update message listener to handle optimizationStatus action",
+          "file": "apps/extension/src/App.tsx",
+          "status": "pending"
+        },
+        {
+          "id": "5.4",
+          "title": "Update completedStages when status is 'done'",
+          "file": "apps/extension/src/App.tsx",
+          "status": "pending"
+        },
+        {
+          "id": "5.5",
+          "title": "Render progress indicator with stage checkmarks",
+          "file": "apps/extension/src/App.tsx",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "name": "Phase 6: Testing & Verification",
+      "description": "Test the end-to-end SSE streaming with status updates",
+      "tasks": [
+        {
+          "id": "6.1",
+          "title": "Start backend dev server",
+          "file": "apps/backend",
+          "status": "pending"
+        },
+        {
+          "id": "6.2",
+          "title": "Load extension in Chrome",
+          "file": "apps/extension",
+          "status": "pending"
+        },
+        {
+          "id": "6.3",
+          "title": "Test optimize flow - verify status updates appear",
+          "file": "apps/extension",
+          "status": "pending"
+        },
+        {
+          "id": "6.4",
+          "title": "Verify parallel execution (stages complete in any order)",
+          "file": "apps/backend",
+          "status": "pending"
+        },
+        {
+          "id": "6.5",
+          "title": "Verify resume content streams correctly",
+          "file": "apps/extension",
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "totalTasks": 23,
+    "completedTasks": 15,
+    "pendingTasks": 8
+  }
+}

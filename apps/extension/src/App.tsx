@@ -14,12 +14,19 @@ import {
 } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
 
+type OptimizationStatus = {
+  stage: string;
+  message: string;
+  status: "in-progress" | "done";
+};
+
 function App() {
   const [resume, setResume] = useState("");
   const [loading, setLoading] = useState(false);
   const [currentJobTitle, setCurrentJobTitle] = useState("");
   const [error, setError] = useState("");
   const [isOptimized, setIsOptimized] = useState(false);
+  const [optimizationStatus, setOptimizationStatus] = useState<OptimizationStatus | null>(null);
   const { data: session, isPending } = authClient.useSession();
   console.log("SEssion data: ", JSON.stringify(session));
 

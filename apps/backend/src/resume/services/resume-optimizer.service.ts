@@ -6,10 +6,12 @@ import { ResumeService } from "./resume.service";
 import { JobDescriptionSummarizerService } from "./job-description-summarizer.service";
 import { ResumeFormatterService } from "./resume-formatter.service";
 import { ResumeProfile } from "../../db/types";
+import type { UIMessageStreamWriter } from "ai";
 
 export interface OptimizeResumeParams {
   userId: string;
   jobDescription: string;
+  writer: UIMessageStreamWriter;
 }
 
 export interface OptimizedResume {
@@ -30,37 +32,120 @@ export class ResumeOptimizerService {
     private readonly resumeFormatterService: ResumeFormatterService
   ) {}
 
-  async streamOptimizedCV(params: OptimizeResumeParams) {
-    const savedResume = await this.resumeService.findByUserId(params.userId);
+  async streamOptimizedCV({ userId, jobDescription, writer }: OptimizeResumeParams) {
+    const savedResume = await this.resumeService.findByUserId(userId);
     if (!savedResume) {
       throw new Error("Master resume not found");
     }
 
+    await writer.write({
+      type: "data-status",
+      data: {
+        type: "status",
+        stage: "summarizing",
+        message: "Summarizing job description...",
+        status: "in-progress",
+      },
+    });
+
     const summarizedJobDescription =
       await this.jobDescriptionSummarizerService.summarize(
-        params.jobDescription
+        jobDescription
       );
+
+    await writer.write({
+      type: "data-status",
+      data: {
+        type: "status",
+        stage: "summarizing",
+        message: "Job description summarized",
+        status: "done",
+      },
+    });
 
     const [optimizedSummary, optimizedWorkExperiences, optimizedSkills] =
       await Promise.all([
-        this.summaryOptimizerService.optimize({
-          jobDescription: summarizedJobDescription,
-          summary: savedResume.summary!,
-          experiences: savedResume.workExperiences!,
-          educations: savedResume.educations!,
-          skills: savedResume.skills!,
-          projects: savedResume.projects || "",
-        }),
-        this.workExperienceOptimizerService.optimize({
-          jobDescription: summarizedJobDescription,
-          experiences: savedResume.workExperiences!,
-          skills: savedResume.skills!,
-        }),
-        this.skillsOptimizerService.optimize({
-          jobDescription: summarizedJobDescription,
-          skills: savedResume.skills!,
-          projects: savedResume.projects || "",
-        }),
+        (async () => {
+          await writer.write({
+            type: "data-status",
+            data: {
+              type: "status",
+              stage: "summary",
+              message: "Optimizing summary...",
+              status: "in-progress",
+            },
+          });
+          const result = await this.summaryOptimizerService.optimize({
+            jobDescription: summarizedJobDescription,
+            summary: savedResume.summary!,
+            experiences: savedResume.workExperiences!,
+            educations: savedResume.educations!,
+            skills: savedResume.skills!,
+            projects: savedResume.projects || "",
+          });
+          await writer.write({
+            type: "data-status",
+            data: {
+              type: "status",
+              stage: "summary",
+              message: "Summary optimized",
+              status: "done",
+            },
+          });
+          return result;
+        })(),
+        (async () => {
+          await writer.write({
+            type: "data-status",
+            data: {
+              type: "status",
+              stage: "experience",
+              message: "Optimizing work experience...",
+              status: "in-progress",
+            },
+          });
+          const result = await this.workExperienceOptimizerService.optimize({
+            jobDescription: summarizedJobDescription,
+            experiences: savedResume.workExperiences!,
+            skills: savedResume.skills!,
+          });
+          await writer.write({
+            type: "data-status",
+            data: {
+              type: "status",
+              stage: "experience",
+              message: "Work experience optimized",
+              status: "done",
+            },
+          });
+          return result;
+        })(),
+        (async () => {
+          await writer.write({
+            type: "data-status",
+            data: {
+              type: "status",
+              stage: "skills",
+              message: "Optimizing skills...",
+              status: "in-progress",
+            },
+          });
+          const result = await this.skillsOptimizerService.optimize({
+            jobDescription: summarizedJobDescription,
+            skills: savedResume.skills!,
+            projects: savedResume.projects || "",
+          });
+          await writer.write({
+            type: "data-status",
+            data: {
+              type: "status",
+              stage: "skills",
+              message: "Skills optimized",
+              status: "done",
+            },
+          });
+          return result;
+        })(),
       ]);
 
     const optimizedResume: ResumeProfile = {
@@ -70,6 +155,16 @@ export class ResumeOptimizerService {
       projects: savedResume.projects,
       skills: optimizedSkills,
     };
+
+    await writer.write({
+      type: "data-status",
+      data: {
+        type: "status",
+        stage: "formatting",
+        message: "Formatting resume...",
+        status: "in-progress",
+      },
+    });
 
     return this.resumeFormatterService.streamFormattedResume({
       resumeProfile: optimizedResume,
