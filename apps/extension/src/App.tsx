@@ -48,22 +48,32 @@ function App() {
   };
 
   useEffect(() => {
-    const handler = (msg: { action: ActionType; data: string }) => {
+    const handler = (msg: { action: ActionType; data: string | OptimizationStatus }) => {
       if (msg.action === actions.updateJobTitle) {
-        setCurrentJobTitle(msg.data);
+        setCurrentJobTitle(msg.data as string);
         setResume("");
         setError("");
         setIsOptimized(false);
         setCompletedStages(new Set());
+        setOptimizationStatus(null);
       }
       if (msg.action === "streaming") {
-        setResume(prev => prev + msg.data);
+        setResume(prev => prev + (msg.data as string));
         return;
       }
 
       if (msg.action === "streaming-ended") {
         setLoading(false);
         setIsOptimized(true);
+        return;
+      }
+
+      if (msg.action === actions.optimizationStatus) {
+        const statusData = msg.data as OptimizationStatus;
+        setOptimizationStatus(statusData);
+        if (statusData.status === "done") {
+          setCompletedStages(prev => new Set(prev).add(statusData.stage));
+        }
         return;
       }
     };
