@@ -130,13 +130,13 @@
           "id": "5.3",
           "title": "Update message listener to handle optimizationStatus action",
           "file": "apps/extension/src/App.tsx",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "5.4",
           "title": "Update completedStages when status is 'done'",
           "file": "apps/extension/src/App.tsx",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "5.5",
@@ -185,7 +185,7 @@
   ],
   "summary": {
     "totalTasks": 23,
-    "completedTasks": 16,
-    "pendingTasks": 7
+    "completedTasks": 18,
+    "pendingTasks": 5
   }
 }

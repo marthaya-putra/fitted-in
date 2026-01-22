@@ -11,6 +11,8 @@ import {
   Loader2,
   LogOut,
   ChevronDown,
+  Check,
+  Circle,
 } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
 
@@ -161,6 +163,43 @@ function App() {
             <div>
               <p className="text-sm font-medium text-red-900">Error</p>
               <p className="text-sm text-red-700 mt-1">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {loading && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <p className="text-sm font-medium text-gray-900 mb-3">Optimization Progress</p>
+            <div className="space-y-2">
+              {[
+                { id: "summarizing", label: "Summarizing" },
+                { id: "experiences", label: "Optimizing Experience" },
+                { id: "skills", label: "Optimizing Skills" },
+                { id: "formatting", label: "Formatting" },
+              ].map((stage) => {
+                const isComplete = completedStages.has(stage.id);
+                const isCurrent = optimizationStatus?.stage === stage.id;
+                return (
+                  <div
+                    key={stage.id}
+                    className={`flex items-center gap-2 text-sm ${
+                      isCurrent ? "text-blue-600" : isComplete ? "text-green-600" : "text-gray-400"
+                    }`}
+                  >
+                    {isComplete ? (
+                      <Check className="w-4 h-4" />
+                    ) : (
+                      <Circle className="w-4 h-4" />
+                    )}
+                    <span>{stage.label}</span>
+                    {isCurrent && optimizationStatus?.message && (
+                      <span className="text-xs text-gray-500 ml-auto">
+                        {optimizationStatus.message}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
