@@ -142,7 +142,7 @@
           "id": "5.5",
           "title": "Render progress indicator with stage checkmarks",
           "file": "apps/extension/src/App.tsx",
-          "status": "pending"
+          "status": "done"
         }
       ]
     },
@@ -185,7 +185,7 @@
   ],
   "summary": {
     "totalTasks": 23,
-    "completedTasks": 18,
-    "pendingTasks": 5
+    "completedTasks": 19,
+    "pendingTasks": 4
   }
 }
