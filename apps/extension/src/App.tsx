@@ -27,6 +27,7 @@ function App() {
   const [error, setError] = useState("");
   const [isOptimized, setIsOptimized] = useState(false);
   const [optimizationStatus, setOptimizationStatus] = useState<OptimizationStatus | null>(null);
+  const [completedStages, setCompletedStages] = useState<Set<string>>(new Set());
   const { data: session, isPending } = authClient.useSession();
   console.log("SEssion data: ", JSON.stringify(session));
 
@@ -53,6 +54,7 @@ function App() {
         setResume("");
         setError("");
         setIsOptimized(false);
+        setCompletedStages(new Set());
       }
       if (msg.action === "streaming") {
         setResume(prev => prev + msg.data);
@@ -78,6 +80,7 @@ function App() {
     setError("");
     setLoading(true);
     setIsOptimized(false);
+    setCompletedStages(new Set());
 
     chrome.runtime.sendMessage({ action: actions.optimizeResume }, response => {
       if (response.error) {
