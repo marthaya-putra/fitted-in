@@ -1,6 +1,6 @@
 import { generateObject } from "ai";
 import { createScorer } from "evalite";
-import { defaultModel } from "src/resume/models";
+import { getModel } from "src/resume/models";
 import { OptimizeSummaryParams } from "src/resume/services/summary-optimizer.service";
 import { z } from "zod";
 
@@ -196,7 +196,7 @@ export const checkAnswerRelevancy = async (opts: {
 }) => {
   // Step 1: Break down the output into statements
   const { object: statementsResult } = await generateObject({
-    model: defaultModel,
+    model: getModel(),
     prompt: generateEvaluationStatementsPrompt({ output: opts.output }),
     schema: z.object({
       statements: z
@@ -215,7 +215,7 @@ export const checkAnswerRelevancy = async (opts: {
 
   // Step 2: Evaluate relevancy of each statement
   const { object: verdictResult } = await generateObject({
-    model: defaultModel,
+    model: getModel(),
     system: ANSWER_RELEVANCY_AGENT_INSTRUCTIONS,
     prompt: generateEvaluatePrompt({
       input: opts.question,

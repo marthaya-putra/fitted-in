@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { streamText } from "ai";
-import { defaultModel } from "../models";
+import { getModel } from "../models";
 import { type ResumeProfile } from "../../db/types";
 
 export interface FormatResumeParams {
@@ -61,7 +61,7 @@ New South Wales, Australia (Remote), Feb 2024 – Present
 `;
 
       return streamText({
-        model: defaultModel,
+        model: getModel(),
         system: systemPrompt,
         prompt: `Here is the CV data. Please reformat it into a professional, ATS-friendly resume following the system guidelines:
 

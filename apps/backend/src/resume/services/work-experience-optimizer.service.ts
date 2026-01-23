@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { generateText } from "ai";
-import { defaultModel } from "../models";
+import { getModel } from "../models";
 
 export interface OptimizeWorkExperienceParams {
   jobDescription: string;
@@ -61,7 +61,7 @@ IMPORTANT: DO NOT MAKE THIS UP!!! IF THE RESUME DON'T CONTAIN REQUIRED SKILLS OR
 export class WorkExperienceOptimizerService {
   async optimize(params: OptimizeWorkExperienceParams): Promise<string> {
     const { text } = await generateText({
-      model: defaultModel,
+      model: getModel(),
       system: systemPrompt,
       prompt: `Optimize CV Work Experience section with data provided below:
       <job-description>

@@ -28,10 +28,12 @@ function App() {
   const [currentJobTitle, setCurrentJobTitle] = useState("");
   const [error, setError] = useState("");
   const [isOptimized, setIsOptimized] = useState(false);
-  const [optimizationStatus, setOptimizationStatus] = useState<OptimizationStatus | null>(null);
-  const [completedStages, setCompletedStages] = useState<Set<string>>(new Set());
+  const [optimizationStatus, setOptimizationStatus] =
+    useState<OptimizationStatus | null>(null);
+  const [completedStages, setCompletedStages] = useState<Set<string>>(
+    new Set()
+  );
   const { data: session, isPending } = authClient.useSession();
-  console.log("SEssion data: ", JSON.stringify(session));
 
   useEffect(() => {
     const port = chrome.runtime.connect({ name: "sidepanel" });
@@ -50,7 +52,10 @@ function App() {
   };
 
   useEffect(() => {
-    const handler = (msg: { action: ActionType; data: string | OptimizationStatus }) => {
+    const handler = (msg: {
+      action: ActionType;
+      data: string | OptimizationStatus;
+    }) => {
       if (msg.action === actions.updateJobTitle) {
         setCurrentJobTitle(msg.data as string);
         setResume("");
@@ -169,21 +174,27 @@ function App() {
 
         {loading && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-            <p className="text-sm font-medium text-gray-900 mb-3">Optimization Progress</p>
+            <p className="text-sm font-medium text-gray-900 mb-3">
+              Optimization Progress
+            </p>
             <div className="space-y-2">
               {[
                 { id: "summarizing", label: "Summarizing" },
                 { id: "experiences", label: "Optimizing Experience" },
                 { id: "skills", label: "Optimizing Skills" },
                 { id: "formatting", label: "Formatting" },
-              ].map((stage) => {
+              ].map(stage => {
                 const isComplete = completedStages.has(stage.id);
                 const isCurrent = optimizationStatus?.stage === stage.id;
                 return (
                   <div
                     key={stage.id}
                     className={`flex items-center gap-2 text-sm ${
-                      isCurrent ? "text-blue-600" : isComplete ? "text-green-600" : "text-gray-400"
+                      isCurrent
+                        ? "text-blue-600"
+                        : isComplete
+                          ? "text-green-600"
+                          : "text-gray-400"
                     }`}
                   >
                     {isComplete ? (

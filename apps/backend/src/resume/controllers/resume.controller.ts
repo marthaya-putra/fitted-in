@@ -83,7 +83,7 @@ export class ResumeController {
 
   @Post("optimize")
   @HttpCode(HttpStatus.OK)
-  async optimize(
+  optimize(
     @Session() session: UserSession,
     @Body() customizeDto: CustomizeDto,
     @Res() res: Response

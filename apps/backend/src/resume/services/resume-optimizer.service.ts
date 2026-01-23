@@ -32,13 +32,17 @@ export class ResumeOptimizerService {
     private readonly resumeFormatterService: ResumeFormatterService
   ) {}
 
-  async streamOptimizedCV({ userId, jobDescription, writer }: OptimizeResumeParams) {
+  async streamOptimizedCV({
+    userId,
+    jobDescription,
+    writer,
+  }: OptimizeResumeParams) {
     const savedResume = await this.resumeService.findByUserId(userId);
     if (!savedResume) {
       throw new Error("Master resume not found");
     }
 
-    await writer.write({
+    writer.write({
       type: "data-status",
       data: {
         type: "status",
@@ -49,11 +53,9 @@ export class ResumeOptimizerService {
     });
 
     const summarizedJobDescription =
-      await this.jobDescriptionSummarizerService.summarize(
-        jobDescription
-      );
+      await this.jobDescriptionSummarizerService.summarize(jobDescription);
 
-    await writer.write({
+    writer.write({
       type: "data-status",
       data: {
         type: "status",
@@ -66,7 +68,7 @@ export class ResumeOptimizerService {
     const [optimizedSummary, optimizedWorkExperiences, optimizedSkills] =
       await Promise.all([
         (async () => {
-          await writer.write({
+          writer.write({
             type: "data-status",
             data: {
               type: "status",
@@ -83,7 +85,7 @@ export class ResumeOptimizerService {
             skills: savedResume.skills!,
             projects: savedResume.projects || "",
           });
-          await writer.write({
+          writer.write({
             type: "data-status",
             data: {
               type: "status",
@@ -95,7 +97,7 @@ export class ResumeOptimizerService {
           return result;
         })(),
         (async () => {
-          await writer.write({
+          writer.write({
             type: "data-status",
             data: {
               type: "status",
@@ -109,7 +111,7 @@ export class ResumeOptimizerService {
             experiences: savedResume.workExperiences!,
             skills: savedResume.skills!,
           });
-          await writer.write({
+          writer.write({
             type: "data-status",
             data: {
               type: "status",
@@ -121,7 +123,7 @@ export class ResumeOptimizerService {
           return result;
         })(),
         (async () => {
-          await writer.write({
+          writer.write({
             type: "data-status",
             data: {
               type: "status",
@@ -135,7 +137,7 @@ export class ResumeOptimizerService {
             skills: savedResume.skills!,
             projects: savedResume.projects || "",
           });
-          await writer.write({
+          writer.write({
             type: "data-status",
             data: {
               type: "status",
@@ -156,7 +158,7 @@ export class ResumeOptimizerService {
       skills: optimizedSkills,
     };
 
-    await writer.write({
+    writer.write({
       type: "data-status",
       data: {
         type: "status",
@@ -166,8 +168,20 @@ export class ResumeOptimizerService {
       },
     });
 
-    return this.resumeFormatterService.streamFormattedResume({
+    const formatterStream = this.resumeFormatterService.streamFormattedResume({
       resumeProfile: optimizedResume,
+    });
+
+    writer.merge(formatterStream.toUIMessageStream());
+
+    writer.write({
+      type: "data-status",
+      data: {
+        type: "status",
+        stage: "formatting",
+        message: "Resume formatted",
+        status: "done",
+      },
     });
   }
 }

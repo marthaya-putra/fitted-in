@@ -215,7 +215,9 @@ async function optimizeResume(jobDescription: string) {
       break;
     }
 
+    console.log("value: ", value);
     buffer += decoder.decode(value, { stream: true });
+    console.log("buffer: ", buffer);
     const lines = buffer.split("\n");
     buffer = lines.pop() || "";
 
@@ -224,21 +226,15 @@ async function optimizeResume(jobDescription: string) {
         const data = line.slice(6);
         if (data === "[DONE]") continue;
 
-        try {
-          const parsed = JSON.parse(data);
+        const parsed = JSON.parse(data);
+        console.log({ parsed });
 
-          if (parsed.type === "status") {
-            chrome.runtime.sendMessage({
-              action: actions.optimizationStatus,
-              data: parsed.data,
-            });
-          } else {
-            chrome.runtime.sendMessage({
-              action: actions.streaming,
-              data,
-            });
-          }
-        } catch {
+        if (parsed.type === "data-status") {
+          chrome.runtime.sendMessage({
+            action: actions.optimizationStatus,
+            data: parsed.data,
+          });
+        } else {
           chrome.runtime.sendMessage({
             action: actions.streaming,
             data,
