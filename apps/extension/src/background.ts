@@ -215,9 +215,7 @@ async function optimizeResume(jobDescription: string) {
       break;
     }
 
-    console.log("value: ", value);
     buffer += decoder.decode(value, { stream: true });
-    console.log("buffer: ", buffer);
     const lines = buffer.split("\n");
     buffer = lines.pop() || "";
 
@@ -227,17 +225,16 @@ async function optimizeResume(jobDescription: string) {
         if (data === "[DONE]") continue;
 
         const parsed = JSON.parse(data);
-        console.log({ parsed });
 
         if (parsed.type === "data-status") {
           chrome.runtime.sendMessage({
             action: actions.optimizationStatus,
             data: parsed.data,
           });
-        } else {
+        } else if (parsed.type === "text-delta") {
           chrome.runtime.sendMessage({
             action: actions.streaming,
-            data,
+            data: parsed.delta,
           });
         }
       }

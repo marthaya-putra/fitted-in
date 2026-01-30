@@ -28,11 +28,11 @@ function App() {
   const [currentJobTitle, setCurrentJobTitle] = useState("");
   const [error, setError] = useState("");
   const [isOptimized, setIsOptimized] = useState(false);
-  const [optimizationStatus, setOptimizationStatus] =
-    useState<OptimizationStatus | null>(null);
-  const [completedStages, setCompletedStages] = useState<Set<string>>(
-    new Set()
-  );
+  const [optimizationStatus, setOptimizationStatus] = useState<
+    Array<OptimizationStatus>
+  >([]);
+  const [hasStartedStreaming, setHasStartedStreaming] = useState(false);
+
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
@@ -61,10 +61,11 @@ function App() {
         setResume("");
         setError("");
         setIsOptimized(false);
-        setCompletedStages(new Set());
-        setOptimizationStatus(null);
+        setOptimizationStatus([]);
+        setHasStartedStreaming(false);
       }
       if (msg.action === "streaming") {
+        setHasStartedStreaming(true);
         setResume(prev => prev + (msg.data as string));
         return;
       }
@@ -77,10 +78,8 @@ function App() {
 
       if (msg.action === actions.optimizationStatus) {
         const statusData = msg.data as OptimizationStatus;
-        setOptimizationStatus(statusData);
-        if (statusData.status === "done") {
-          setCompletedStages(prev => new Set(prev).add(statusData.stage));
-        }
+        setOptimizationStatus(prev => [...prev, statusData]);
+
         return;
       }
     };
@@ -97,7 +96,8 @@ function App() {
     setError("");
     setLoading(true);
     setIsOptimized(false);
-    setCompletedStages(new Set());
+    setOptimizationStatus([]);
+    setHasStartedStreaming(false);
 
     chrome.runtime.sendMessage({ action: actions.optimizeResume }, response => {
       if (response.error) {
@@ -172,42 +172,43 @@ function App() {
           </div>
         )}
 
-        {loading && (
+        {loading && !hasStartedStreaming && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
             <p className="text-sm font-medium text-gray-900 mb-3">
               Optimization Progress
             </p>
             <div className="space-y-2">
               {[
-                { id: "summarizing", label: "Summarizing" },
-                { id: "experiences", label: "Optimizing Experience" },
-                { id: "skills", label: "Optimizing Skills" },
-                { id: "formatting", label: "Formatting" },
+                { id: "summarizing", label: "Summarizing Job Description" },
+                { id: "summary", label: "Optimizing Your Summary" },
+                { id: "experience", label: "Optimizing Your Experience" },
+                { id: "skills", label: "Optimizing Your Skills" },
               ].map(stage => {
-                const isComplete = completedStages.has(stage.id);
-                const isCurrent = optimizationStatus?.stage === stage.id;
+                const isInProgress = optimizationStatus.some(
+                  s => s.stage === stage.id && s.status === "in-progress"
+                );
+
+                const isDone = optimizationStatus.some(
+                  s => s.stage === stage.id && s.status === "done"
+                );
+
                 return (
                   <div
                     key={stage.id}
                     className={`flex items-center gap-2 text-sm ${
-                      isCurrent
-                        ? "text-blue-600"
-                        : isComplete
-                          ? "text-green-600"
+                      isDone
+                        ? "text-green-600"
+                        : isInProgress
+                          ? "text-blue-600"
                           : "text-gray-400"
                     }`}
                   >
-                    {isComplete ? (
+                    {isDone ? (
                       <Check className="w-4 h-4" />
                     ) : (
                       <Circle className="w-4 h-4" />
                     )}
                     <span>{stage.label}</span>
-                    {isCurrent && optimizationStatus?.message && (
-                      <span className="text-xs text-gray-500 ml-auto">
-                        {optimizationStatus.message}
-                      </span>
-                    )}
                   </div>
                 );
               })}
