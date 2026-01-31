@@ -120,7 +120,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative">
-      <div className="p-4 flex flex-col gap-4">
+      <div className="p-4 flex flex-col gap-4 h-[calc(100vh-8rem)]">
         <div>
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -173,21 +173,17 @@ function App() {
         )}
 
         {loading && !hasStartedStreaming && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-            <p className="text-sm font-medium text-gray-900 mb-3">
-              Optimization Progress
-            </p>
-            <div className="space-y-2">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex-1">
+            <div className="space-y-3">
               {[
                 { id: "summarizing", label: "Summarizing Job Description" },
                 { id: "summary", label: "Optimizing Your Summary" },
-                { id: "experience", label: "Optimizing Your Experience" },
                 { id: "skills", label: "Optimizing Your Skills" },
+                { id: "experience", label: "Optimizing Your Experience" },
               ].map(stage => {
                 const isInProgress = optimizationStatus.some(
                   s => s.stage === stage.id && s.status === "in-progress"
                 );
-
                 const isDone = optimizationStatus.some(
                   s => s.stage === stage.id && s.status === "done"
                 );
@@ -195,20 +191,42 @@ function App() {
                 return (
                   <div
                     key={stage.id}
-                    className={`flex items-center gap-2 text-sm ${
+                    className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
                       isDone
-                        ? "text-green-600"
+                        ? "bg-green-50 border-green-200"
                         : isInProgress
-                          ? "text-blue-600"
-                          : "text-gray-400"
+                          ? "bg-blue-50 border-blue-200"
+                          : "bg-gray-50 border-gray-200"
                     }`}
                   >
-                    {isDone ? (
-                      <Check className="w-4 h-4" />
-                    ) : (
-                      <Circle className="w-4 h-4" />
-                    )}
-                    <span>{stage.label}</span>
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        isDone
+                          ? "bg-green-500"
+                          : isInProgress
+                            ? "bg-blue-500"
+                            : "bg-gray-300"
+                      }`}
+                    >
+                      {isDone ? (
+                        <Check className="w-5 h-5 text-white" />
+                      ) : isInProgress ? (
+                        <Loader2 className="w-5 h-5 text-white animate-spin" />
+                      ) : (
+                        <Circle className="w-5 h-5 text-white" />
+                      )}
+                    </div>
+                    <span
+                      className={`font-medium ${
+                        isDone
+                          ? "text-green-700"
+                          : isInProgress
+                            ? "text-blue-700"
+                            : "text-gray-500"
+                      }`}
+                    >
+                      {stage.label}
+                    </span>
                   </div>
                 );
               })}
