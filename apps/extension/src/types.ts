@@ -8,6 +8,7 @@ export const actions = {
   optimizeResume: "optimize-resume",
   streaming: "streaming",
   streamingEnded: "streaming-ended",
+  optimizationStatus: "optimization-status",
 } as const;
 
 export type ActionType = (typeof actions)[keyof typeof actions];

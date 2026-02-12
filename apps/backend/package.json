@@ -20,10 +20,12 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "ts-node src/db/seed.ts",
+    "typecheck": "tsc --noEmit",
     "eval:watch": "evalite watch"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.5",
+    "@ai-sdk/mistral": "^2.0.26",
     "@google-cloud/translate": "^9.2.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",

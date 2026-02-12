@@ -1,0 +1,120 @@
+{
+  "title": "SSE Streaming for Resume Optimization Status Updates",
+  "description": "Stream status updates during resume optimization using Vercel AI SDK's createUIMessageStream while keeping parallel execution",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Import createUIMessageStream and pipeUIMessageStreamToResponse from 'ai'",
+      "file": "apps/backend/src/resume/controllers/resume.controller.ts",
+      "status": "done"
+    },
+    {
+      "id": "2",
+      "title": "Refactor optimize endpoint to use createUIMessageStream with writer",
+      "file": "apps/backend/src/resume/controllers/resume.controller.ts",
+      "status": "done"
+    },
+    {
+      "id": "3",
+      "title": "Replace pipeTextStreamToResponse with pipeUIMessageStreamToResponse",
+      "file": "apps/backend/src/resume/controllers/resume.controller.ts",
+      "status": "done"
+    },
+    {
+      "id": "4",
+      "title": "Add writer parameter to OptimizeResumeParams interface",
+      "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+      "status": "done"
+    },
+    {
+      "id": "5",
+      "title": "Update method signature to accept writer parameter",
+      "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+      "status": "done"
+    },
+    {
+      "id": "6",
+      "title": "Add 'summarizing' status event (in-progress + done)",
+      "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+      "status": "done"
+    },
+    {
+      "id": "7",
+      "title": "Wrap summary optimizer with in-progress and done events",
+      "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+      "status": "done"
+    },
+    {
+      "id": "8",
+      "title": "Wrap experience optimizer with in-progress and done events",
+      "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+      "status": "done"
+    },
+    {
+      "id": "9",
+      "title": "Wrap skills optimizer with in-progress and done events",
+      "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+      "status": "done"
+    },
+    {
+      "id": "10",
+      "title": "Add 'formatting' in-progress status event",
+      "file": "apps/backend/src/resume/services/resume-optimizer.service.ts",
+      "status": "done"
+    },
+    {
+      "id": "11",
+      "title": "Add optimizationStatus action type to types",
+      "file": "apps/extension/src/types.ts",
+      "status": "done"
+    },
+    {
+      "id": "12",
+      "title": "Update SSE parser to handle data-status events",
+      "file": "apps/extension/background.ts",
+      "status": "done"
+    },
+    {
+      "id": "13",
+      "title": "Extract stage, message, and status from data-status events",
+      "file": "apps/extension/background.ts",
+      "status": "done"
+    },
+    {
+      "id": "14",
+      "title": "Send optimizationStatus message to runtime",
+      "file": "apps/extension/background.ts",
+      "status": "done"
+    },
+    {
+      "id": "15",
+      "title": "Add optimizationStatus state variable",
+      "file": "apps/extension/src/App.tsx",
+      "status": "done"
+    },
+    {
+      "id": "16",
+      "title": "Add completedStages Set state to track progress",
+      "file": "apps/extension/src/App.tsx",
+      "status": "done"
+    },
+    {
+      "id": "17",
+      "title": "Update message listener to handle optimizationStatus action",
+      "file": "apps/extension/src/App.tsx",
+      "status": "done"
+    },
+    {
+      "id": "18",
+      "title": "Update completedStages when status is 'done'",
+      "file": "apps/extension/src/App.tsx",
+      "status": "done"
+    },
+    {
+      "id": "19",
+      "title": "Render progress indicator with stage checkmarks",
+      "file": "apps/extension/src/App.tsx",
+      "status": "done"
+    }
+  ]
+}

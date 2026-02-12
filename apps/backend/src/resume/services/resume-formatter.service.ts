@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { streamText } from "ai";
-import { defaultModel } from "../models";
+import { getModel } from "../models";
 import { type ResumeProfile } from "../../db/types";
 
 export interface FormatResumeParams {
@@ -61,7 +61,7 @@ New South Wales, Australia (Remote), Feb 2024 – Present
 `;
 
       return streamText({
-        model: defaultModel,
+        model: getModel(),
         system: systemPrompt,
         prompt: `Here is the CV data. Please reformat it into a professional, ATS-friendly resume following the system guidelines:
 
@@ -83,8 +83,8 @@ New South Wales, Australia (Remote), Feb 2024 – Present
 Make sure the final version:
 
 - Uses **Markdown formatting**:
-  - Full name as "# H1" heading at the top.
-  - Contact info under the name, separated by "|".
+  - Full name as "# H1" heading at the top - ONLY the name, nothing else.
+  - Contact info on a SEPARATE line under the name, in format: Location | Email | Phone | Website (separated by "|").
   - Section titles as "## H2".
   - Job titles in **bold**, companies in *italic*, and dates/locations in plain text.
   - CRITICAL: Each company description must be preserved and appear on its own line, in *italic*, immediately below the location/date line.
@@ -94,6 +94,7 @@ Make sure the final version:
 - Structure: SUMMARY → EXPERIENCE → SKILLS → EDUCATION → PROJECTS
 - Be concise, grammatically correct, and professional.
 - Output only the final resume in Markdown, no explanations.
+- CRITICAL: Do NOT wrap the output in a markdown code block (e.g., do NOT use \`\`\`markdown). Output the raw markdown directly.
 `,
         onError: err => {
           console.log("Error is happening...", JSON.stringify(err));

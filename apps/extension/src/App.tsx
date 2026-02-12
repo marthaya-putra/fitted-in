@@ -11,8 +11,16 @@ import {
   Loader2,
   LogOut,
   ChevronDown,
+  Check,
+  Circle,
 } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
+
+type OptimizationStatus = {
+  stage: string;
+  message: string;
+  status: "in-progress" | "done";
+};
 
 function App() {
   const [resume, setResume] = useState("");
@@ -20,8 +28,12 @@ function App() {
   const [currentJobTitle, setCurrentJobTitle] = useState("");
   const [error, setError] = useState("");
   const [isOptimized, setIsOptimized] = useState(false);
+  const [optimizationStatus, setOptimizationStatus] = useState<
+    Array<OptimizationStatus>
+  >([]);
+  const [hasStartedStreaming, setHasStartedStreaming] = useState(false);
+
   const { data: session, isPending } = authClient.useSession();
-  console.log("SEssion data: ", JSON.stringify(session));
 
   useEffect(() => {
     const port = chrome.runtime.connect({ name: "sidepanel" });
@@ -40,21 +52,34 @@ function App() {
   };
 
   useEffect(() => {
-    const handler = (msg: { action: ActionType; data: string }) => {
+    const handler = (msg: {
+      action: ActionType;
+      data: string | OptimizationStatus;
+    }) => {
       if (msg.action === actions.updateJobTitle) {
-        setCurrentJobTitle(msg.data);
+        setCurrentJobTitle(msg.data as string);
         setResume("");
         setError("");
         setIsOptimized(false);
+        setOptimizationStatus([]);
+        setHasStartedStreaming(false);
       }
       if (msg.action === "streaming") {
-        setResume(prev => prev + msg.data);
+        setHasStartedStreaming(true);
+        setResume(prev => prev + (msg.data as string));
         return;
       }
 
       if (msg.action === "streaming-ended") {
         setLoading(false);
         setIsOptimized(true);
+        return;
+      }
+
+      if (msg.action === actions.optimizationStatus) {
+        const statusData = msg.data as OptimizationStatus;
+        setOptimizationStatus(prev => [...prev, statusData]);
+
         return;
       }
     };
@@ -71,6 +96,8 @@ function App() {
     setError("");
     setLoading(true);
     setIsOptimized(false);
+    setOptimizationStatus([]);
+    setHasStartedStreaming(false);
 
     chrome.runtime.sendMessage({ action: actions.optimizeResume }, response => {
       if (response.error) {
@@ -93,7 +120,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative">
-      <div className="p-4 flex flex-col gap-4">
+      <div className="p-4 flex flex-col gap-4 h-[calc(100vh-8rem)]">
         <div>
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -141,6 +168,68 @@ function App() {
             <div>
               <p className="text-sm font-medium text-red-900">Error</p>
               <p className="text-sm text-red-700 mt-1">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {loading && !hasStartedStreaming && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex-1">
+            <div className="space-y-3">
+              {[
+                { id: "summarizing", label: "Summarizing Job Description" },
+                { id: "summary", label: "Optimizing Your Summary" },
+                { id: "skills", label: "Optimizing Your Skills" },
+                { id: "experience", label: "Optimizing Your Experience" },
+              ].map(stage => {
+                const isInProgress = optimizationStatus.some(
+                  s => s.stage === stage.id && s.status === "in-progress"
+                );
+                const isDone = optimizationStatus.some(
+                  s => s.stage === stage.id && s.status === "done"
+                );
+
+                return (
+                  <div
+                    key={stage.id}
+                    className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                      isDone
+                        ? "bg-green-50 border-green-200"
+                        : isInProgress
+                          ? "bg-blue-50 border-blue-200"
+                          : "bg-gray-50 border-gray-200"
+                    }`}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        isDone
+                          ? "bg-green-500"
+                          : isInProgress
+                            ? "bg-blue-500"
+                            : "bg-gray-300"
+                      }`}
+                    >
+                      {isDone ? (
+                        <Check className="w-5 h-5 text-white" />
+                      ) : isInProgress ? (
+                        <Loader2 className="w-5 h-5 text-white animate-spin" />
+                      ) : (
+                        <Circle className="w-5 h-5 text-white" />
+                      )}
+                    </div>
+                    <span
+                      className={`font-medium ${
+                        isDone
+                          ? "text-green-700"
+                          : isInProgress
+                            ? "text-blue-700"
+                            : "text-gray-500"
+                      }`}
+                    >
+                      {stage.label}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

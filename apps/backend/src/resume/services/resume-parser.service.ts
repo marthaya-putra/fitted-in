@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { generateObject } from "ai";
 import { z } from "zod";
-import { defaultModel } from "../models";
+import { getModel } from "../models";
 
 const prompt = `Parse this resume and extract the information in a structured format. Please extract:
 1. Personal information (full name, email, phone, location)
@@ -45,7 +45,7 @@ export class ResumeParserService {
 
       // Generate structured data using AI with direct file input
       const { object } = await generateObject({
-        model: defaultModel,
+        model: getModel(),
         system: prompt,
         messages: [
           {

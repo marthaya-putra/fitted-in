@@ -206,6 +206,7 @@ async function optimizeResume(jobDescription: string) {
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
+  let buffer = "";
 
   while (true) {
     const { done, value } = await reader.read();
@@ -213,10 +214,31 @@ async function optimizeResume(jobDescription: string) {
       chrome.runtime.sendMessage({ action: actions.streamingEnded });
       break;
     }
-    chrome.runtime.sendMessage({
-      action: actions.streaming,
-      data: decoder.decode(value, { stream: true }),
-    });
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+
+    for (const line of lines) {
+      if (line.startsWith("data: ")) {
+        const data = line.slice(6);
+        if (data === "[DONE]") continue;
+
+        const parsed = JSON.parse(data);
+
+        if (parsed.type === "data-status") {
+          chrome.runtime.sendMessage({
+            action: actions.optimizationStatus,
+            data: parsed.data,
+          });
+        } else if (parsed.type === "text-delta") {
+          chrome.runtime.sendMessage({
+            action: actions.streaming,
+            data: parsed.delta,
+          });
+        }
+      }
+    }
   }
   return true;
 }
