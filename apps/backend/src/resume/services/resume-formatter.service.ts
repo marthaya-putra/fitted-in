@@ -23,10 +23,9 @@ Guidelines:
    - Company Name
    - Location (optional if missing)
    - Start & End Dates
-   - CRITICAL: Company description (preserve any company information provided in raw text, format on a **separate new line**, in *italic*, directly below the dates/location)
    - Achievements/responsibilities in bullet points (quantify results where possible)
 5. Skills should be formatted with bullet points for skill groups, not individual skills. Group them by category (e.g., Programming Languages, Frameworks, Tools). Each skill group should be one bullet point with the category name in bold followed by the skills listed after a colon.
-6. Do not invent experience or skills. Use only the information provided in the raw text. IMPORTANT: Never remove or merge company descriptions — always preserve them verbatim.
+6. Do not invent experience or skills. Use only the information provided in the raw text.
 7. Rewrite sentences concisely and in a professional, action-oriented style.
 8. Ensure correct grammar, punctuation, and consistent tense.
 9. Avoid personal details that can bias hiring (age, marital status, photo, religion, etc.).
@@ -38,24 +37,16 @@ Guidelines:
 
 For every work experience, you **must follow this exact Markdown layout**:
 
-**Job Title** – *Company Name*  
-Location, Start Date – End Date  
-*Company description goes here on its own line*  
-- Bullet 1  
-- Bullet 2  
-- Bullet 3  
-
-✅ Requirements:
-- The company description must always appear on its own line, *italicized*.
-- Always include a blank line (or two trailing spaces) after the date line before the company description.
-- Never merge company description with job title, company, or date.
-- Never drop or paraphrase company descriptions.
+**Job Title** – *Company Name*
+Location, Start Date – End Date
+- Bullet 1
+- Bullet 2
+- Bullet 3
 
 Example:
 
-**Senior Software Engineer** – *We Lysn*  
-New South Wales, Australia (Remote), Feb 2024 – Present  
-*Telehealth platform startup for mental health and workplace wellbeing*  
+**Senior Software Engineer** – *We Lysn*
+New South Wales, Australia (Remote), Feb 2024 – Present
 - Spearheaded development of a new telehealth platform MVP...
 - Collaborated with product and design...
 `;
@@ -87,7 +78,6 @@ Make sure the final version:
   - Contact info on a SEPARATE line under the name, in format: Location | Email | Phone | Website (separated by "|").
   - Section titles as "## H2".
   - Job titles in **bold**, companies in *italic*, and dates/locations in plain text.
-  - CRITICAL: Each company description must be preserved and appear on its own line, in *italic*, immediately below the location/date line.
   - Achievements as bullet points with **bold metrics** (percentages, counts, etc.) highlighted.
   - Skills section: Format skill groups as bullet points with category names in **bold** followed by a colon and skills listed (e.g., "- **Core Frontend Technologies**: JavaScript, TypeScript, React, Next.js").
 

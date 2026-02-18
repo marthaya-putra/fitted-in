@@ -40,8 +40,8 @@ Be specific about technologies, tools, and methodologies used.
 Focus on achievements rather than responsibilities.
 
 Limit the number of achievements per experience:
-- Latest/most recent experiences: Maximum 4 achievements
-- Older experiences: Maximum 3 achievements
+- Latest/most recent experiences: Maximum 3 achievements
+- Older experiences: Maximum 2 achievements
 
 Important guidelines:
 

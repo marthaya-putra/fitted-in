@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { JobDescriptionForm } from "@/components/job-description-form";
 import { StreamingMarkdownPreview } from "@/components/streaming-markdown-preview";
-import { optimizeResume } from "@/lib/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Loader2, Circle, Check } from "lucide-react";
@@ -21,7 +20,6 @@ type OptimizationStatus = {
 export default function OptimizePage() {
   const [optimizedContent, setOptimizedContent] = useState("");
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const [optimizationStatus, setOptimizationStatus] = useState<
     Array<OptimizationStatus>
@@ -35,61 +33,73 @@ export default function OptimizePage() {
     setHasStartedStreaming(false);
 
     try {
-      startTransition(async () => {
-        try {
-          const stream = await optimizeResume(data.jobDescription);
+      const response = await fetch("/api/optimize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobDescription: data.jobDescription }),
+      });
 
-          const reader = stream.getReader();
-          const decoder = new TextDecoder();
-          let buffer = "";
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to optimize resume");
+      }
 
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+      if (!response.body) {
+        throw new Error("No response body from optimization endpoint");
+      }
 
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() || "";
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
 
-            for (const line of lines) {
-              if (line.startsWith("data: ")) {
-                const data = line.slice(6);
-                if (data === "[DONE]") continue;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          console.log("Stream read:", { done, valueLength: value?.length });
+          if (done) break;
 
-                const parsed = JSON.parse(data);
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
 
-                if (parsed.type === "data-status") {
-                  setOptimizationStatus(prev => [...prev, parsed.data]);
-                } else if (parsed.type === "text-delta") {
-                  setHasStartedStreaming(true);
-                  setOptimizedContent(prev => prev + parsed.delta);
-                }
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") continue;
+
+              const parsed = JSON.parse(data);
+
+              if (parsed.type === "data-status") {
+                setOptimizationStatus(prev => [...prev, parsed.data]);
+              } else if (parsed.type === "text-delta") {
+                setHasStartedStreaming(true);
+                setOptimizedContent(prev => prev + parsed.delta);
               }
             }
           }
-
-          toast.success("Resume optimization completed!");
-        } catch (error) {
-          console.error("Optimization error:", error);
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "Failed to optimize resume";
-
-          if (errorMessage.includes("User not logged in")) {
-            toast.error("Please sign in to optimize your resume");
-            router.push("/sign-in");
-          } else {
-            toast.error(errorMessage);
-          }
-        } finally {
-          setIsOptimizing(false);
         }
-      });
-    } catch (error) {
-      console.error("Unexpected error:", error);
-      toast.error("An unexpected error occurred");
+      } finally {
+        reader.releaseLock();
+      }
+
+      console.log("Stream completed, setting isOptimizing to false");
       setIsOptimizing(false);
+      toast.success("Resume optimization completed!");
+    } catch (error) {
+      console.error("Optimization error:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to optimize resume";
+
+      setIsOptimizing(false);
+
+      if (errorMessage.includes("User not logged in")) {
+        toast.error("Please sign in to optimize your resume");
+        router.push("/sign-in");
+      } else {
+        toast.error(errorMessage);
+      }
     }
   };
 
@@ -114,7 +124,7 @@ export default function OptimizePage() {
           <div className="h-full">
             <JobDescriptionForm
               onSubmit={handleOptimize}
-              isLoading={isOptimizing || isPending}
+              isLoading={isOptimizing}
             />
           </div>
 
@@ -184,7 +194,7 @@ export default function OptimizePage() {
             ) : (
               <StreamingMarkdownPreview
                 content={optimizedContent}
-                isLoading={isOptimizing || isPending}
+                isLoading={isOptimizing}
               />
             )}
           </div>

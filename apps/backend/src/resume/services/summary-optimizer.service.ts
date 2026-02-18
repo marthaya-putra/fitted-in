@@ -32,7 +32,7 @@ Demonstrate alignment with the company’s industry, role, and expectations.
 
 Maintains a concise, professional tone:
 
-3–5 sentences or bullet points.
+2–3 sentences or bullet points.
 
 No fluff, buzzwords without context, or vague claims.
 
