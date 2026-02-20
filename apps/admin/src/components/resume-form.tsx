@@ -40,6 +40,7 @@ const formSchema = z.object({
   email: z.email("Invalid email address"),
   phone: z.string(),
   location: z.string(),
+  website: z.string().url().optional(),
   summary: z.string(),
   workExperiences: z.string(),
   educations: z.string(),
@@ -62,6 +63,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
       email: initialData?.email || "",
       phone: initialData?.phone || "",
       location: initialData?.location || "",
+      website: initialData?.website || "",
       summary: initialData?.summary || "",
       workExperiences: initialData?.workExperiences || "",
       educations: initialData?.educations || "",
@@ -86,6 +88,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
           email: result.email || "",
           phone: result.phone || "",
           location: result.location || "",
+          website: result.website || "",
           summary: result.summary || "",
           workExperiences: result.workExperiences || "",
           educations: result.educations || "",
@@ -208,6 +211,19 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
                     <FormLabel>Location</FormLabel>
                     <FormControl>
                       <Input placeholder="New York, NY" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="website"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Website</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://yourwebsite.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

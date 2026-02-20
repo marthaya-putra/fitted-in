@@ -12,6 +12,7 @@ export interface ResumeData {
   email: string;
   phone: string;
   location: string;
+  website?: string;
   summary: string;
   workExperiences: string;
   educations: string;
@@ -68,7 +69,7 @@ export async function saveResume(data: ResumeData): Promise<void> {
     fullName: data.fullName,
     location: data.location,
     email: data.email,
-    website: undefined,
+    website: data.website || undefined,
     phone: data.phone,
     summary: data.summary,
     workExperiences: data.workExperiences,
