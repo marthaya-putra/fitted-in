@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth } from "@/contexts/auth-context";
-import { AuthGuard } from "@/components/auth-guard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -9,8 +8,7 @@ export default function DashboardPage() {
   const { user, signOut } = useAuth();
 
   return (
-    <AuthGuard>
-      <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -80,6 +78,5 @@ export default function DashboardPage() {
         </div>
       </main>
       </div>
-    </AuthGuard>
   );
 }

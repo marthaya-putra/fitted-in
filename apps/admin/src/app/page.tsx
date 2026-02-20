@@ -1,5 +1,4 @@
 import { ResumeForm } from "@/components/resume-form";
-import { redirect } from "next/navigation";
 import { serverFetch } from "@/lib/server-fetch";
 import { headers } from "next/headers";
 import { authClient } from "@/lib/auth-client";
@@ -12,12 +11,8 @@ export default async function Home() {
     },
   });
 
-  if (!session || !session.user) {
-    redirect("/sign-in");
-  }
-
   const savedResume = await serverFetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/user/${session.user.id}`
+    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/user/${session!.user.id}`
   );
 
   return (
