@@ -51,7 +51,7 @@ const UploadArea = React.forwardRef<HTMLDivElement, UploadProps>(
         ref={ref}
         className={cn(
           'border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer transition-colors hover:border-gray-400',
-          isDragOver && 'border-blue-500 bg-blue-50',
+          isDragOver && 'border-primary bg-accent',
           className
         )}
         onDragOver={handleDragOver}

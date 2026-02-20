@@ -119,14 +119,14 @@ function App() {
   const userLabel = session.user.name || session.user.email;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-accent relative">
       <div className="p-4 flex flex-col gap-4 h-[calc(100vh-8rem)]">
         <div>
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Briefcase className="w-6 h-6 text-blue-600" />
+            <div className="p-2 bg-accent rounded-lg">
+              <Briefcase className="w-6 h-6 text-primary" />
             </div>
-            <h1 className="text-lg font-semibold text-gray-900">
+            <h1 className="text-lg font-semibold text-foreground">
               {currentJobTitle || "Select position to optimize"}
             </h1>
           </div>
@@ -138,8 +138,8 @@ function App() {
             disabled={loading || !currentJobTitle}
             className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
               loading || !currentJobTitle
-                ? "bg-blue-500 text-white cursor-not-allowed opacity-90"
-                : "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg"
+                ? "bg-primary text-primary-foreground cursor-not-allowed opacity-90"
+                : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg"
             }`}
           >
             {loading ? (
@@ -195,7 +195,7 @@ function App() {
                       isDone
                         ? "bg-green-50 border-green-200"
                         : isInProgress
-                          ? "bg-blue-50 border-blue-200"
+                          ? "bg-accent border-primary"
                           : "bg-gray-50 border-gray-200"
                     }`}
                   >
@@ -204,7 +204,7 @@ function App() {
                         isDone
                           ? "bg-green-500"
                           : isInProgress
-                            ? "bg-blue-500"
+                            ? "bg-primary"
                             : "bg-gray-300"
                       }`}
                     >
@@ -221,7 +221,7 @@ function App() {
                         isDone
                           ? "text-green-700"
                           : isInProgress
-                            ? "text-blue-700"
+                            ? "text-primary"
                             : "text-gray-500"
                       }`}
                     >
@@ -256,8 +256,8 @@ function App() {
           <Popover.Root>
             <Popover.Trigger asChild>
               <button className="flex items-center gap-1 p-1.5 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-200 border border-gray-200">
-                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">
+                <div className="w-9 h-9 bg-gradient-to-br from-primary to-primary/90 rounded-full flex items-center justify-center">
+                  <span className="text-primary-foreground font-semibold text-sm">
                     {userLabel[0]?.toUpperCase()}
                   </span>
                 </div>

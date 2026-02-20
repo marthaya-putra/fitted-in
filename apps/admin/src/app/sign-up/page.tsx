@@ -71,10 +71,10 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-accent">
+      <Card className="w-full max-w-md border-primary/20">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
+          <CardTitle className="text-2xl font-bold text-center text-primary">
             Sign Up
           </CardTitle>
           <CardDescription className="text-center">
@@ -142,9 +142,9 @@ export default function SignUpPage() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Creating account..." : "Sign Up"}
             </Button>
-            <p className="text-sm text-gray-600 text-center">
+            <p className="text-sm text-muted-foreground text-center">
               Already have an account?{" "}
-              <Link href="/sign-in" className="text-blue-600 hover:underline">
+              <Link href="/sign-in" className="text-primary hover:underline">
                 Sign in
               </Link>
             </p>

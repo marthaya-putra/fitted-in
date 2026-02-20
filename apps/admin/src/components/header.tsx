@@ -13,11 +13,11 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-primary/50 bg-primary backdrop-blur supports-[backdrop-filter]:bg-primary/95">
       <div className="container flex h-14 max-w-full items-center px-4 sm:px-6 lg:px-8 justify-between">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block">
+            <span className="hidden font-bold sm:inline-block text-primary-foreground">
               FittedIn Admin
             </span>
           </Link>
@@ -27,34 +27,34 @@ export function Header() {
           <nav className="flex items-center space-x-4">
             <Link
               href="/privacy"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-primary-foreground/80 hover:text-primary-foreground transition-colors"
             >
               Privacy Policy
             </Link>
             {isLoading ? (
-              <div className="h-8 w-20 animate-pulse bg-muted rounded"></div>
+              <div className="h-8 w-20 animate-pulse bg-primary-foreground/20 rounded"></div>
             ) : isAuthenticated && user ? (
               <div className="flex items-center space-x-4">
                 <Link
                   href="/optimize"
-                  className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                  className="text-sm font-medium text-primary-foreground hover:text-primary-foreground/80 transition-colors"
                 >
                   Optimize Resume
                 </Link>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-primary-foreground/80">
                   Welcome, {user.name || user.email}
                 </span>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleSignOut}
-                  className="h-8"
+                  className="h-8 bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-primary-foreground/50"
                 >
                   Sign Out
                 </Button>
               </div>
             ) : (
-              <Button asChild variant="default" size="sm" className="h-8">
+              <Button asChild variant="default" size="sm" className="h-8 bg-primary-foreground text-primary hover:bg-primary-foreground/90">
                 <Link href="/sign-in">Sign In</Link>
               </Button>
             )}

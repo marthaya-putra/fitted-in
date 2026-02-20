@@ -64,10 +64,10 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="h-full grid content-center bg-gray-50">
-      <Card className="w-full max-w-md mx-auto">
+    <div className="h-full grid content-center bg-gradient-to-br from-slate-50 to-accent">
+      <Card className="w-full max-w-md mx-auto border-primary/20">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
+          <CardTitle className="text-2xl font-bold text-center text-primary">
             Sign In
           </CardTitle>
           <CardDescription className="text-center">
@@ -108,9 +108,9 @@ export default function SignInPage() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
-            <p className="text-sm text-gray-600 text-center">
+            <p className="text-sm text-muted-foreground text-center">
               Don't have an account?{" "}
-              <Link href="/sign-up" className="text-blue-600 hover:underline">
+              <Link href="/sign-up" className="text-primary hover:underline">
                 Sign up
               </Link>
             </p>

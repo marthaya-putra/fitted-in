@@ -37,21 +37,21 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-accent flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <LogIn className="w-6 h-6 text-blue-600" />
+            <div className="p-2 bg-accent rounded-lg">
+              <LogIn className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="text-2xl font-semibold text-gray-900">Sign In</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Sign In</h2>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-foreground mb-2"
               >
                 Email
               </label>
@@ -62,7 +62,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                   placeholder="you@example.com"
                   required
                 />
@@ -72,7 +72,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-foreground mb-2"
               >
                 Password
               </label>
@@ -83,7 +83,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                   placeholder="Enter your password"
                   required
                 />
@@ -112,13 +112,13 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
               disabled={isLoading}
               className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
                 isLoading
-                  ? "bg-blue-500 text-white cursor-not-allowed opacity-90"
-                  : "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg"
+                  ? "bg-primary text-primary-foreground cursor-not-allowed opacity-90"
+                  : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg"
               }`}
             >
               {isLoading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
                   <span>Signing in...</span>
                 </>
               ) : (
@@ -130,13 +130,13 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <p className="mt-6 text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
             <a
               href={`${import.meta.env.VITE_APP_URL}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-700 font-medium"
+              className="text-primary hover:text-primary/90 font-medium"
             >
               Sign up
             </a>

@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "@fitted-in/ui/styles/globals.css";
 
 * {
   margin: 0;
@@ -24,7 +22,7 @@ body {
 
 @layer components {
   .prose {
-    color: rgb(55, 65, 81);
+    color: hsl(var(--muted-foreground));
     max-width: none;
   }
 
@@ -33,7 +31,7 @@ body {
     line-height: 1.75rem;
     font-weight: 700;
     margin-bottom: 0.75rem;
-    color: #111827;
+    color: hsl(var(--foreground));
   }
 
   .prose h2 {
@@ -42,7 +40,7 @@ body {
     font-weight: 600;
     margin-top: 1rem;
     margin-bottom: 0.5rem;
-    color: #111827;
+    color: hsl(var(--foreground));
   }
 
   .prose h3 {
@@ -51,21 +49,21 @@ body {
     font-weight: 600;
     margin-top: 0.75rem;
     margin-bottom: 0.5rem;
-    color: #111827;
+    color: hsl(var(--foreground));
   }
 
   .prose p {
     font-size: 0.875rem;
     line-height: 1.25rem;
     margin-bottom: 0.5rem;
-    color: #374151;
+    color: hsl(var(--muted-foreground));
   }
 
   .prose ul, .prose ol {
     font-size: 0.875rem;
     margin-bottom: 0.5rem;
     padding-left: 1.5rem;
-    color: #374151;
+    color: hsl(var(--muted-foreground));
   }
 
   .prose li {
@@ -74,18 +72,18 @@ body {
 
   .prose strong {
     font-weight: 600;
-    color: #111827;
+    color: hsl(var(--foreground));
   }
 
   .prose em {
     font-style: italic;
-    color: #374151;
+    color: hsl(var(--muted-foreground));
   }
 
   .prose hr {
     margin-top: 1rem;
     margin-bottom: 1rem;
     border: 0;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid hsl(var(--border));
   }
 }

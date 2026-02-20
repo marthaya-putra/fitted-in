@@ -12,9 +12,9 @@
 #fitted-in-floating-banner {
   width: 60px;
   height: 60px;
-  background: #0a66c2;
+  background: #2563eb;
   border-radius: 50%;
-  box-shadow: 0 4px 16px rgba(10, 102, 194, 0.3);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,7 +27,7 @@
 }
 
 #fitted-in-floating-banner:hover {
-  box-shadow: 0 8px 20px rgba(10, 102, 194, 0.35);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
   animation: fiBannerHover 0.35s ease forwards;
   /* optionally: will-change for smoother animation */
   will-change: transform;
@@ -55,4 +55,3 @@
     transform: rotate(0);
   }
 }
-
