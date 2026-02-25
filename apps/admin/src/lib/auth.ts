@@ -1,5 +1,18 @@
-import { createAuthClient } from "better-auth/react";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { authClient } from "./auth-client";
 
-export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_HOST || "http://localhost:3000",
-});
+export async function getAuthSession() {
+  const { data: session } = await authClient.getSession({
+    fetchOptions: {
+      headers: await headers(),
+      credentials: "include",
+    },
+  });
+
+  if (!session) {
+    redirect("/sign-in");
+  }
+
+  return session;
+}

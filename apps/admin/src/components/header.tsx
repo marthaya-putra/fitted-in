@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 
 export function Header() {
   const { user, isLoading, isAuthenticated, signOut } = useAuth();
+  const router = useRouter();
 
   const handleSignOut = async () => {
     await signOut();
-    window.location.href = "/"; // Redirect to home after sign out
+    router.push("/sign-in");
   };
 
   return (
@@ -54,7 +56,12 @@ export function Header() {
                 </Button>
               </div>
             ) : (
-              <Button asChild variant="default" size="sm" className="h-8 bg-primary-foreground text-primary hover:bg-primary-foreground/90">
+              <Button
+                asChild
+                variant="default"
+                size="sm"
+                className="h-8 bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+              >
                 <Link href="/sign-in">Sign In</Link>
               </Button>
             )}
