@@ -180,6 +180,7 @@ function App() {
                 { id: "summary", label: "Optimizing Your Summary" },
                 { id: "skills", label: "Optimizing Your Skills" },
                 { id: "experience", label: "Optimizing Your Experience" },
+                { id: "formatting", label: "Formatting Resume" },
               ].map(stage => {
                 const isInProgress = optimizationStatus.some(
                   s => s.stage === stage.id && s.status === "in-progress"
