@@ -1,17 +1,15 @@
 import { ResumeForm } from "@/components/resume-form";
 import { serverFetch } from "@/lib/server-fetch";
 import { headers } from "next/headers";
-import { authClient } from "@/lib/auth-client";
+import { auth } from "@/lib/auth-client";
 
 export default async function Home() {
-  const { data: session } = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-      credentials: "include",
-    },
+  const headersList = await headers();
+
+  const session = await auth.api.getSession({
+    headers: headersList,
   });
 
-  // Middleware ensures user is authenticated, session is non-null
   const savedResume = await serverFetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/user/${session!.user.id}`
   );
