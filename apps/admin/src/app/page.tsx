@@ -1,8 +1,8 @@
 import { ResumeForm } from "@/components/resume-form";
 import { serverFetch } from "@/lib/server-fetch";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { AuthRedirect } from "@/components/auth-redirect";
 
 // Helper to add timeout to promises
 async function withTimeout<T>(
@@ -23,20 +23,24 @@ async function withTimeout<T>(
 }
 
 export default async function Home() {
-  const sessionResult = await withTimeout(
-    authClient.getSession({
-      fetchOptions: {
-        headers: await headers(),
-        credentials: "include",
-      },
-    }),
-    5000 // 5 second timeout
-  );
-
-  const session = sessionResult?.data;
+  let session;
+  try {
+    const sessionResult = await withTimeout(
+      authClient.getSession({
+        fetchOptions: {
+          headers: await headers(),
+          credentials: "include",
+        },
+      }),
+      5000
+    );
+    session = sessionResult?.data;
+  } catch {
+    session = null;
+  }
 
   if (!session?.user) {
-    redirect("/sign-in");
+    return <AuthRedirect to="/sign-in" />;
   }
 
   const savedResume = await serverFetch(
