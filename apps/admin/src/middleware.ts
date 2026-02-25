@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { cookies } from "next/headers";
 
 const publicRoutes = ["/sign-in", "/sign-up", "/privacy"];
 
@@ -8,8 +7,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
 
-  const cookieStore = await cookies();
-  const hasSessionToken = cookieStore.get("better-auth.session_token")?.value;
+  const hasSessionToken = request.cookies.get("better-auth.session_token")?.value;
 
   // Signed-in user visiting auth pages -> redirect to home
   if (hasSessionToken && (pathname === "/sign-in" || pathname === "/sign-up")) {
