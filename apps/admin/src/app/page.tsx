@@ -4,13 +4,36 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 
-export default async function Home() {
-  const { data: session } = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-      credentials: "include",
-    },
+// Helper to add timeout to promises
+async function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number
+): Promise<T | null> {
+  let timer: NodeJS.Timeout;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error("Timeout")), ms);
   });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer!);
+  }
+}
+
+export default async function Home() {
+  const sessionResult = await withTimeout(
+    authClient.getSession({
+      fetchOptions: {
+        headers: await headers(),
+        credentials: "include",
+      },
+    }),
+    5000 // 5 second timeout
+  );
+
+  const session = sessionResult?.data;
 
   if (!session?.user) {
     redirect("/sign-in");
