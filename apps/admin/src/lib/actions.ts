@@ -1,10 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
-import { authClient } from "./auth-client";
 import { redirect } from "next/navigation";
 import { serverFetch } from "./server-fetch";
+import { getAuthSession } from "./auth";
 
 export interface ResumeData {
   id?: number;
@@ -44,7 +42,6 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
       }
     );
 
-    revalidatePath("/");
     return res;
   } catch (error) {
     console.error("Error parsing resume:", error);
@@ -53,16 +50,7 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
 }
 
 export async function saveResume(data: ResumeData): Promise<void> {
-  const { data: sessionData } = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-    },
-  });
-
-  if (!sessionData || !sessionData.user) {
-    console.error("User not logged in");
-    redirect("/sign-in");
-  }
+  const session = await getAuthSession();
 
   const resumeProfileData = {
     id: data.id,
@@ -76,52 +64,43 @@ export async function saveResume(data: ResumeData): Promise<void> {
     educations: data.educations,
     projects: data.projects,
     skills: data.skills,
-    userId: sessionData.user.id, // Hardcoded for now - should come from authentication
+    userId: session.user.id,
   };
 
-  const res = await serverFetch(
-    `${process.env.VITE_API_URL}/api/resumes`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(resumeProfileData),
-    }
-  );
-
-  console.log("res from save resume: ", res);
-
-  revalidatePath("/");
-}
-
-export async function optimizeResume(jobDescription: string): Promise<ReadableStream> {
-  const { data: sessionData } = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
+  const res = await serverFetch(`${process.env.VITE_API_URL}/api/resumes`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify(resumeProfileData),
   });
 
-  if (!sessionData || !sessionData.user) {
-    console.error("User not logged in");
-    redirect("/sign-in");
-  }
+  console.log("res from save resume: ", res);
+  redirect("/");
+}
 
-  const response = await fetch(
+export async function optimizeResume(
+  jobDescription: string
+): Promise<ReadableStream> {
+  const session = await getAuthSession();
+
+  const response = await serverFetch(
     `${process.env.VITE_API_URL}/api/resumes/optimize`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Cookie: (await headers()).get("cookie") || "",
       },
+      credentials: "include",
       body: JSON.stringify({ jobDescription }),
     }
   );
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Failed to optimize resume: ${response.status} - ${errorText}`);
+    throw new Error(
+      `Failed to optimize resume: ${response.status} - ${errorText}`
+    );
   }
 
   if (!response.body) {
