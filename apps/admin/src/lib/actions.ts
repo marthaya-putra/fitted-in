@@ -37,7 +37,7 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
     backendFormData.append("pdf", file, file.name);
 
     const res = await serverFetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/parse`,
+      `${process.env.VITE_API_URL}/api/resumes/parse`,
       {
         method: "POST",
         body: backendFormData,
@@ -80,7 +80,7 @@ export async function saveResume(data: ResumeData): Promise<void> {
   };
 
   const res = await serverFetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes`,
+    `${process.env.VITE_API_URL}/api/resumes`,
     {
       method: "POST",
       headers: {
@@ -108,7 +108,7 @@ export async function optimizeResume(jobDescription: string): Promise<ReadableSt
   }
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/optimize`,
+    `${process.env.VITE_API_URL}/api/resumes/optimize`,
     {
       method: "POST",
       headers: {

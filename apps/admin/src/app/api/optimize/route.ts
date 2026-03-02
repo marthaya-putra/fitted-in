@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   const { jobDescription } = body;
 
   const backendResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/optimize`,
+    `${process.env.VITE_API_URL}/api/resumes/optimize`,
     {
       method: "POST",
       headers: {
