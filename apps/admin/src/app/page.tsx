@@ -5,7 +5,7 @@ import { getAuthSession } from "@/lib/auth";
 export default async function Home() {
   const session = await getAuthSession();
   const savedResume = await serverFetch(
-    `${process.env.VITE_API_URL}/api/resumes/user/${session!.user.id}`
+    `${import.meta.env.VITE_API_URL}/api/resumes/user/${session!.user.id}`
   );
 
   return (
