@@ -1,5 +1,7 @@
 import { createAuthClient } from "better-auth/react";
 
+const base = import.meta.env.NEXT_PUBLIC_APP_HOST;
+console.log("BASE URL FROM NEXT_PUBLIC_APP_HOST: ", base);
 export const authClient = createAuthClient({
-  baseURL: import.meta.env.VITE_APP_HOST,
+  baseURL: base,
 });

@@ -12,10 +12,14 @@ export default defineConfig(({ mode }) => {
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
       }),
     ],
+    define: {
+      'import.meta.env.NEXT_PUBLIC_API_URL': JSON.stringify(env.NEXT_PUBLIC_API_URL),
+      'import.meta.env.NEXT_PUBLIC_APP_HOST': JSON.stringify(env.NEXT_PUBLIC_APP_HOST),
+    },
     server: {
       proxy: {
         "/api": {
-          target: env.VITE_API_URL,
+          target: env.NEXT_PUBLIC_API_URL,
           changeOrigin: true,
         },
       },
