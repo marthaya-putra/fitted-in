@@ -84,7 +84,3 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
-
-export function NativeWindText({ text }: { text: string }) {
-  return <Text className="text-red-500">{text}</Text>;
-}

@@ -12,7 +12,6 @@ import AppTabs from "@/components/app-tabs";
 import "./global.css";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import "@/src/app/global.css";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
