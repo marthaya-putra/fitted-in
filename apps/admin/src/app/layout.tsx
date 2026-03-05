@@ -4,8 +4,6 @@ import { Toaster } from "sonner";
 import { AuthProvider } from "@/contexts/auth-context";
 import { Header } from "@/components/header";
 import "@fitted-in/ui/styles/globals.css";
-import "@uiw/react-md-editor/markdown-editor.css";
-import "@uiw/react-markdown-preview/markdown.css";
 
 const inter = Inter({ subsets: ["latin"] });
 

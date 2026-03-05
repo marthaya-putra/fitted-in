@@ -1,27 +1,30 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "main": ".open-next/worker.js",
   "name": "fitted-in-admin",
-  "compatibility_date": "2025-10-08",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-  "observability": {
-    "enabled": true,
-    // Optional: Configure head_sampling_rate to control the percentage of requests logged
-    "head_sampling_rate": 1.0, // Logs 100% of requests
-  },
+  "account_id": "c62b7a9c73a079cf9945a91ebc1cac04",
+  "compatibility_date": "2026-03-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./worker/index.ts",
   "assets": {
-    "directory": ".open-next/assets",
+    "not_found_handling": "none",
     "binding": "ASSETS",
   },
-  "r2_buckets": [
-    // Use R2 incremental cache
-    // See https://opennext.js.org/cloudflare/caching
-    // {
-    // 	"binding": "NEXT_INC_CACHE_R2_BUCKET",
-    // 	// Create the bucket before deploying
-    // 	// You can change the bucket name if you want
-    // 	// See https://developers.cloudflare.com/workers/wrangler/commands/#r2-bucket-create
-    // 	"bucket_name": "cache"
-    // }
-  ],
+  "images": {
+    "binding": "IMAGES",
+  },
+  "observability": {
+    "enabled": false,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true,
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1,
+    },
+  },
 }
