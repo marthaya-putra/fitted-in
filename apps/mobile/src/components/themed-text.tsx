@@ -27,7 +27,6 @@ export function ThemedText({
   return (
     <Text
       style={[
-        { color: theme[themeColor ?? "text"] },
         type === "default" && styles.default,
         type === "title" && styles.title,
         type === "small" && styles.small,
@@ -38,6 +37,7 @@ export function ThemedText({
         type === "code" && styles.code,
         style,
       ]}
+      className="text-red-500"
       {...rest}
     />
   );
