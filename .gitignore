@@ -42,9 +42,6 @@ yarn-error.log*
 next-env.d.ts
 /apps/*/next-env.d.ts
 
-# pnpm
-pnpm-lock.yaml
-/apps/*/pnpm-lock.yaml
 
 # wrangler
 .wrangler
