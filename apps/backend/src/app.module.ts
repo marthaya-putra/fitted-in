@@ -1,14 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import {
-  APP_FILTER,
-  APP_INTERCEPTOR,
-  APP_PIPE,
-} from "@nestjs/core";
-import {
-  ZodSerializerInterceptor,
-  ZodValidationPipe,
-} from "nestjs-zod";
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
+import { ZodSerializerInterceptor, ZodValidationPipe } from "nestjs-zod";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { DRIZZLE_DB, DrizzleModule } from "./drizzle/drizzle.module";
@@ -47,6 +40,11 @@ import { RepositoryModule } from "./repositories/repository.module";
             "https://fitted-in-admin.marthayaputra-han.workers.dev",
             "chrome-extension://jhhpmkomkllohgcbjggpjjnlnplimpfj",
             "chrome-extension://cocolialcdmiadcimbjdooppfdmgiiad",
+            "fittedinmobile://",
+            // For development with Expo Go:
+            ...(process.env.NODE_ENV === "development"
+              ? ["exp://", "exp://**", "exp://192.168.*.*:*/**"]
+              : []),
           ],
         }),
       }),

@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "../db/schema";
+import { expo } from "@better-auth/expo";
 
 // Create database connection for Better Auth
 const connection = postgres(process.env.DATABASE_URL!, { max: 1 });
@@ -15,4 +16,5 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-}) as ReturnType<typeof betterAuth>;
+  plugins: [expo()],
+});

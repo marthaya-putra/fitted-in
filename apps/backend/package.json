@@ -26,6 +26,7 @@
   "dependencies": {
     "@ai-sdk/google": "^2.0.5",
     "@ai-sdk/mistral": "^2.0.26",
+    "@better-auth/expo": "^1.5.4",
     "@google-cloud/translate": "^9.2.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
