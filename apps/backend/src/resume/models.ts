@@ -11,3 +11,5 @@ export function getModel(): LanguageModel {
   }
   return google("gemini-2.5-flash");
 }
+
+export const ocrModel: LanguageModel = google("gemini-2.5-flash-lite");
