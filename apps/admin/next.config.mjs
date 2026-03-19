@@ -2,7 +2,6 @@
 const nextConfig = {
   output: "standalone",
   async rewrites() {
-    console.log("DESTINATION OF THE API: ", process.env.NEXT_PUBLIC_API_URL);
     return [
       {
         source: "/api/:path*",
@@ -13,3 +12,6 @@ const nextConfig = {
 };
 
 export default nextConfig;
+
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+initOpenNextCloudflareForDev();

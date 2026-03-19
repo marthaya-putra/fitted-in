@@ -1,8 +1,10 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { authClient } from "./auth-client";
 import { redirect } from "next/navigation";
 import { serverFetch } from "./server-fetch";
-import { getAuthSession } from "./auth";
 
 export interface ResumeData {
   id?: number;
@@ -35,13 +37,14 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
     backendFormData.append("pdf", file, file.name);
 
     const res = await serverFetch(
-      `${import.meta.env.NEXT_PUBLIC_API_URL}/api/resumes/parse`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/parse`,
       {
         method: "POST",
         body: backendFormData,
       }
     );
 
+    revalidatePath("/");
     return res;
   } catch (error) {
     console.error("Error parsing resume:", error);
@@ -50,7 +53,16 @@ export async function parseResume(formData: FormData): Promise<ResumeData> {
 }
 
 export async function saveResume(data: ResumeData): Promise<void> {
-  const session = await getAuthSession();
+  const { data: sessionData } = await authClient.getSession({
+    fetchOptions: {
+      headers: await headers(),
+    },
+  });
+
+  if (!sessionData || !sessionData.user) {
+    console.error("User not logged in");
+    redirect("/sign-in");
+  }
 
   const resumeProfileData = {
     id: data.id,
@@ -64,43 +76,52 @@ export async function saveResume(data: ResumeData): Promise<void> {
     educations: data.educations,
     projects: data.projects,
     skills: data.skills,
-    userId: session.user.id,
+    userId: sessionData.user.id, // Hardcoded for now - should come from authentication
   };
 
-  const res = await serverFetch(`${import.meta.env.NEXT_PUBLIC_API_URL}/api/resumes`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(resumeProfileData),
-  });
-
-  console.log("res from save resume: ", res);
-  redirect("/");
-}
-
-export async function optimizeResume(
-  jobDescription: string
-): Promise<ReadableStream> {
-  const session = await getAuthSession();
-
-  const response = await serverFetch(
-    `${import.meta.env.NEXT_PUBLIC_API_URL}/api/resumes/optimize`,
+  const res = await serverFetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include",
+      body: JSON.stringify(resumeProfileData),
+    }
+  );
+
+  console.log("res from save resume: ", res);
+
+  revalidatePath("/");
+}
+
+export async function optimizeResume(jobDescription: string): Promise<ReadableStream> {
+  const { data: sessionData } = await authClient.getSession({
+    fetchOptions: {
+      headers: await headers(),
+    },
+  });
+
+  if (!sessionData || !sessionData.user) {
+    console.error("User not logged in");
+    redirect("/sign-in");
+  }
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/resumes/optimize`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: (await headers()).get("cookie") || "",
+      },
       body: JSON.stringify({ jobDescription }),
     }
   );
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(
-      `Failed to optimize resume: ${response.status} - ${errorText}`
-    );
+    throw new Error(`Failed to optimize resume: ${response.status} - ${errorText}`);
   }
 
   if (!response.body) {

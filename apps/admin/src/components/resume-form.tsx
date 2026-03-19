@@ -108,6 +108,7 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
   const onSubmit = async (data: ResumeData) => {
     setIsSaving(true);
     const dataToSave = { ...data, id: initialData?.id };
+    console.log({ dataToSave });
     try {
       await saveResume(dataToSave);
       toast.success("Resume saved successfully!");
