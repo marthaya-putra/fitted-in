@@ -31,6 +31,8 @@ Guidelines:
 9. Avoid personal details that can bias hiring (age, marital status, photo, religion, etc.).
 10. Output the final CV in Markdown.
 
+IMPORTANT: Preserve exact dates from the source. Do NOT change end dates to "Present" unless the source explicitly says "Present" or "Current".
+
 ---
 
 ### CRITICAL FORMATTING RULE
@@ -46,7 +48,7 @@ Location, Start Date – End Date
 Example:
 
 **Senior Software Engineer** – *We Lysn*
-New South Wales, Australia (Remote), Feb 2024 – Present
+New South Wales, Australia (Remote), Feb 2024 – Jan 2026
 - Spearheaded development of a new telehealth platform MVP...
 - Collaborated with product and design...
 `;
@@ -85,6 +87,7 @@ Make sure the final version:
 - Be concise, grammatically correct, and professional.
 - Output only the final resume in Markdown, no explanations.
 - CRITICAL: Do NOT wrap the output in a markdown code block (e.g., do NOT use \`\`\`markdown). Output the raw markdown directly.
+- **CRITICAL DATE RULE**: Preserve ALL dates exactly as provided in the source. Never change an end date to "Present" unless the source explicitly says "Present" or "Current". If a job has "Feb 2024 - Jan 2026", output it as "Feb 2024 – Jan 2026", NOT as "Feb 2024 – Present".
 `,
         onError: err => {
           console.log("Error is happening...", JSON.stringify(err));
