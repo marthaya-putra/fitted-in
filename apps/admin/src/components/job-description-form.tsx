@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -18,10 +19,7 @@ import {
 import { Loader2, Sparkles } from "lucide-react";
 
 const jobDescriptionSchema = z.object({
-  jobDescription: z
-    .string()
-    .min(50, "Job description must be at least 50 characters")
-    .max(5000, "Job description must be less than 5000 characters"),
+  jobDescription: z.string().min(1, "Job description is required"),
 });
 
 type JobDescriptionFormValues = z.infer<typeof jobDescriptionSchema>;
@@ -37,11 +35,16 @@ export function JobDescriptionForm({ onSubmit, isLoading = false }: JobDescripti
     defaultValues: {
       jobDescription: "",
     },
+    mode: "onChange",
   });
 
   const handleSubmit = (data: JobDescriptionFormValues) => {
     onSubmit(data);
   };
+
+  useEffect(() => {
+    console.log('formState:', form.formState);
+  }, [form.formState]);
 
   return (
     <Card className="h-full flex flex-col">
@@ -84,7 +87,7 @@ We are looking for a Senior Software Engineer with 5+ years of experience in Rea
             <div className="flex items-center gap-4 pt-4 mt-auto">
               <Button
                 type="submit"
-                disabled={isLoading || !form.formState.isValid}
+                disabled={isLoading}
                 className="flex-1"
               >
                 {isLoading ? (
