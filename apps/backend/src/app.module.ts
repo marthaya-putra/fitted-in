@@ -13,6 +13,7 @@ import { betterAuth } from "better-auth";
 import { Db } from "./db/types";
 import { ResumeModule } from "./resume/resume.module";
 import { RepositoryModule } from "./repositories/repository.module";
+import { JobsModule } from "./jobs/jobs.module";
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { RepositoryModule } from "./repositories/repository.module";
     DrizzleModule,
     RepositoryModule,
     ResumeModule,
+    JobsModule,
   ],
   controllers: [AppController],
   providers: [

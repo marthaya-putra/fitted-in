@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { generateObject } from "ai";
 import { z } from "zod";
-import { ocrModel } from "../models";
+import { OcrService } from "./ocr.service";
 
 const prompt = `Parse this resume and extract the information in a structured format. Please extract:
 1. Personal information (full name, email, phone, location)
@@ -38,35 +37,16 @@ export type ResumeData = z.infer<typeof resumeSchema>;
 
 @Injectable()
 export class ResumeParserService {
+  constructor(private readonly ocrService: OcrService) {}
+
   async parse(pdfFile: Express.Multer.File): Promise<ResumeData> {
     try {
-      // Convert buffer to Uint8Array for file input
-      const fileData = new Uint8Array(pdfFile.buffer);
-
-      // Generate structured data using AI with direct file input
-      const { object } = await generateObject({
-        model: ocrModel,
-        system: prompt,
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: "Parse this resume and extract the information in a structured format.",
-              },
-              {
-                type: "file",
-                data: fileData,
-                mediaType: "application/pdf",
-              },
-            ],
-          },
-        ],
+      return await this.ocrService.extract([pdfFile], {
         schema: resumeSchema,
+        prompt,
+        userMessage:
+          "Parse this resume and extract the information in a structured format.",
       });
-
-      return object;
     } catch (error) {
       console.error("Error parsing resume:", error);
       throw new Error("Failed to parse resume");
