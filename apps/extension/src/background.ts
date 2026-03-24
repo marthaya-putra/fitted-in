@@ -3,12 +3,19 @@ import { shouldEnableSidePanel } from "./utils";
 
 let isContentReady = false;
 let isSidePanelReady = false;
+let sidePanelPort: chrome.runtime.Port | null = null;
 
 // Ping server every 14 minutes (840,000 milliseconds)
 setInterval(
   async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/ping`);
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      console.log("Pinging backend URL:", backendUrl);
+      if (!backendUrl) {
+        console.warn("VITE_BACKEND_URL is not defined");
+        return;
+      }
+      const response = await fetch(`${backendUrl}/ping`);
       if (response.ok) {
         console.log("Ping successful");
       } else {
@@ -37,14 +44,18 @@ function toggleSidePanel(tabId: number, enabled: boolean): void {
 }
 
 chrome.runtime.onConnect.addListener(port => {
+  console.log("onConnect: ", port.name);
   if (port.name === "content") {
     isContentReady = true;
 
     if (!isSidePanelReady) {
+      console.log("Content connected but sidepanel not ready yet");
       return true;
     }
 
-    sendResetPanelAndUpdateJobTitle("onConnect:content");
+    console.log("Content connected, sidepanel ready - sending update");
+    // Small delay to ensure content script's useEffect has run
+    setTimeout(() => sendResetPanelAndUpdateJobTitle("onConnect:content"), 100);
 
     port.onDisconnect.addListener(() => {
       console.log("Content is disconnected");
@@ -53,16 +64,21 @@ chrome.runtime.onConnect.addListener(port => {
   }
 
   if (port.name === "sidepanel") {
+    sidePanelPort = port;
     isSidePanelReady = true;
 
     if (!isContentReady) {
+      console.log("Sidepanel connected but content not ready yet");
       return true;
     }
 
-    sendResetPanelAndUpdateJobTitle("onConnect:sidepanel");
+    console.log("Sidepanel connected, content ready - sending update");
+    // Small delay to ensure content script's useEffect has run
+    setTimeout(() => sendResetPanelAndUpdateJobTitle("onConnect:sidepanel"), 100);
 
     port.onDisconnect.addListener(() => {
       console.log("Sidepanel is disconnected");
+      sidePanelPort = null;
       isSidePanelReady = false;
     });
   }
@@ -200,7 +216,7 @@ async function optimizeResume(jobDescription: string) {
   }
 
   if (!response.body) {
-    chrome.runtime.sendMessage({ action: actions.streamingEnded });
+    sidePanelPort?.postMessage({ action: actions.streamingEnded });
     return false;
   }
 
@@ -211,7 +227,7 @@ async function optimizeResume(jobDescription: string) {
   while (true) {
     const { done, value } = await reader.read();
     if (done) {
-      chrome.runtime.sendMessage({ action: actions.streamingEnded });
+      sidePanelPort?.postMessage({ action: actions.streamingEnded });
       break;
     }
 
@@ -227,12 +243,12 @@ async function optimizeResume(jobDescription: string) {
         const parsed = JSON.parse(data);
 
         if (parsed.type === "data-status") {
-          chrome.runtime.sendMessage({
+          sidePanelPort?.postMessage({
             action: actions.optimizationStatus,
             data: parsed.data,
           });
         } else if (parsed.type === "text-delta") {
-          chrome.runtime.sendMessage({
+          sidePanelPort?.postMessage({
             action: actions.streaming,
             data: parsed.delta,
           });
@@ -248,24 +264,38 @@ function sendResetPanelAndUpdateJobTitle(context?: string) {
     const tabId = tabs[0]?.id;
 
     if (!tabId) {
-      return false;
+      console.warn("No tab id found");
+      return;
     }
 
-    chrome.tabs.sendMessage(tabId, { action: actions.resetPanel }, response => {
-      if (chrome.runtime.lastError) {
-        const errorMessage = context
-          ? `No side panel open to receive message when ${context}: ${chrome.runtime.lastError.message}`
-          : `No side panel open to receive message: ${chrome.runtime.lastError.message}`;
-        console.warn(errorMessage);
-        return false;
-      }
-      if (context) {
-        console.log(`response from resetting panel (${context}): `, response);
-      }
-      chrome.runtime.sendMessage({
-        action: actions.updateJobTitle,
-        data: response.data,
+    console.log("Sending resetPanel to tab:", tabId);
+
+    // Add error boundary to catch URL errors
+    try {
+      chrome.tabs.sendMessage(tabId, { action: actions.resetPanel }, response => {
+        console.log("sendResetPanelAndUpdateJobTitle callback FIRED");
+        console.log("sendResetPanelAndUpdateJobTitle callback - response:", response);
+        console.log("sendResetPanelAndUpdateJobTitle callback - lastError:", chrome.runtime.lastError);
+
+        if (chrome.runtime.lastError) {
+          const errorMessage = context
+            ? `Error when ${context}: ${chrome.runtime.lastError.message}`
+            : `Error: ${chrome.runtime.lastError.message}`;
+          console.warn(errorMessage);
+          return;
+        }
+        if (context) {
+          console.log(`response from resetting panel (${context}): `, response);
+        }
+        console.log("sidePanelPort: ", sidePanelPort);
+        console.log("Sending to sidepanel:", { action: actions.updateJobTitle, data: response?.data });
+        sidePanelPort?.postMessage({
+          action: actions.updateJobTitle,
+          data: response?.data,
+        });
       });
-    });
+    } catch (err) {
+      console.error("Error in sendResetPanelAndUpdateJobTitle:", err);
+    }
   });
 }

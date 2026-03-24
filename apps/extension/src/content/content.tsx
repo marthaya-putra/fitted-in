@@ -2,49 +2,76 @@ import React, { useEffect } from "react";
 import type { ActionType } from "../types";
 import "./content.css";
 
+// Global message handler - outside React lifecycle to prevent cleanup issues
+const handleRuntimeMessage = (
+  request: { action: ActionType },
+  _sender: chrome.runtime.MessageSender,
+  sendResponse: (response: any) => void
+) => {
+  // Check if extension context is still valid
+  if (!chrome.runtime?.id) {
+    console.warn("Extension context invalidated, ignoring message");
+    return false;
+  }
+
+  console.log("Content script received message:", request.action);
+  if (request.action === "extract-job-description") {
+    const el = document.getElementById("job-details");
+    const data = el ? el.textContent : "";
+    console.log("Sending extract-job-description response");
+    sendResponse({ data });
+    return true;
+  }
+
+  if (request.action === "reset-panel") {
+    console.log("Received reset-panel request");
+
+    const companyEl = document.querySelector(
+      ".job-details-jobs-unified-top-card__company-name"
+    );
+    const positionEl = document.querySelector(
+      ".job-details-jobs-unified-top-card__job-title"
+    );
+
+    console.log("companyEl: ", companyEl);
+    console.log("positionEl: ", positionEl);
+
+    const company = companyEl ? companyEl.textContent : "";
+    const position = positionEl ? positionEl.textContent : "";
+
+    console.log("company: ", company);
+    console.log("position: ", position);
+
+    if (!company && !position) {
+      console.warn("No company or position found, sending null response");
+      sendResponse({ data: null });
+    } else {
+      const jobTitle = `${position} at ${company}`;
+      console.log(`Sending response:`, { data: jobTitle });
+      sendResponse({ data: jobTitle });
+      console.log("Response sent!");
+    }
+    return true;
+  }
+  return false;
+};
+
+// Add listener globally once (check if already added to avoid duplicates)
+if (!(globalThis as any).contentMessageListenerAdded) {
+  chrome.runtime.onMessage.addListener(handleRuntimeMessage);
+  (globalThis as any).contentMessageListenerAdded = true;
+  console.log("Content script: Message listener added globally");
+}
+
 export const Content: React.FC = () => {
   useEffect(() => {
+    console.log("Content component mounted");
     const port = chrome.runtime.connect({ name: "content" });
+    console.log("Content: Port connected to background");
 
     return () => {
       port.disconnect();
     };
-  }, []);
-
-  useEffect(() => {
-    const handleRuntimeMessage = (
-      request: { action: ActionType },
-      _sender: chrome.runtime.MessageSender,
-      sendResponse: (response: any) => void
-    ) => {
-      if (request.action === "extract-job-description") {
-        const el = document.getElementById("job-details");
-        const data = el ? el.textContent : "";
-        sendResponse({ data });
-        return true;
-      }
-
-      if (request.action === "reset-panel") {
-        const companyEl = document.querySelector(
-          ".job-details-jobs-unified-top-card__company-name"
-        );
-        const positionEl = document.querySelector(
-          ".job-details-jobs-unified-top-card__job-title"
-        );
-
-        const company = companyEl ? companyEl.textContent : "";
-        const position = positionEl ? positionEl.textContent : "";
-        if (!company && !position) {
-          sendResponse({ data: null });
-        }
-        sendResponse({ data: `${position} at ${company}` });
-        return true;
-      }
-      return false;
-    };
-
-    chrome.runtime.onMessage.addListener(handleRuntimeMessage);
-    return () => chrome.runtime.onMessage.removeListener(handleRuntimeMessage);
   }, []);
 
   const handleClick = () => {

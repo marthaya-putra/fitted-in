@@ -17,16 +17,21 @@ function bootstrapApp() {
 }
 
 chrome.runtime.onMessage.addListener(
-  (msg: { action: ActionType; url: string }, _sender, sendResponse) => {
-    const urlFromMsg = new URL(msg.url);
-    if (
-      msg.action === "history-state-updated" &&
-      urlFromMsg.pathname !== currentUrl
-    ) {
-      sendResponse("received");
-      window.location.reload();
+  (msg: { action: ActionType; url?: string }, _sender, sendResponse) => {
+    // Only process history-state-updated messages with valid URL
+    if (msg.action === "history-state-updated" && msg.url) {
+      try {
+        const urlFromMsg = new URL(msg.url);
+        if (urlFromMsg.pathname !== currentUrl) {
+          sendResponse("received");
+          window.location.reload();
+        }
+      } catch (err) {
+        console.error("Invalid URL in history-state-updated message:", err);
+      }
+      return true;
     }
-    return true;
+    return false;
   }
 );
 

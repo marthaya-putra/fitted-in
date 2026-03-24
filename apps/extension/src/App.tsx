@@ -36,26 +36,15 @@ function App() {
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
+    console.log("App: useEffect - Connecting to background with port name 'sidepanel'");
     const port = chrome.runtime.connect({ name: "sidepanel" });
+    console.log("App: Port connected:", port);
 
-    return () => {
-      port.disconnect();
-    };
-  }, []);
-
-  const handleSignOut = async () => {
-    await authClient.signOut();
-  };
-
-  const handleLoginSuccess = () => {
-    window.location.reload();
-  };
-
-  useEffect(() => {
-    const handler = (msg: {
+    const messageHandler = (msg: {
       action: ActionType;
       data: string | OptimizationStatus;
     }) => {
+      console.log("App port message received: ", msg.action, msg.data);
       if (msg.action === actions.updateJobTitle) {
         setCurrentJobTitle(msg.data as string);
         setResume("");
@@ -64,13 +53,13 @@ function App() {
         setOptimizationStatus([]);
         setHasStartedStreaming(false);
       }
-      if (msg.action === "streaming") {
+      if (msg.action === actions.streaming) {
         setHasStartedStreaming(true);
         setResume(prev => prev + (msg.data as string));
         return;
       }
 
-      if (msg.action === "streaming-ended") {
+      if (msg.action === actions.streamingEnded) {
         setLoading(false);
         setIsOptimized(true);
         return;
@@ -84,12 +73,23 @@ function App() {
       }
     };
 
-    chrome.runtime.onMessage.addListener(handler);
+    port.onMessage.addListener(messageHandler);
+    console.log("App: Message listener added to port");
 
     return () => {
-      chrome.runtime.onMessage.removeListener(handler);
+      console.log("App: Cleanup - removing listener and disconnecting port");
+      port.onMessage.removeListener(messageHandler);
+      port.disconnect();
     };
   }, []);
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+  };
+
+  const handleLoginSuccess = () => {
+    window.location.reload();
+  };
 
   const handleOptimizeCV = () => {
     setResume("");
