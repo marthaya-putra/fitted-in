@@ -47,6 +47,7 @@ chrome.runtime.onConnect.addListener(port => {
   console.log("onConnect: ", port.name);
   if (port.name === "content") {
     isContentReady = true;
+    const contentTabId = port.sender?.tab?.id;
 
     if (!isSidePanelReady) {
       console.log("Content connected but sidepanel not ready yet");
@@ -55,7 +56,7 @@ chrome.runtime.onConnect.addListener(port => {
 
     console.log("Content connected, sidepanel ready - sending update");
     // Small delay to ensure content script's useEffect has run
-    setTimeout(() => sendResetPanelAndUpdateJobTitle("onConnect:content"), 100);
+    setTimeout(() => sendResetPanelAndUpdateJobTitle("onConnect:content", contentTabId), 100);
 
     port.onDisconnect.addListener(() => {
       console.log("Content is disconnected");
@@ -102,6 +103,11 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(details => {
           const errorMessage = `[chrome.webNavigation.onHistoryStateUpdated] Looks like Content is not ready to receive message: ${chrome.runtime.lastError.message}`;
           console.warn(errorMessage);
           return false;
+        }
+
+        // After history state update, refresh job title if sidepanel is ready
+        if (isSidePanelReady) {
+          sendResetPanelAndUpdateJobTitle("history-updated", details.tabId);
         }
       }
     );
@@ -181,8 +187,17 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     console.log("isContentReady: ", isContentReady);
     console.log("isSidePanelReady: ", isSidePanelReady);
     if (isSidePanelReady && isContentReady) {
-      sendResetPanelAndUpdateJobTitle("changed url");
+      sendResetPanelAndUpdateJobTitle("changed url", tabId);
     }
+  }
+});
+
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  const tab = await chrome.tabs.get(activeInfo.tabId);
+
+  if (tab.url && shouldEnableSidePanel(tab.url) && isSidePanelReady && isContentReady) {
+    console.log("Tab activated, sending reset panel update");
+    sendResetPanelAndUpdateJobTitle("tab-activated", activeInfo.tabId);
   }
 });
 
@@ -259,18 +274,10 @@ async function optimizeResume(jobDescription: string) {
   return true;
 }
 
-function sendResetPanelAndUpdateJobTitle(context?: string) {
-  chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-    const tabId = tabs[0]?.id;
-
-    if (!tabId) {
-      console.warn("No tab id found");
-      return;
-    }
-
+function sendResetPanelAndUpdateJobTitle(context?: string, targetTabId?: number) {
+  const sendToTab = (tabId: number) => {
     console.log("Sending resetPanel to tab:", tabId);
 
-    // Add error boundary to catch URL errors
     try {
       chrome.tabs.sendMessage(tabId, { action: actions.resetPanel }, response => {
         console.log("sendResetPanelAndUpdateJobTitle callback FIRED");
@@ -297,5 +304,20 @@ function sendResetPanelAndUpdateJobTitle(context?: string) {
     } catch (err) {
       console.error("Error in sendResetPanelAndUpdateJobTitle:", err);
     }
-  });
+  };
+
+  if (targetTabId !== undefined) {
+    sendToTab(targetTabId);
+  } else {
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+      const tabId = tabs[0]?.id;
+
+      if (!tabId) {
+        console.warn("No tab id found");
+        return;
+      }
+
+      sendToTab(tabId);
+    });
+  }
 }
