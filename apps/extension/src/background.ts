@@ -4,6 +4,7 @@ import { shouldEnableSidePanel } from "./utils";
 let isContentReady = false;
 let isSidePanelReady = false;
 let sidePanelPort: chrome.runtime.Port | null = null;
+let linkedInTabId: number | null = null;
 
 // Ping server every 14 minutes (840,000 milliseconds)
 setInterval(
@@ -56,7 +57,11 @@ chrome.runtime.onConnect.addListener(port => {
 
     console.log("Content connected, sidepanel ready - sending update");
     // Small delay to ensure content script's useEffect has run
-    setTimeout(() => sendResetPanelAndUpdateJobTitle("onConnect:content", contentTabId), 100);
+    setTimeout(() => {
+      if (sidePanelPort) {
+        sendResetPanelAndUpdateJobTitle("onConnect:content", contentTabId);
+      }
+    }, 100);
 
     port.onDisconnect.addListener(() => {
       console.log("Content is disconnected");
@@ -75,7 +80,11 @@ chrome.runtime.onConnect.addListener(port => {
 
     console.log("Sidepanel connected, content ready - sending update");
     // Small delay to ensure content script's useEffect has run
-    setTimeout(() => sendResetPanelAndUpdateJobTitle("onConnect:sidepanel"), 100);
+    setTimeout(() => {
+      if (sidePanelPort) {
+        sendResetPanelAndUpdateJobTitle("onConnect:sidepanel");
+      }
+    }, 100);
 
     port.onDisconnect.addListener(() => {
       console.log("Sidepanel is disconnected");
@@ -106,7 +115,7 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(details => {
         }
 
         // After history state update, refresh job title if sidepanel is ready
-        if (isSidePanelReady) {
+        if (sidePanelPort && isSidePanelReady) {
           sendResetPanelAndUpdateJobTitle("history-updated", details.tabId);
         }
       }
@@ -168,11 +177,19 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       chrome.action.setBadgeText({ text: "ON", tabId: tabId });
       chrome.action.setBadgeBackgroundColor({ color: "#3b82f6", tabId: tabId });
 
+      // Track this LinkedIn tab
+      linkedInTabId = tabId;
+
       // Enable sidepanel for this tab
       toggleSidePanel(tabId, true);
     } else {
       chrome.action.disable(tabId);
       chrome.action.setBadgeText({ text: "", tabId: tabId });
+
+      // Clear LinkedIn tab tracking if leaving LinkedIn
+      if (linkedInTabId === tabId) {
+        linkedInTabId = null;
+      }
 
       // Disable sidepanel for this tab
       toggleSidePanel(tabId, false);
@@ -182,11 +199,17 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.url) {
     const enabled = shouldEnableSidePanel(changeInfo.url);
 
+    if (enabled) {
+      linkedInTabId = tabId;
+    } else if (linkedInTabId === tabId) {
+      linkedInTabId = null;
+    }
+
     toggleSidePanel(tabId, enabled);
 
     console.log("isContentReady: ", isContentReady);
     console.log("isSidePanelReady: ", isSidePanelReady);
-    if (isSidePanelReady && isContentReady) {
+    if (sidePanelPort && isSidePanelReady && isContentReady) {
       sendResetPanelAndUpdateJobTitle("changed url", tabId);
     }
   }
@@ -195,7 +218,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
 
-  if (tab.url && shouldEnableSidePanel(tab.url) && isSidePanelReady && isContentReady) {
+  if (tab.url && shouldEnableSidePanel(tab.url) && sidePanelPort && isSidePanelReady && isContentReady) {
     console.log("Tab activated, sending reset panel update");
     sendResetPanelAndUpdateJobTitle("tab-activated", activeInfo.tabId);
   }
@@ -307,16 +330,24 @@ function sendResetPanelAndUpdateJobTitle(context?: string, targetTabId?: number)
   };
 
   if (targetTabId !== undefined) {
+    console.log("Using provided targetTabId:", targetTabId);
     sendToTab(targetTabId);
+  } else if (linkedInTabId !== null) {
+    // Use the tracked LinkedIn tab ID
+    console.log("Using tracked linkedInTabId:", linkedInTabId);
+    sendToTab(linkedInTabId);
   } else {
-    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+    console.warn("No LinkedIn tab ID tracked, falling back to query");
+    // Fallback: query for LinkedIn job tabs
+    chrome.tabs.query({ url: "https://www.linkedin.com/jobs/*" }, tabs => {
       const tabId = tabs[0]?.id;
 
       if (!tabId) {
-        console.warn("No tab id found");
+        console.warn("No LinkedIn tab found");
         return;
       }
 
+      console.log("Fallback found LinkedIn tab:", tabId);
       sendToTab(tabId);
     });
   }

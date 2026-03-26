@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { actions, ActionType } from "./types";
 import { ResumePreview } from "./resume-preview";
 import { LoginForm } from "./login-form";
@@ -35,19 +35,9 @@ function App() {
 
   const { data: session, isPending } = authClient.useSession();
 
-  // Store port ref to avoid reconnecting
-  const portRef = useRef<chrome.runtime.Port | null>(null);
-
   useEffect(() => {
-    // Prevent duplicate connections
-    if (portRef.current) {
-      console.log("App: Port already exists, skipping connection");
-      return;
-    }
-
     console.log("App: useEffect - Connecting to background with port name 'sidepanel'");
     const port = chrome.runtime.connect({ name: "sidepanel" });
-    portRef.current = port;
     console.log("App: Port connected:", port);
 
     const messageHandler = (msg: {
@@ -56,6 +46,7 @@ function App() {
     }) => {
       console.log("App port message received: ", msg.action, msg.data);
       if (msg.action === actions.updateJobTitle) {
+        console.log("App: Updating job title to:", msg.data);
         setCurrentJobTitle(msg.data as string);
         setResume("");
         setError("");
@@ -90,7 +81,6 @@ function App() {
       console.log("App: Cleanup - removing listener and disconnecting port");
       port.onMessage.removeListener(messageHandler);
       port.disconnect();
-      portRef.current = null;
     };
   }, []);
 
