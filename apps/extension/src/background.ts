@@ -3,7 +3,7 @@ import { shouldEnableSidePanel } from "./utils";
 
 let isContentReady = false;
 let isSidePanelReady = false;
-let sidePanelPort: chrome.runtime.Port | null = null;
+let sidePanelPorts: Set<chrome.runtime.Port> = new Set();
 
 // Ping server every 14 minutes (840,000 milliseconds)
 setInterval(
@@ -48,7 +48,7 @@ chrome.runtime.onConnect.addListener(port => {
   if (port.name === "content") {
     isContentReady = true;
 
-    if (!isSidePanelReady) {
+    if (!isSidePanelReady || sidePanelPorts.size === 0) {
       console.log("Content connected but sidepanel not ready yet");
       return true;
     }
@@ -56,7 +56,7 @@ chrome.runtime.onConnect.addListener(port => {
     console.log("Content connected, sidepanel ready - sending update");
     // Small delay to ensure content script's useEffect has run
     setTimeout(() => {
-      if (sidePanelPort) {
+      if (sidePanelPorts.size > 0) {
         sendResetPanelAndUpdateJobTitle("onConnect:content");
       }
     }, 100);
@@ -68,26 +68,48 @@ chrome.runtime.onConnect.addListener(port => {
   }
 
   if (port.name === "sidepanel") {
-    sidePanelPort = port;
+    console.log("=== SIDE PANEL CONNECT ===");
+    console.log("Existing sidepanel ports:", sidePanelPorts.size);
+    console.log("New port:", port);
+
+    // Add this port to the set of connected sidepanels
+    sidePanelPorts.add(port);
     isSidePanelReady = true;
 
-    if (!isContentReady) {
-      console.log("Sidepanel connected but content not ready yet");
-      return true;
-    }
-
-    console.log("Sidepanel connected, content ready - sending update");
-    // Small delay to ensure content script's useEffect has run
-    setTimeout(() => {
-      if (sidePanelPort) {
-        sendResetPanelAndUpdateJobTitle("onConnect:sidepanel");
-      }
-    }, 100);
-
     port.onDisconnect.addListener(() => {
-      console.log("Sidepanel is disconnected");
-      sidePanelPort = null;
-      isSidePanelReady = false;
+      console.log("Sidepanel disconnected, removing from set");
+      sidePanelPorts.delete(port);
+      if (sidePanelPorts.size === 0) {
+        isSidePanelReady = false;
+      }
+    });
+
+    // Check if active tab is LinkedIn before sending update
+    chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
+      const activeTab = activeTabs[0];
+
+      if (!activeTab || !shouldEnableSidePanel(activeTab.url || "")) {
+        console.log("Sidepanel connected but active tab is not LinkedIn, clearing job title");
+        // Send empty job title to all sidepanels
+        broadcastToSidepanels({
+          action: actions.updateJobTitle,
+          data: "",
+        });
+        return;
+      }
+
+      if (!isContentReady) {
+        console.log("Sidepanel connected but content not ready yet");
+        return;
+      }
+
+      console.log("Sidepanel connected, content ready - sending update");
+      // Small delay to ensure content script's useEffect has run
+      setTimeout(() => {
+        if (sidePanelPorts.size > 0) {
+          sendResetPanelAndUpdateJobTitle("onConnect:sidepanel");
+        }
+      }, 100);
     });
   }
 });
@@ -113,8 +135,9 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(details => {
         }
 
         // After history state update, refresh job title if sidepanel is ready
-        if (sidePanelPort && isSidePanelReady) {
-          sendResetPanelAndUpdateJobTitle("history-updated");
+        // Use the specific tabId from the event, not query
+        if (sidePanelPorts.size > 0 && isSidePanelReady) {
+          sendResetPanelAndUpdateJobTitleForTab(details.tabId, "history-updated");
         }
       }
     );
@@ -193,8 +216,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
     console.log("isContentReady: ", isContentReady);
     console.log("isSidePanelReady: ", isSidePanelReady);
-    if (sidePanelPort && isSidePanelReady && isContentReady) {
-      sendResetPanelAndUpdateJobTitle("changed url");
+    if (sidePanelPorts.size > 0 && isSidePanelReady && isContentReady && enabled) {
+      // Use the specific tabId from the event
+      sendResetPanelAndUpdateJobTitleForTab(tabId, "changed url");
     }
   }
 });
@@ -202,9 +226,29 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
 
-  if (tab.url && shouldEnableSidePanel(tab.url) && sidePanelPort && isSidePanelReady && isContentReady) {
-    console.log("Tab activated, sending reset panel update");
-    sendResetPanelAndUpdateJobTitle("tab-activated");
+  // Check if activated tab is LinkedIn
+  if (tab.url && shouldEnableSidePanel(tab.url)) {
+    // Force sidepanel recreation by resetting path, causing React to remount
+    chrome.sidePanel.setOptions({
+      tabId: activeInfo.tabId,
+      enabled: true,
+      path: "sidepanel.html",
+    });
+
+    // Small delay to ensure sidepanel has reloaded, then update job title
+    setTimeout(() => {
+      if (sidePanelPorts.size > 0 && isSidePanelReady && isContentReady) {
+        console.log("Tab activated, sending reset panel update");
+        sendResetPanelAndUpdateJobTitleForTab(activeInfo.tabId, "tab-activated");
+      }
+    }, 200);
+  } else {
+    // Activated tab is NOT LinkedIn - clear the job title
+    console.log("Non-LinkedIn tab activated, clearing job title");
+    broadcastToSidepanels({
+      action: actions.updateJobTitle,
+      data: "",
+    });
   }
 });
 
@@ -212,6 +256,18 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.action.disable();
   chrome.action.setBadgeText({ text: "" });
 });
+
+function broadcastToSidepanels(message: { action: ActionType; data?: any }) {
+  console.log("Broadcasting to", sidePanelPorts.size, "sidepanels:", message);
+  sidePanelPorts.forEach(port => {
+    try {
+      port.postMessage(message);
+    } catch (err) {
+      console.error("Error sending to sidepanel:", err);
+      sidePanelPorts.delete(port);
+    }
+  });
+}
 
 chrome.action.onClicked.addListener(tab => {
   if (tab.url && shouldEnableSidePanel(tab.url)) {
@@ -238,7 +294,7 @@ async function optimizeResume(jobDescription: string) {
   }
 
   if (!response.body) {
-    sidePanelPort?.postMessage({ action: actions.streamingEnded });
+    broadcastToSidepanels({ action: actions.streamingEnded });
     return false;
   }
 
@@ -249,7 +305,7 @@ async function optimizeResume(jobDescription: string) {
   while (true) {
     const { done, value } = await reader.read();
     if (done) {
-      sidePanelPort?.postMessage({ action: actions.streamingEnded });
+      broadcastToSidepanels({ action: actions.streamingEnded });
       break;
     }
 
@@ -265,12 +321,12 @@ async function optimizeResume(jobDescription: string) {
         const parsed = JSON.parse(data);
 
         if (parsed.type === "data-status") {
-          sidePanelPort?.postMessage({
+          broadcastToSidepanels({
             action: actions.optimizationStatus,
             data: parsed.data,
           });
         } else if (parsed.type === "text-delta") {
-          sidePanelPort?.postMessage({
+          broadcastToSidepanels({
             action: actions.streaming,
             data: parsed.delta,
           });
@@ -281,58 +337,84 @@ async function optimizeResume(jobDescription: string) {
   return true;
 }
 
-function sendResetPanelAndUpdateJobTitle(context?: string) {
-  // Always find the active LinkedIn job tab dynamically
-  chrome.tabs.query({ url: "https://www.linkedin.com/jobs/*" }, tabs => {
-    // Find the active LinkedIn tab (highlighted/visible)
-    const activeLinkedInTab = tabs.find(t => t.active);
-    const tabId = activeLinkedInTab?.id || tabs[0]?.id;
+function sendResetPanelAndUpdateJobTitleForTab(tabId: number, context?: string) {
+  console.log("Sending resetPanel to specific tab:", tabId, "context:", context);
+  sendToContentScript(tabId, context);
+}
 
-    if (!tabId) {
-      console.warn("No LinkedIn tab found");
+function sendResetPanelAndUpdateJobTitle(context?: string) {
+  // First get the current window's active tab, then check if it's LinkedIn
+  chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
+    const activeTab = activeTabs[0];
+
+    if (!activeTab) {
+      console.warn("No active tab in current window");
       return;
     }
 
-    console.log("Found active LinkedIn tab:", tabId, "total LinkedIn tabs:", tabs.length);
-    console.log("Sending resetPanel to tab:", tabId);
+    console.log("=== sendResetPanelAndUpdateJobTitle ===");
+    console.log("Context:", context);
+    console.log("Current active tab:", { id: activeTab.id, url: activeTab.url, title: activeTab.title });
 
-    try {
-      chrome.tabs.sendMessage(tabId, { action: actions.resetPanel }, response => {
-        console.log("sendResetPanelAndUpdateJobTitle callback FIRED");
-        console.log("sendResetPanelAndUpdateJobTitle callback - response:", response);
-        console.log("sendResetPanelAndUpdateJobTitle callback - lastError:", chrome.runtime.lastError);
-
-        if (chrome.runtime.lastError) {
-          const errorMessage = context
-            ? `Error when ${context}: ${chrome.runtime.lastError.message}`
-            : `Error: ${chrome.runtime.lastError.message}`;
-          console.warn(errorMessage);
-          return;
-        }
-        if (context) {
-          console.log(`response from resetting panel (${context}): `, response);
-        }
-        console.log("sidePanelPort: ", sidePanelPort);
-        console.log("Sending to sidepanel:", { action: actions.updateJobTitle, data: response?.data });
-
-        // Verify port is still connected before sending
-        if (!sidePanelPort) {
-          console.error("sidePanelPort is null, cannot send message");
-          return;
-        }
-
-        try {
-          sidePanelPort.postMessage({
-            action: actions.updateJobTitle,
-            data: response?.data,
-          });
-          console.log("Message sent to sidepanel successfully");
-        } catch (err) {
-          console.error("Error sending to sidepanel:", err);
-        }
-      });
-    } catch (err) {
-      console.error("Error in sendResetPanelAndUpdateJobTitle:", err);
+    // If active tab is LinkedIn, use it directly
+    if (shouldEnableSidePanel(activeTab.url || "")) {
+      console.log("Active tab is LinkedIn, using it:", activeTab.id);
+      sendToContentScript(activeTab.id!, context);
+      return;
     }
+
+    // Active tab is NOT LinkedIn - find LinkedIn tabs in current window only
+    chrome.tabs.query({ url: "https://www.linkedin.com/jobs/*", currentWindow: true }, (tabs) => {
+      console.log("LinkedIn tabs in current window:", tabs.map(t => ({ id: t.id, url: t.url, active: t.active, title: t.title })));
+
+      if (!tabs.length) {
+        console.warn("No LinkedIn tabs in current window");
+        return;
+      }
+
+      // Use the first LinkedIn tab in current window
+      console.log("Using first LinkedIn tab in current window:", tabs[0].id);
+      sendToContentScript(tabs[0].id!, context);
+    });
+  });
+}
+
+function sendToContentScript(tabId: number, context?: string) {
+  console.log("=== sendToContentScript ===");
+  console.log("TabId:", tabId, "Context:", context);
+
+  // Verify this is actually a LinkedIn tab before sending
+  chrome.tabs.get(tabId, (tab) => {
+    console.log("Target tab info:", { id: tab.id, url: tab.url, active: tab.active, title: tab.title });
+  });
+
+  chrome.tabs.sendMessage(tabId, { action: actions.resetPanel }, response => {
+    console.log("sendResetPanelAndUpdateJobTitle callback FIRED");
+    console.log("sendResetPanelAndUpdateJobTitle callback - response:", response);
+    console.log("sendResetPanelAndUpdateJobTitle callback - lastError:", chrome.runtime.lastError);
+
+    if (chrome.runtime.lastError) {
+      const errorMessage = context
+        ? `Error when ${context}: ${chrome.runtime.lastError.message}`
+        : `Error: ${chrome.runtime.lastError.message}`;
+      console.warn(errorMessage);
+      return;
+    }
+    if (context) {
+      console.log(`response from resetting panel (${context}): `, response);
+    }
+    console.log("Broadcasting to", sidePanelPorts.size, "sidepanels");
+    console.log("Sending to sidepanels:", { action: actions.updateJobTitle, data: response?.data });
+
+    if (sidePanelPorts.size === 0) {
+      console.error("No sidepanel ports connected, cannot send message");
+      return;
+    }
+
+    broadcastToSidepanels({
+      action: actions.updateJobTitle,
+      data: response?.data,
+    });
+    console.log("Message sent to sidepanels successfully");
   });
 }

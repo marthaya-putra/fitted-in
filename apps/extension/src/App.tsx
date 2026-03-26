@@ -33,32 +33,38 @@ function App() {
   >([]);
   const [hasStartedStreaming, setHasStartedStreaming] = useState(false);
 
+  // Generate unique ID for this sidepanel instance
+  const instanceId = useRef(Math.random().toString(36).substring(7));
+  console.log("=== SIDE PANEL INSTANCE CREATED:", instanceId.current, "===");
+
   // Track port connection to prevent duplicate listeners
   const portRef = useRef<chrome.runtime.Port | null>(null);
 
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
-    // Disconnect existing port if any (prevents duplicate listeners)
-    if (portRef.current) {
-      console.log("App: Disconnecting existing port before creating new one");
-      portRef.current.disconnect();
-    }
-
-    console.log("App: useEffect - Connecting to background with port name 'sidepanel'");
+    console.log(`[Instance ${instanceId.current}] useEffect - Connecting to background with port name 'sidepanel'`);
     const port = chrome.runtime.connect({ name: "sidepanel" });
     portRef.current = port;
-    console.log("App: Port connected:", port);
+    console.log(`[Instance ${instanceId.current}] Port connected:`, port);
 
     const messageHandler = (msg: {
       action: ActionType;
       data: string | OptimizationStatus;
     }) => {
-      console.log("App port message received: ", msg.action, msg.data);
+      console.log(`[Instance ${instanceId.current}] App port message received: `, msg.action, msg.data);
       if (msg.action === actions.updateJobTitle) {
         const jobTitle = (msg.data as string).trim();
-        console.log("App: Updating job title to:", jobTitle);
-        setCurrentJobTitle(jobTitle);
+        console.log(`[Instance ${instanceId.current}] Updating job title to:`, jobTitle);
+        console.log(`[Instance ${instanceId.current}] Job title received:`, jobTitle);
+
+        // Force update by using functional form to get latest state
+        setCurrentJobTitle(prev => {
+          console.log(`[Instance ${instanceId.current}] Previous job title in state:`, prev);
+          console.log(`[Instance ${instanceId.current}] New job title will be:`, jobTitle);
+          return jobTitle;
+        });
+
         setResume("");
         setError("");
         setIsOptimized(false);
@@ -130,6 +136,9 @@ function App() {
   }
 
   const userLabel = session.user.name || session.user.email;
+
+  // Debug log to verify renders
+  console.log(`[Instance ${instanceId.current}] App rendering with currentJobTitle:`, currentJobTitle);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-accent relative">
