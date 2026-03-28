@@ -9,13 +9,13 @@ This skill automates the deployment process for the FittedIn Chrome extension.
 ## Steps
 
 ### 1. Read Current Version
-Read `apps/extension/manifest.json` to get the current version number.
+Read `apps/extension/public/manifest.json` to get the current version number.
 
 ### 2. Bump Version
 Increment the patch version:
 - Parse the version string (e.g., "1.1.6")
 - Increment the last number (1.1.6 → 1.1.7)
-- Update `apps/extension/manifest.json`
+- Update `apps/extension/public/manifest.json`
 - Update `apps/extension/package.json`
 
 ### 3. Build Extension
