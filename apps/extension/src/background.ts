@@ -228,20 +228,16 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 
   // Check if activated tab is LinkedIn
   if (tab.url && shouldEnableSidePanel(tab.url)) {
-    // Force sidepanel recreation by resetting path, causing React to remount
+    // Enable sidepanel for this tab without recreating it
     chrome.sidePanel.setOptions({
       tabId: activeInfo.tabId,
       enabled: true,
-      path: "sidepanel.html",
     });
 
-    // Small delay to ensure sidepanel has reloaded, then update job title
-    setTimeout(() => {
-      if (sidePanelPorts.size > 0 && isSidePanelReady && isContentReady) {
-        console.log("Tab activated, sending reset panel update");
-        sendResetPanelAndUpdateJobTitleForTab(activeInfo.tabId, "tab-activated");
-      }
-    }, 200);
+    if (sidePanelPorts.size > 0 && isSidePanelReady && isContentReady) {
+      console.log("Tab activated, sending reset panel update");
+      sendResetPanelAndUpdateJobTitleForTab(activeInfo.tabId, "tab-activated");
+    }
   } else {
     // Activated tab is NOT LinkedIn - clear the job title
     console.log("Non-LinkedIn tab activated, clearing job title");
