@@ -9,6 +9,7 @@ import { ResumeOptimizerService } from './services/resume-optimizer.service';
 import { WorkExperienceOptimizerService } from './services/work-experience-optimizer.service';
 import { SkillsOptimizerService } from './services/skills-optimizer.service';
 import { ResumeFormatterService } from './services/resume-formatter.service';
+import { MarkdownToPdfService } from './services/markdown-to-pdf.service';
 
 @Module({
   controllers: [ResumeController],
@@ -22,6 +23,7 @@ import { ResumeFormatterService } from './services/resume-formatter.service';
     SkillsOptimizerService,
     ResumeOptimizerService,
     ResumeFormatterService,
+    MarkdownToPdfService,
   ],
   exports: [
     ResumeService,
@@ -32,6 +34,7 @@ import { ResumeFormatterService } from './services/resume-formatter.service';
     SkillsOptimizerService,
     ResumeOptimizerService,
     ResumeFormatterService,
+    MarkdownToPdfService,
   ],
 })
 export class ResumeModule {}

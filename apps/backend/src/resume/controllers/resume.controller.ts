@@ -13,7 +13,11 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { type Response } from "express";
-import { Session, type UserSession } from "@thallesp/nestjs-better-auth";
+import {
+  Session,
+  type UserSession,
+  AllowAnonymous,
+} from "@thallesp/nestjs-better-auth";
 
 import { ResumeService } from "../services/resume.service";
 import { resumeDto } from "../dto/create-resume.dto";
@@ -26,13 +30,16 @@ import { CustomizeDto } from "../dto/customize-job.dto";
 import { ResumeOptimizerService } from "../services/resume-optimizer.service";
 import { ResumeProfile } from "../../db/types";
 import { createUIMessageStream, pipeUIMessageStreamToResponse } from "ai";
+import { MarkdownToPdfDto } from "../dto/markdown-to-pdf.dto";
+import { MarkdownToPdfService } from "../services/markdown-to-pdf.service";
 
 @Controller("resumes")
 export class ResumeController {
   constructor(
     private readonly resumeService: ResumeService,
     private readonly resumeParserService: ResumeParserService,
-    private readonly resumeOptimizerService: ResumeOptimizerService
+    private readonly resumeOptimizerService: ResumeOptimizerService,
+    private readonly markdownToPdfService: MarkdownToPdfService
   ) {}
 
   @Post()
@@ -79,6 +86,17 @@ export class ResumeController {
     @UploadedFile() pdf: Express.Multer.File
   ): Promise<ResumeData> {
     return this.resumeParserService.parse(pdf);
+  }
+
+  @Post("pdf")
+  @AllowAnonymous()
+  @HttpCode(HttpStatus.OK)
+  async markdownToPdf(@Body() dto: MarkdownToPdfDto, @Res() res: Response) {
+    const pdfBuffer = await this.markdownToPdfService.generate(dto.markdown);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline");
+    res.send(pdfBuffer);
   }
 
   @Post("optimize")
