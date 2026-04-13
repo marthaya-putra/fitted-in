@@ -2,11 +2,12 @@
 
 import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Download, Loader2 } from "lucide-react";
 import remarkBreaks from "remark-breaks";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { StickToBottom } from "use-stick-to-bottom";
+import { toast } from "sonner";
 
 interface StreamingMarkdownPreviewProps {
   content: string;
@@ -20,6 +21,7 @@ export function StreamingMarkdownPreview({
   className,
 }: StreamingMarkdownPreviewProps) {
   const [copied, setCopied] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const htmlRef = useRef<HTMLDivElement>(null);
 
   const handleCopy = async () => {
@@ -34,10 +36,68 @@ export function StreamingMarkdownPreview({
     }
   };
 
+  const handleDownloadPdf = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await fetch("/api/resumes/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markdown: content }),
+      });
+
+      if (!response.ok) throw new Error("Failed to generate PDF");
+
+      const blob = await response.blob();
+
+      if (window.showSaveFilePicker) {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: "resume.pdf",
+          types: [{ description: "PDF", accept: { "application/pdf": [".pdf"] } }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "resume.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") return;
+      toast.error("Failed to download PDF");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     // Ensure this wrapper has a constrained height so inner container can scroll.
     <div className={cn("relative h-full max-h-[600px]", className)}>
-      <div className="absolute top-0 right-4 z-10 -translate-y-1/2">
+      <div className="absolute top-0 right-4 z-10 -translate-y-1/2 flex gap-2">
+        <Button
+          onClick={handleDownloadPdf}
+          variant="outline"
+          size="sm"
+          disabled={!content || isLoading || isDownloading}
+          className="gap-2 transition-all duration-200"
+        >
+          {isDownloading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Generating...</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-4 h-4" />
+              <span>Download PDF</span>
+            </>
+          )}
+        </Button>
         <Button
           onClick={handleCopy}
           variant="outline"
