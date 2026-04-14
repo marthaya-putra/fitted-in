@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, FileText, Loader2 } from "lucide-react";
 import { StickToBottom } from "use-stick-to-bottom";
 import remarkBreaks from "remark-breaks";
 
@@ -12,6 +12,7 @@ export const ResumePreview = ({
   canCopy: boolean;
 }) => {
   const [copied, setCopied] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const htmlRef = useRef<HTMLDivElement>(null);
 
   const handleCopy = async () => {
@@ -26,28 +27,76 @@ export const ResumePreview = ({
     }
   };
 
+  const handleDownloadPdf = async () => {
+    setIsDownloading(true);
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/resumes/pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markdown }),
+      });
+
+      if (!response.ok) throw new Error("Failed to generate PDF");
+
+      const blob = await response.blob();
+
+      if (window.showSaveFilePicker) {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: "resume.pdf",
+          types: [
+            { description: "PDF", accept: { "application/pdf": [".pdf"] } },
+          ],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "resume.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+    } catch {
+      console.error("Failed to download PDF");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="p-4 relative">
-      <div className="flex items-center justify-end absolute top-0 right-0 -translate-y-1/2 -translate-x-[10px]">
+      <div className="flex items-center justify-end absolute top-0 right-0 -translate-y-1/2 -translate-x-[10px] gap-2">
+        {canCopy && (
+          <button
+            onClick={handleDownloadPdf}
+            disabled={isDownloading}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-lg hover:shadow-xl hover:border-gray-400 disabled:opacity-50"
+          >
+            {isDownloading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <FileText className="w-4 h-4" />
+            )}
+          </button>
+        )}
         {canCopy && (
           <button
             onClick={handleCopy}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all animate-bounce duration-1000  ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${
               copied
                 ? "bg-green-100 text-green-700 hover:bg-green-200"
                 : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-lg hover:shadow-xl hover:border-gray-400"
             }`}
           >
             {copied ? (
-              <>
-                <Check className="w-4 h-4" />
-                <span>Copied!</span>
-              </>
+              <Check className="w-4 h-4" />
             ) : (
-              <>
-                <Copy className="w-4 h-4" />
-                <span>Copy</span>
-              </>
+              <Copy className="w-4 h-4" />
             )}
           </button>
         )}

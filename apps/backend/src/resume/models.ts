@@ -9,7 +9,7 @@ export function getModel(): LanguageModel {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
     return mistral("mistral-large-latest");
   }
-  return google("gemini-2.5-flash");
+  return google("gemini-3-flash-preview");
 }
 
 export const ocrModel: LanguageModel = google("gemini-2.5-flash-lite");
