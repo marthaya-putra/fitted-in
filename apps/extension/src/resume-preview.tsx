@@ -40,27 +40,15 @@ export const ResumePreview = ({
       if (!response.ok) throw new Error("Failed to generate PDF");
 
       const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
 
-      if (window.showSaveFilePicker) {
-        const handle = await window.showSaveFilePicker({
-          suggestedName: "resume.pdf",
-          types: [
-            { description: "PDF", accept: { "application/pdf": [".pdf"] } },
-          ],
-        });
-        const writable = await handle.createWritable();
-        await writable.write(blob);
-        await writable.close();
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "resume.pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      }
+      await chrome.downloads.download({
+        url,
+        filename: "resume.pdf",
+        saveAs: true,
+      });
+
+      URL.revokeObjectURL(url);
     } catch {
       console.error("Failed to download PDF");
     } finally {
