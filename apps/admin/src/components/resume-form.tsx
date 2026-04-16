@@ -40,7 +40,7 @@ const formSchema = z.object({
   email: z.email("Invalid email address"),
   phone: z.string(),
   location: z.string(),
-  website: z.string().url().optional(),
+  website: z.string().url().or(z.literal("")),
   summary: z.string(),
   workExperiences: z.string(),
   educations: z.string(),
