@@ -38,39 +38,80 @@ export function StreamingMarkdownPreview({
 
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
+    let writable: FileSystemWritableFileStream | null = null;
+
     try {
-      const response = await fetch("/api/resumes/pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ markdown: content }),
-      });
-
-      if (!response.ok) throw new Error("Failed to generate PDF");
-
-      const blob = await response.blob();
-
       if (window.showSaveFilePicker) {
         const handle = await window.showSaveFilePicker({
           suggestedName: "resume.pdf",
           types: [{ description: "PDF", accept: { "application/pdf": [".pdf"] } }],
         });
-        const writable = await handle.createWritable();
-        await writable.write(blob);
-        await writable.close();
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "resume.pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+        writable = await handle.createWritable();
       }
+
+      const res = await fetch("/api/resumes/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markdown: content }),
+      });
+      if (!res.ok) throw new Error("Failed to enqueue PDF generation");
+
+      const { data } = (await res.json()) as { data: { id: string } };
+      const { id } = data;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
+
+      await new Promise<void>((resolve, reject) => {
+        const es = new EventSource(`${apiUrl}/api/resumes/pdf/status/${id}`);
+
+        es.onmessage = async (event) => {
+          try {
+            const { status, signedUrl, errorMessage } = JSON.parse(event.data) as {
+              status: string;
+              signedUrl?: string;
+              errorMessage?: string;
+            };
+
+            if (status === "completed" && signedUrl) {
+              es.close();
+
+              const blobRes = await fetch(signedUrl);
+              const blob = await blobRes.blob();
+
+              if (writable) {
+                await writable.write(blob);
+                await writable.close();
+              } else {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "resume.pdf";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+              }
+
+              resolve();
+            } else if (status === "failed") {
+              es.close();
+              reject(new Error(errorMessage ?? "PDF generation failed"));
+            }
+          } catch (err) {
+            es.close();
+            reject(err);
+          }
+        };
+
+        es.onerror = () => {
+          es.close();
+          reject(new Error("Connection lost while generating PDF"));
+        };
+      });
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") return;
-      toast.error("Failed to download PDF");
+      toast.error(err instanceof Error ? err.message : "Failed to download PDF");
     } finally {
+      await writable?.abort();
       setIsDownloading(false);
     }
   };

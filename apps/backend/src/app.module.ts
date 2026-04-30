@@ -14,6 +14,7 @@ import { Db } from "./db/types";
 import { ResumeModule } from "./resume/resume.module";
 import { RepositoryModule } from "./repositories/repository.module";
 import { JobsModule } from "./jobs/jobs.module";
+import { QueueModule } from "./queue/queue.module";
 
 @Module({
   imports: [
@@ -42,7 +43,6 @@ import { JobsModule } from "./jobs/jobs.module";
             "chrome-extension://jhhpmkomkllohgcbjggpjjnlnplimpfj",
             "chrome-extension://cocolialcdmiadcimbjdooppfdmgiiad",
             "fittedinmobile://",
-            // For development with Expo Go:
             ...(process.env.NODE_ENV === "development"
               ? ["exp://", "exp://**", "exp://192.168.*.*:*/**"]
               : []),
@@ -54,6 +54,7 @@ import { JobsModule } from "./jobs/jobs.module";
     RepositoryModule,
     ResumeModule,
     JobsModule,
+    QueueModule,
   ],
   controllers: [AppController],
   providers: [

@@ -15,6 +15,13 @@
       "when": 1761529582208,
       "tag": "0001_gorgeous_jubilee",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777522722682,
+      "tag": "0002_first_timeslip",
+      "breakpoints": true
     }
   ]
 }

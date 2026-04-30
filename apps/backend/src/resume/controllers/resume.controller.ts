@@ -10,7 +10,9 @@ import {
   UploadedFile,
   UseInterceptors,
   Res,
+  Sse,
   UnauthorizedException,
+  Inject,
 } from "@nestjs/common";
 import { type Response } from "express";
 import {
@@ -18,6 +20,7 @@ import {
   type UserSession,
   AllowAnonymous,
 } from "@thallesp/nestjs-better-auth";
+import { type Observable, Subject } from "rxjs";
 
 import { ResumeService } from "../services/resume.service";
 import { resumeDto } from "../dto/create-resume.dto";
@@ -31,7 +34,12 @@ import { ResumeOptimizerService } from "../services/resume-optimizer.service";
 import { ResumeProfile } from "../../db/types";
 import { createUIMessageStream, pipeUIMessageStreamToResponse } from "ai";
 import { MarkdownToPdfDto } from "../dto/markdown-to-pdf.dto";
-import { MarkdownToPdfService } from "../services/markdown-to-pdf.service";
+import { PdfGenerationRepository } from "../../repositories/pdf-generation.repository";
+import { PdfQueueService } from "../../queue/pdf-queue.service";
+import { DRIZZLE_DB } from "../../drizzle/drizzle.module";
+import { type Db } from "../../db/types";
+import { pdfGeneration } from "../../db/schema/pdf-generation.schema";
+import { eq } from "drizzle-orm";
 
 @Controller("resumes")
 export class ResumeController {
@@ -39,7 +47,9 @@ export class ResumeController {
     private readonly resumeService: ResumeService,
     private readonly resumeParserService: ResumeParserService,
     private readonly resumeOptimizerService: ResumeOptimizerService,
-    private readonly markdownToPdfService: MarkdownToPdfService
+    private readonly pdfGenerationRepo: PdfGenerationRepository,
+    private readonly pdfQueueService: PdfQueueService,
+    @Inject(DRIZZLE_DB) private readonly db: Db
   ) {}
 
   @Post()
@@ -91,12 +101,68 @@ export class ResumeController {
   @Post("pdf")
   @AllowAnonymous()
   @HttpCode(HttpStatus.OK)
-  async markdownToPdf(@Body() dto: MarkdownToPdfDto, @Res() res: Response) {
-    const pdfBuffer = await this.markdownToPdfService.generate(dto.markdown);
+  async enqueuePdfGeneration(@Body() dto: MarkdownToPdfDto) {
+    const dbRow = await this.pdfGenerationRepo.create(this.db, {
+      jobId: "",
+      status: "pending",
+    });
 
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "inline");
-    res.send(pdfBuffer);
+    const jobId = await this.pdfQueueService.addJob(dbRow.id, dto.markdown);
+
+    await this.db
+      .update(pdfGeneration)
+      .set({ jobId })
+      .where(eq(pdfGeneration.id, dbRow.id));
+
+    return { id: dbRow.id, jobId };
+  }
+
+  @Get("pdf/status/:id")
+  @AllowAnonymous()
+  @Sse()
+  pdfStatusStream(@Param("id") id: string): Observable<MessageEvent> {
+    const subject = new Subject<MessageEvent>();
+
+    const poll = async () => {
+      try {
+        const row = await this.pdfGenerationRepo.findById(this.db, id);
+
+        if (!row) {
+          subject.next({
+            data: JSON.stringify({ status: "not_found" }),
+          } as MessageEvent);
+          subject.complete();
+          return;
+        }
+
+        subject.next({
+          data: JSON.stringify({
+            status: row.status,
+            signedUrl: row.signedUrl,
+            errorMessage: row.errorMessage,
+          }),
+        } as MessageEvent);
+
+        if (row.status === "completed" || row.status === "failed") {
+          subject.complete();
+          return;
+        }
+
+        setTimeout(poll, 2000);
+      } catch {
+        subject.next({
+          data: JSON.stringify({ status: "error" }),
+        } as MessageEvent);
+        subject.complete();
+      }
+    };
+
+    subject.next({
+      data: JSON.stringify({ status: "pending" }),
+    } as MessageEvent);
+    poll();
+
+    return subject.asObservable();
   }
 
   @Post("optimize")
