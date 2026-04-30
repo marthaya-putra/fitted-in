@@ -5,7 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Logger,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -24,9 +24,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      if (typeof exceptionResponse === 'string') {
+      if (typeof exceptionResponse === "string") {
         message = exceptionResponse;
-      } else if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
+      } else if (
+        typeof exceptionResponse === "object" &&
+        exceptionResponse !== null
+      ) {
         message = (exceptionResponse as any).message || exception.message;
       } else {
         message = exception.message;
@@ -35,26 +38,28 @@ export class AllExceptionsFilter implements ExceptionFilter {
       stack = exception.stack;
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
-      message = 'Internal server error';
+      message = "Internal server error";
       stack = exception instanceof Error ? exception.stack : undefined;
     }
 
     // Log the full error details to terminal using console.error for immediate output
-    console.error(`[${new Date().toISOString()}] ERROR: ${request.method} ${request.url} - Status: ${status} - Message: ${message}`);
+    console.error(
+      `[${new Date().toISOString()}] ERROR: ${request.method} ${request.url} - Status: ${status} - Message: ${message}`
+    );
     if (stack) {
-      console.error('Stack trace:', stack);
+      console.error("Stack trace:", stack);
     }
 
     // Also use logger for proper NestJS logging
     this.logger.error(
       `${request.method} ${request.url} - Status: ${status} - Message: ${message}`,
-      stack,
+      stack
     );
 
     // If it's not an HttpException, log the full exception
     if (!(exception instanceof HttpException)) {
-      console.error('Non-HTTP exception caught:', exception);
-      this.logger.error('Non-HTTP exception caught:', exception);
+      console.error("Non-HTTP exception caught:", exception);
+      this.logger.error("Non-HTTP exception caught:", exception);
     }
 
     // Send a user-friendly response
@@ -63,7 +68,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
       path: request.url,
       method: request.method,
-      message: status >= 500 ? 'Internal server error' : message,
+      message: status >= 500 ? "Internal server error" : message,
     });
   }
 }
