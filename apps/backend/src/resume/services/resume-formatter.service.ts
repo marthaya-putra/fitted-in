@@ -9,7 +9,9 @@ export interface FormatResumeParams {
 
 @Injectable()
 export class ResumeFormatterService {
-  streamFormattedResume(params: FormatResumeParams) {
+  streamFormattedResume(
+    params: FormatResumeParams
+  ): ReturnType<typeof streamText> {
     try {
       const systemPrompt = `You are a professional CV formatter and optimization assistant.
 Your task is to take raw/plain text resumes and transform them into a clean, well-structured CV that is both ATS-compatible and optimized for AI-based hiring systems.
