@@ -20,7 +20,7 @@ import {
   type UserSession,
   AllowAnonymous,
 } from "@thallesp/nestjs-better-auth";
-import { type Observable, Subject } from "rxjs";
+import { map, type Observable, switchMap, takeWhile, timer } from "rxjs";
 
 import { ResumeService } from "../services/resume.service";
 import { resumeDto } from "../dto/create-resume.dto";
@@ -117,52 +117,36 @@ export class ResumeController {
     return { id: dbRow.id, jobId };
   }
 
-  @Get("pdf/status/:id")
+  @Sse("pdf/status/:id")
   @AllowAnonymous()
-  @Sse()
   pdfStatusStream(@Param("id") id: string): Observable<MessageEvent> {
-    const subject = new Subject<MessageEvent>();
+    return timer(0, 2000).pipe(
+      switchMap(async () => {
+        try {
+          const row = await this.pdfGenerationRepo.findById(this.db, id);
+          if (!row) return { data: { status: "not_found" } };
 
-    const poll = async () => {
-      try {
-        const row = await this.pdfGenerationRepo.findById(this.db, id);
-
-        if (!row) {
-          subject.next({
-            data: JSON.stringify({ status: "not_found" }),
-          } as MessageEvent);
-          subject.complete();
-          return;
+          return {
+            data: {
+              status: row.status,
+              signedUrl: row.signedUrl,
+              errorMessage: row.errorMessage,
+            },
+          };
+        } catch {
+          return { data: { status: "error" } };
         }
-
-        subject.next({
-          data: JSON.stringify({
-            status: row.status,
-            signedUrl: row.signedUrl,
-            errorMessage: row.errorMessage,
-          }),
-        } as MessageEvent);
-
-        if (row.status === "completed" || row.status === "failed") {
-          subject.complete();
-          return;
-        }
-
-        setTimeout(poll, 2000);
-      } catch {
-        subject.next({
-          data: JSON.stringify({ status: "error" }),
-        } as MessageEvent);
-        subject.complete();
-      }
-    };
-
-    subject.next({
-      data: JSON.stringify({ status: "pending" }),
-    } as MessageEvent);
-    poll();
-
-    return subject.asObservable();
+      }),
+      map(payload => ({ data: JSON.stringify(payload.data) }) as MessageEvent),
+      takeWhile(ev => {
+        const data = JSON.parse(ev.data as string) as { status: string };
+        return (
+          data.status !== "completed" &&
+          data.status !== "failed" &&
+          data.status !== "not_found"
+        );
+      }, true)
+    );
   }
 
   @Post("optimize")
