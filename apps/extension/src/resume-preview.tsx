@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Copy, Check, FileText, Loader2 } from "lucide-react";
 import { StickToBottom } from "use-stick-to-bottom";
+import { toast } from "sonner";
 import remarkBreaks from "remark-breaks";
 
 export const ResumePreview = ({
@@ -31,26 +32,56 @@ export const ResumePreview = ({
     setIsDownloading(true);
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL;
-      const response = await fetch(`${backendUrl}/api/resumes/pdf`, {
+      const res = await fetch(`${backendUrl}/api/resumes/pdf`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ markdown }),
       });
+      if (!res.ok) throw new Error("Failed to enqueue PDF generation");
 
-      if (!response.ok) throw new Error("Failed to generate PDF");
+      const { data } = (await res.json()) as { data: { id: string } };
+      const { id } = data;
 
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
+      await new Promise<void>((resolve, reject) => {
+        const es = new EventSource(`${backendUrl}/api/resumes/pdf/status/${id}`);
 
-      await chrome.downloads.download({
-        url,
-        filename: "resume.pdf",
-        saveAs: true,
+        es.onmessage = async (event) => {
+          try {
+            const { status, signedUrl, errorMessage } = JSON.parse(event.data) as {
+              status: string;
+              signedUrl?: string;
+              errorMessage?: string;
+            };
+
+            if (status === "completed" && signedUrl) {
+              es.close();
+              const blobRes = await fetch(signedUrl);
+              const blob = await blobRes.blob();
+              const url = URL.createObjectURL(blob);
+              await chrome.downloads.download({
+                url,
+                filename: "resume.pdf",
+                saveAs: true,
+              });
+              URL.revokeObjectURL(url);
+              resolve();
+            } else if (status === "failed") {
+              es.close();
+              reject(new Error(errorMessage ?? "PDF generation failed"));
+            }
+          } catch (err) {
+            es.close();
+            reject(err);
+          }
+        };
+
+        es.onerror = () => {
+          es.close();
+          reject(new Error("Connection lost while generating PDF"));
+        };
       });
-
-      URL.revokeObjectURL(url);
-    } catch {
-      console.error("Failed to download PDF");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to download PDF");
     } finally {
       setIsDownloading(false);
     }
@@ -66,7 +97,10 @@ export const ResumePreview = ({
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-lg hover:shadow-xl hover:border-gray-400 disabled:opacity-50"
           >
             {isDownloading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Generating...</span>
+              </>
             ) : (
               <FileText className="w-4 h-4" />
             )}

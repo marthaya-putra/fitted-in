@@ -15,6 +15,7 @@ import {
   Circle,
 } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
+import { Toaster } from "sonner";
 
 type OptimizationStatus = {
   stage: string;
@@ -167,6 +168,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-accent relative">
+      <Toaster />
       <div className="p-4 flex flex-col gap-4 h-[calc(100vh-8rem)]">
         <div>
           <div className="flex items-center gap-3 mb-4">
