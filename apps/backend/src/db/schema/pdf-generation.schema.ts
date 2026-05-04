@@ -3,7 +3,9 @@ import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 export const pdfGeneration = pgTable("pdf_generation", {
   id: uuid("id").primaryKey().defaultRandom(),
   jobId: text("job_id").notNull().unique(),
-  status: text("status").notNull().default("pending"),
+  status: text({ enum: ["pending", "processing", "completed", "failed"] })
+    .notNull()
+    .default("pending"),
   signedUrl: text("signed_url"),
   storagePath: text("storage_path"),
   errorMessage: text("error_message"),
