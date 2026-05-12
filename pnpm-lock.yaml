@@ -128,11 +128,11 @@ importers:
   apps/backend:
     dependencies:
       '@ai-sdk/google':
-        specifier: ^2.0.5
-        version: 2.0.5(zod@4.3.6)
+        specifier: ^3.0.63
+        version: 3.0.63(zod@4.3.6)
       '@ai-sdk/mistral':
-        specifier: ^2.0.26
-        version: 2.0.27(zod@4.3.6)
+        specifier: ^3.0.12
+        version: 3.0.12(zod@4.3.6)
       '@better-auth/expo':
         specifier: ^1.5.4
         version: 1.5.4(@better-auth/core@1.5.4(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.3.6))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(better-auth@1.5.4(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.13)(better-sqlite3@11.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(better-sqlite3@11.10.0)(drizzle-kit@0.31.9)(drizzle-orm@0.44.7(@electric-sql/pglite@0.3.15)(@opentelemetry/api@1.9.0)(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.13)(better-sqlite3@11.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(better-sqlite3@11.10.0)(kysely@0.28.11)(mysql2@3.15.3)(postgres@3.4.8)(prisma@7.4.2(@types/react@19.2.13)(better-sqlite3@11.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)))(mongodb@7.1.0(gcp-metadata@7.0.1)(socks@2.8.6))(mysql2@3.15.3)(next@15.0.0(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(prisma@7.4.2(@types/react@19.2.13)(better-sqlite3@11.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.19.11)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1))(lightningcss@1.31.1)(terser@5.44.0)(yaml@2.8.0)))(expo-constants@55.0.7(expo@55.0.4)(react-native@0.83.2(@babel/core@7.28.4)(@types/react@19.2.13)(react@18.3.1))(typescript@5.9.3))(expo-linking@55.0.7(expo@55.0.4)(react-native@0.83.2(@babel/core@7.28.4)(@types/react@19.2.13)(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(expo-web-browser@55.0.9(expo@55.0.4(@babel/core@7.28.4)(@expo/dom-webview@55.0.3)(@expo/metro-runtime@55.0.6)(expo-router@55.0.4)(react-dom@18.3.1(react@18.3.1))(react-native@0.83.2(@babel/core@7.28.4)(@types/react@19.2.13)(react@18.3.1))(react-server-dom-webpack@19.2.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.100.2(esbuild@0.25.12)))(react@18.3.1)(typescript@5.9.3))(react-native@0.83.2(@babel/core@7.28.4)(@types/react@19.2.13)(react@18.3.1)))
@@ -191,8 +191,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.1(@nestjs/common@11.1.6(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.6(@nestjs/common@11.1.6(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.6)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/graphql@13.2.0(@fastify/websocket@11.0.1)(@nestjs/common@11.1.6(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.6(@nestjs/common@11.1.6(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.6)(reflect-metadata@0.2.2)(rxjs@7.8.2))(graphql@16.11.0)(reflect-metadata@0.2.2))(better-auth@1.5.4(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.13)(better-sqlite3@11.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(better-sqlite3@11.10.0)(drizzle-kit@0.31.9)(drizzle-orm@0.44.7(@electric-sql/pglite@0.3.15)(@opentelemetry/api@1.9.0)(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.13)(better-sqlite3@11.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(better-sqlite3@11.10.0)(kysely@0.28.11)(mysql2@3.15.3)(postgres@3.4.8)(prisma@7.4.2(@types/react@19.2.13)(better-sqlite3@11.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)))(mongodb@7.1.0(gcp-metadata@7.0.1)(socks@2.8.6))(mysql2@3.15.3)(next@15.0.0(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(prisma@7.4.2(@types/react@19.2.13)(better-sqlite3@11.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.19.11)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1))(lightningcss@1.31.1)(terser@5.44.0)(yaml@2.8.0)))(express@5.1.0)(graphql@16.11.0)(typescript@5.9.3)
       ai:
-        specifier: ^5.0.11
-        version: 5.0.11(zod@4.3.6)
+        specifier: ^6.0.162
+        version: 6.0.162(zod@4.3.6)
       better-auth:
         specifier: ^1.3.24
         version: 1.5.4(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.13)(better-sqlite3@11.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(better-sqlite3@11.10.0)(drizzle-kit@0.31.9)(drizzle-orm@0.44.7(@electric-sql/pglite@0.3.15)(@opentelemetry/api@1.9.0)(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.13)(better-sqlite3@11.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(better-sqlite3@11.10.0)(kysely@0.28.11)(mysql2@3.15.3)(postgres@3.4.8)(prisma@7.4.2(@types/react@19.2.13)(better-sqlite3@11.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)))(mongodb@7.1.0(gcp-metadata@7.0.1)(socks@2.8.6))(mysql2@3.15.3)(next@15.0.0(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(prisma@7.4.2(@types/react@19.2.13)(better-sqlite3@11.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.19.11)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1))(lightningcss@1.31.1)(terser@5.44.0)(yaml@2.8.0))
@@ -557,42 +557,42 @@ importers:
 
 packages:
 
-  '@ai-sdk/gateway@1.0.5':
-    resolution: {integrity: sha512-GOhxiHm2nfuS618Ia13AWxEIhCsj5+tFaw6sjSO7pvMZT03QgFAJyX4xBYj+3i3mfIvw+yJOvyhVu1fI+pAHQA==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4
-
-  '@ai-sdk/google@2.0.5':
-    resolution: {integrity: sha512-jZjfD5MwVbujFxy4RJFIysNHRpfOomFFlq1rMDFSHwSdDkT1r3SQN0ORDu5RR750lss6W2PiujbH6cum/o/y3w==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4
-
-  '@ai-sdk/mistral@2.0.27':
-    resolution: {integrity: sha512-gaptHgaXjMw3+eA0Q4FABcsj5nQNP6EpFaGUR+Pj5WJy7Kn6mApl975/x57224MfeJIShNpt8wFKK3tvh5ewKg==}
+  '@ai-sdk/gateway@3.0.99':
+    resolution: {integrity: sha512-8/UuzFY8p+T8j4XP/9m841pUb5bhnFt8cecSnJpd2zhBttNZ6GbfjZTmsqnvM/RwJOvzIsdFULZrU+E9QFREsQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/provider-utils@3.0.2':
-    resolution: {integrity: sha512-0a5a6VafkV6+0irdpqnub8WE6qzG2VMsDBpXb9NQIz8c4TG8fI+GSTFIL9sqrLEwXrHdiRj7fwJsrir4jClL0w==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4
-
-  '@ai-sdk/provider-utils@3.0.20':
-    resolution: {integrity: sha512-iXHVe0apM2zUEzauqJwqmpC37A5rihrStAih5Ks+JE32iTe4LZ58y17UGBjpQQTCRw9YxMeo2UFLxLpBluyvLQ==}
+  '@ai-sdk/google@3.0.63':
+    resolution: {integrity: sha512-RfOZWVMYSPu2sPRfGajrauWAZ9BSaRopSn+AszkKWQ1MFj8nhaXvCqRHB5pBQUaHTfZKagvOmMpNfa/s3gPLgQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/provider@2.0.0':
-    resolution: {integrity: sha512-6o7Y2SeO9vFKB8lArHXehNuusnpddKPk7xqL7T2/b+OvXMRIXUO1rR4wcv1hAFUAT9avGZshty3Wlua/XA7TvA==}
+  '@ai-sdk/mistral@3.0.12':
+    resolution: {integrity: sha512-QDs5Ece1TbovAAj/bHuMGWU+JvYaLudEr8kl+vEssundxQZcdLmkKg+kKOj94Jb8/00tn085wetHlwbou9cs3g==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/provider-utils@4.0.23':
+    resolution: {integrity: sha512-z8GlDaCmRSDlqkMF2f4/RFgWxdarvIbyuk+m6WXT1LYgsnGiXRJGTD2Z1+SDl3LqtFuRtGX1aghYvQLoHL/9pg==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/provider-utils@4.0.9':
+    resolution: {integrity: sha512-bB4r6nfhBOpmoS9mePxjRoCy+LnzP3AfhyMGCkGL4Mn9clVNlqEeKj26zEKEtB6yoSVcT1IQ0Zh9fytwMCDnow==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/provider@3.0.5':
+    resolution: {integrity: sha512-2Xmoq6DBJqmSl80U6V9z5jJSJP7ehaJJQMy2iFUqTay06wdCqTnPVBBQbtEL8RCChenL+q5DC5H5WzU3vV3v8w==}
     engines: {node: '>=18'}
 
-  '@ai-sdk/provider@2.0.1':
-    resolution: {integrity: sha512-KCUwswvsC5VsW2PWFqF8eJgSCu5Ysj7m1TxiHTVA6g7k360bk0RNQENT8KTMAYEs+8fWPD3Uu4dEmzGHc+jGng==}
+  '@ai-sdk/provider@3.0.8':
+    resolution: {integrity: sha512-oGMAgGoQdBXbZqNG0Ze56CHjDZ1IDYOwGYxYjO5KLSlz5HiNQ9udIXsPZ61VWaHGZ5XW/jyjmr6t2xz2jGVwbQ==}
     engines: {node: '>=18'}
 
   '@alloc/quick-lru@5.2.0':
@@ -6083,6 +6083,10 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@vercel/oidc@3.1.0':
+    resolution: {integrity: sha512-Fw28YZpRnA3cAHHDlkt7xQHiJ0fcL+NRcIqsocZQUSmbzeIKRpwttJjik5ZGanXP+vlA4SbTg+AbA3bP363l+w==}
+    engines: {node: '>= 20'}
+
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -6247,11 +6251,11 @@ packages:
     resolution: {integrity: sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ==}
     engines: {node: '>= 8.0.0'}
 
-  ai@5.0.11:
-    resolution: {integrity: sha512-PtiQAnhlWuN3Y2z9PifM/9XIQ0HIoHjZqEu7zHffyGEXiqHLtrJpt4IiGVzUTAKxXM5JCtO9sD/hwGXDp7ZYsw==}
+  ai@6.0.162:
+    resolution: {integrity: sha512-1PSvNEK1PEbpUXahnFrcey6l7DJXMVWmg0ibQ8h8oMSe9V1Vx5d+R3xNu0hzBtwqfxYj21ddZo+EUYVs6GOEyA==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^3.25.76 || ^4
+      zod: ^3.25.76 || ^4.1.8
 
   ajv-formats@2.1.1:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
@@ -13151,44 +13155,44 @@ packages:
 
 snapshots:
 
-  '@ai-sdk/gateway@1.0.5(zod@4.3.6)':
+  '@ai-sdk/gateway@3.0.99(zod@4.3.6)':
     dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.2(zod@4.3.6)
+      '@ai-sdk/provider': 3.0.8
+      '@ai-sdk/provider-utils': 4.0.23(zod@4.3.6)
+      '@vercel/oidc': 3.1.0
       zod: 4.3.6
 
-  '@ai-sdk/google@2.0.5(zod@4.3.6)':
+  '@ai-sdk/google@3.0.63(zod@4.3.6)':
     dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.2(zod@4.3.6)
+      '@ai-sdk/provider': 3.0.8
+      '@ai-sdk/provider-utils': 4.0.23(zod@4.3.6)
       zod: 4.3.6
 
-  '@ai-sdk/mistral@2.0.27(zod@4.3.6)':
+  '@ai-sdk/mistral@3.0.12(zod@4.3.6)':
     dependencies:
-      '@ai-sdk/provider': 2.0.1
-      '@ai-sdk/provider-utils': 3.0.20(zod@4.3.6)
+      '@ai-sdk/provider': 3.0.5
+      '@ai-sdk/provider-utils': 4.0.9(zod@4.3.6)
       zod: 4.3.6
 
-  '@ai-sdk/provider-utils@3.0.2(zod@4.3.6)':
+  '@ai-sdk/provider-utils@4.0.23(zod@4.3.6)':
     dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@standard-schema/spec': 1.1.0
-      eventsource-parser: 3.0.6
-      zod: 4.3.6
-      zod-to-json-schema: 3.24.6(zod@4.3.6)
-
-  '@ai-sdk/provider-utils@3.0.20(zod@4.3.6)':
-    dependencies:
-      '@ai-sdk/provider': 2.0.1
+      '@ai-sdk/provider': 3.0.8
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.0.6
       zod: 4.3.6
 
-  '@ai-sdk/provider@2.0.0':
+  '@ai-sdk/provider-utils@4.0.9(zod@4.3.6)':
+    dependencies:
+      '@ai-sdk/provider': 3.0.5
+      '@standard-schema/spec': 1.1.0
+      eventsource-parser: 3.0.6
+      zod: 4.3.6
+
+  '@ai-sdk/provider@3.0.5':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/provider@2.0.1':
+  '@ai-sdk/provider@3.0.8':
     dependencies:
       json-schema: 0.4.0
 
@@ -21100,6 +21104,8 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
+  '@vercel/oidc@3.1.0': {}
+
   '@vitejs/plugin-react@4.7.0(vite@5.4.20(@types/node@22.19.11)(lightningcss@1.31.1)(terser@5.44.0))':
     dependencies:
       '@babel/core': 7.28.4
@@ -21327,11 +21333,11 @@ snapshots:
     dependencies:
       humanize-ms: 1.2.1
 
-  ai@5.0.11(zod@4.3.6):
+  ai@6.0.162(zod@4.3.6):
     dependencies:
-      '@ai-sdk/gateway': 1.0.5(zod@4.3.6)
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.2(zod@4.3.6)
+      '@ai-sdk/gateway': 3.0.99(zod@4.3.6)
+      '@ai-sdk/provider': 3.0.8
+      '@ai-sdk/provider-utils': 4.0.23(zod@4.3.6)
       '@opentelemetry/api': 1.9.0
       zod: 4.3.6
 
@@ -30744,10 +30750,6 @@ snapshots:
   zod-to-json-schema@3.24.6(zod@3.25.76):
     dependencies:
       zod: 3.25.76
-
-  zod-to-json-schema@3.24.6(zod@4.3.6):
-    dependencies:
-      zod: 4.3.6
 
   zod@3.25.76: {}
 
