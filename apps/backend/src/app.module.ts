@@ -42,7 +42,8 @@ import { QueueModule } from "./queue/queue.module";
             "https://fitted-in-admin.marthayaputra-han.workers.dev",
             "chrome-extension://jhhpmkomkllohgcbjggpjjnlnplimpfj",
             "chrome-extension://cocolialcdmiadcimbjdooppfdmgiiad",
-            "fittedinmobile://",
+            "fittedinmobile://**",
+            "https://fitted-in.onrender.com",
             ...(process.env.NODE_ENV === "development"
               ? ["exp://", "exp://**", "exp://192.168.*.*:*/**"]
               : []),
