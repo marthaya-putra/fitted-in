@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { generateObject } from "ai";
-import { z } from "zod";
 import { ocrModel } from "../models";
 import type { ZodSchema } from "zod";
 

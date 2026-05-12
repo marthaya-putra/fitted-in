@@ -11,4 +11,4 @@ export function getModel(): LanguageModel {
   return google("gemini-3-flash-preview");
 }
 
-export const ocrModel: LanguageModel = google("gemini-2.5-flash-lite");
+export const ocrModel: LanguageModel = mistral("pixtral-12b-2409");
