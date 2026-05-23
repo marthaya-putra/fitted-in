@@ -7,7 +7,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/auth-context";
+import { useSignIn } from "@/hooks/use-sign-in";
+import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +30,8 @@ type SignInForm = z.infer<typeof signInSchema>;
 
 export default function SignInPage() {
   const router = useRouter();
-  const { signIn, isSigningIn, signInError, isAuthenticated } = useAuth();
+  const { signIn, isPending, error } = useSignIn();
+  const { isAuthenticated } = useSession();
 
   const {
     register,
@@ -40,10 +42,10 @@ export default function SignInPage() {
   });
 
   useEffect(() => {
-    if (signInError) {
-      toast.error(signInError.message || "Failed to sign in");
+    if (error) {
+      toast.error(error.message || "Failed to sign in");
     }
-  }, [signInError]);
+  }, [error]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -75,7 +77,7 @@ export default function SignInPage() {
                 type="email"
                 placeholder="m@example.com"
                 {...register("email")}
-                disabled={isSigningIn}
+                disabled={isPending}
               />
               {errors.email && (
                 <p className="text-sm text-red-600">{errors.email.message}</p>
@@ -87,7 +89,7 @@ export default function SignInPage() {
                 id="password"
                 type="password"
                 {...register("password")}
-                disabled={isSigningIn}
+                disabled={isPending}
               />
               {errors.password && (
                 <p className="text-sm text-red-600">
@@ -97,8 +99,12 @@ export default function SignInPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isSigningIn}>
-              {isSigningIn ? "Signing in..." : "Sign In"}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isPending}
+            >
+              {isPending ? "Signing in..." : "Sign In"}
             </Button>
             <p className="text-sm text-muted-foreground text-center">
               Don't have an account?{" "}

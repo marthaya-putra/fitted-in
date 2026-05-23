@@ -2,16 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/auth-context";
+import { useSession } from "@/hooks/use-session";
+import { useSignOut } from "@/hooks/use-sign-out";
 import { Button } from "@/components/ui/button";
 
 export function Header() {
-  const { user, isLoading, isAuthenticated, signOut, isSigningOut } =
-    useAuth();
+  const { user, isLoading, isAuthenticated } = useSession();
+  const { signOutAsync, isPending } = useSignOut();
   const router = useRouter();
 
   const handleSignOut = async () => {
-    await signOut();
+    await signOutAsync();
     router.push("/sign-in");
   };
 
@@ -51,7 +52,7 @@ export function Header() {
                   variant="outline"
                   size="sm"
                   onClick={handleSignOut}
-                  disabled={isSigningOut}
+                  disabled={isPending}
                   className="h-8 bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-primary-foreground/50"
                 >
                   Sign Out
