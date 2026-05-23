@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import { QueryProvider } from "@/providers/query-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { Header } from "@/components/header";
 import "@fitted-in/ui/styles/globals.css";
@@ -22,10 +23,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className={inter.className + " h-full grid grid-rows-[auto_1fr]"}>
-        <AuthProvider>
-          <Header />
-          <main className="h-full">{children}</main>
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <Header />
+            <main className="h-full">{children}</main>
+          </AuthProvider>
+        </QueryProvider>
         <Toaster />
       </body>
     </html>

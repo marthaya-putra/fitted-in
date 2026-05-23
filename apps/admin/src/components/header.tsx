@@ -6,7 +6,8 @@ import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 
 export function Header() {
-  const { user, isLoading, isAuthenticated, signOut } = useAuth();
+  const { user, isLoading, isAuthenticated, signOut, isSigningOut } =
+    useAuth();
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -50,6 +51,7 @@ export function Header() {
                   variant="outline"
                   size="sm"
                   onClick={handleSignOut}
+                  disabled={isSigningOut}
                   className="h-8 bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-primary-foreground/50"
                 >
                   Sign Out

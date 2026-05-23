@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
+import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,8 +28,8 @@ const signInSchema = z.object({
 type SignInForm = z.infer<typeof signInSchema>;
 
 export default function SignInPage() {
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { signIn, isSigningIn, signInError, isAuthenticated } = useAuth();
 
   const {
     register,
@@ -39,28 +39,20 @@ export default function SignInPage() {
     resolver: zodResolver(signInSchema),
   });
 
-  const onSubmit = async (data: SignInForm) => {
-    setIsLoading(true);
-
-    try {
-      const result = await authClient.signIn.email({
-        email: data.email,
-        password: data.password,
-        callbackURL: "/",
-      });
-
-      if (result.error) {
-        toast.error(result.error.message || "Failed to sign in");
-        return;
-      }
-
-      router.push("/");
-    } catch (error) {
-      toast.error("An unexpected error occurred");
-      console.error("Sign in error:", error);
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    if (signInError) {
+      toast.error(signInError.message || "Failed to sign in");
     }
+  }, [signInError]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, router]);
+
+  const onSubmit = (data: SignInForm) => {
+    signIn(data.email, data.password);
   };
 
   return (
@@ -83,7 +75,7 @@ export default function SignInPage() {
                 type="email"
                 placeholder="m@example.com"
                 {...register("email")}
-                disabled={isLoading}
+                disabled={isSigningIn}
               />
               {errors.email && (
                 <p className="text-sm text-red-600">{errors.email.message}</p>
@@ -95,7 +87,7 @@ export default function SignInPage() {
                 id="password"
                 type="password"
                 {...register("password")}
-                disabled={isLoading}
+                disabled={isSigningIn}
               />
               {errors.password && (
                 <p className="text-sm text-red-600">
@@ -105,8 +97,8 @@ export default function SignInPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
+            <Button type="submit" className="w-full" disabled={isSigningIn}>
+              {isSigningIn ? "Signing in..." : "Sign In"}
             </Button>
             <p className="text-sm text-muted-foreground text-center">
               Don't have an account?{" "}
