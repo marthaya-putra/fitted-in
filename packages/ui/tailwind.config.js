@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ["class"],
+  // kept for potential future use; app is light-only
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
   ],

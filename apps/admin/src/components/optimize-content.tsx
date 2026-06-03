@@ -5,7 +5,7 @@ import { JobDescriptionForm } from "@/components/job-description-form";
 import { StreamingMarkdownPreview } from "@/components/streaming-markdown-preview";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Loader2, Circle, Check } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 interface JobDescriptionFormValues {
   jobDescription: string;
@@ -16,6 +16,14 @@ type OptimizationStatus = {
   message: string;
   status: "in-progress" | "done";
 };
+
+const stages = [
+  { id: "summarizing", label: "Analyzing Job Description" },
+  { id: "summary", label: "Optimizing Summary" },
+  { id: "experience", label: "Optimizing Experience" },
+  { id: "skills", label: "Optimizing Skills" },
+  { id: "formatting", label: "Formatting Resume" },
+];
 
 export function OptimizeContent() {
   const [optimizedContent, setOptimizedContent] = useState("");
@@ -55,7 +63,6 @@ export function OptimizeContent() {
       try {
         while (true) {
           const { done, value } = await reader.read();
-          console.log("Stream read:", { done, valueLength: value?.length });
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
@@ -70,10 +77,10 @@ export function OptimizeContent() {
               const parsed = JSON.parse(data);
 
               if (parsed.type === "data-status") {
-                setOptimizationStatus(prev => [...prev, parsed.data]);
+                setOptimizationStatus((prev) => [...prev, parsed.data]);
               } else if (parsed.type === "text-delta") {
                 setHasStartedStreaming(true);
-                setOptimizedContent(prev => prev + parsed.delta);
+                setOptimizedContent((prev) => prev + parsed.delta);
               }
             }
           }
@@ -82,11 +89,9 @@ export function OptimizeContent() {
         reader.releaseLock();
       }
 
-      console.log("Stream completed, setting isOptimizing to false");
       setIsOptimizing(false);
       toast.success("Resume optimization completed!");
     } catch (error) {
-      console.error("Optimization error:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -104,104 +109,90 @@ export function OptimizeContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-accent">
-      <div className="container mx-auto px-4 py-8 h-full">
-        <div className="h-full flex flex-col space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-primary">
-                Resume Optimizer
-              </h1>
-              <p className="text-muted-foreground mt-2">
-                Optimize your resume for specific job descriptions using AI
-              </p>
-            </div>
+    <>
+      {/* Page header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-1">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+            <Sparkles className="h-5 w-5 text-primary" />
           </div>
-
-          {/* Main Content */}
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left Column - Input Form */}
-            <div className="h-full">
-              <JobDescriptionForm
-                onSubmit={handleOptimize}
-                isLoading={isOptimizing}
-              />
-            </div>
-
-            {/* Right Column - Progress Indicators or Streaming Output */}
-            <div className="h-full">
-              {isOptimizing && !hasStartedStreaming ? (
-                <div className="h-full rounded-lg border border-primary/20 bg-card p-6">
-                  <div className="space-y-3">
-                    {[
-                      { id: "summarizing", label: "Summarizing Job Description" },
-                      { id: "summary", label: "Optimizing Your Summary" },
-                      { id: "experience", label: "Optimizing Your Experience" },
-                      { id: "skills", label: "Optimizing Your Skills" },
-                      { id: "formatting", label: "Formatting Resume" },
-                    ].map((stage) => {
-                      const isInProgress = optimizationStatus.some(
-                        (s) => s.stage === stage.id && s.status === "in-progress"
-                      );
-                      const isDone = optimizationStatus.some(
-                        (s) => s.stage === stage.id && s.status === "done"
-                      );
-
-                      return (
-                        <div
-                          key={stage.id}
-                          className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
-                            isDone
-                              ? "bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800"
-                              : isInProgress
-                                ? "bg-accent border-primary dark:bg-primary/20 dark:border-primary/40"
-                                : "bg-muted border-muted-foreground/20"
-                          }`}
-                        >
-                          <div
-                            className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                              isDone
-                                ? "bg-green-500"
-                                : isInProgress
-                                  ? "bg-primary"
-                                  : "bg-muted-foreground/30"
-                            }`}
-                          >
-                            {isDone ? (
-                              <Check className="w-5 h-5 text-white" />
-                            ) : isInProgress ? (
-                              <Loader2 className="w-5 h-5 text-white animate-spin" />
-                            ) : (
-                              <Circle className="w-5 h-5 text-white" />
-                            )}
-                          </div>
-                          <span
-                            className={`font-medium text-sm ${
-                              isDone
-                                ? "text-green-700 dark:text-green-400"
-                                : isInProgress
-                                  ? "text-primary"
-                                  : "text-muted-foreground"
-                            }`}
-                          >
-                            {stage.label}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <StreamingMarkdownPreview
-                  content={optimizedContent}
-                  isLoading={isOptimizing}
-                />
-              )}
-            </div>
-          </div>
+          <h1 className="text-2xl font-semibold text-foreground tracking-tight">
+            Resume Optimizer
+          </h1>
         </div>
+        <p className="text-sm text-muted-foreground ml-[52px]">
+          Paste a job description and get an AI-optimized resume tailored for the role
+        </p>
       </div>
-    </div>
+
+      {/* Main content — fixed height so columns scroll independently */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-14rem)]">
+        {/* Left: Input */}
+        <JobDescriptionForm
+          onSubmit={handleOptimize}
+          isLoading={isOptimizing}
+        />
+
+        {/* Right: Progress or Preview */}
+        {isOptimizing && !hasStartedStreaming ? (
+          <div className="rounded-xl border border-border/60 bg-card shadow-sm p-6">
+            <h3 className="text-sm font-medium text-foreground mb-4">Optimization Progress</h3>
+            <div className="space-y-2">
+              {stages.map((stage) => {
+                const isInProgress = optimizationStatus.some(
+                  (s) => s.stage === stage.id && s.status === "in-progress"
+                );
+                const isDone = optimizationStatus.some(
+                  (s) => s.stage === stage.id && s.status === "done"
+                );
+
+                return (
+                  <div
+                    key={stage.id}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
+                      isDone
+                        ? "bg-emerald-50 text-emerald-700"
+                        : isInProgress
+                          ? "bg-primary/8 text-primary"
+                          : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    <div
+                      className={`h-2 w-2 rounded-full flex-shrink-0 transition-colors duration-300 ${
+                        isDone
+                          ? "bg-emerald-500"
+                          : isInProgress
+                            ? "bg-primary animate-pulse"
+                            : "bg-muted-foreground/30"
+                      }`}
+                    />
+                    <span className="text-sm font-medium">{stage.label}</span>
+                    {isDone && (
+                      <svg
+                        className="ml-auto h-4 w-4 text-emerald-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                    {isInProgress && (
+                      <div className="ml-auto h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <StreamingMarkdownPreview
+            content={optimizedContent}
+            isLoading={isOptimizing}
+          />
+        )}
+      </div>
+    </>
   );
 }

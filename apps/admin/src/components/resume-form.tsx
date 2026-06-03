@@ -12,6 +12,7 @@ import {
   GraduationCap,
   Code2,
   Wrench,
+  Save,
 } from "lucide-react";
 import {
   Card,
@@ -34,6 +35,7 @@ import { toast } from "sonner";
 import { parseResume, saveResume, type ResumeData } from "@/lib/actions";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -50,6 +52,39 @@ const formSchema = z.object({
 
 interface ResumeFormProps {
   initialData?: ResumeData;
+}
+
+interface SectionCardProps {
+  icon: React.ElementType;
+  iconBg?: string;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  className?: string;
+  fullWidth?: boolean;
+}
+
+function SectionCard({
+  icon: Icon,
+  title,
+  description,
+  children,
+  className,
+}: SectionCardProps) {
+  return (
+    <Card className={cn("group hover:shadow-md", className)}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+            <Icon className="h-4 w-4 text-primary" />
+          </div>
+          {title}
+        </CardTitle>
+        {description && <CardDescription>{description}</CardDescription>}
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  );
 }
 
 export function ResumeForm({ initialData }: ResumeFormProps) {
@@ -95,8 +130,8 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
           projects: result.projects || "",
           skills: result.skills || "",
         };
-        // Auto-fill form with parsed data
         reset(normalized);
+        toast.success("Resume parsed successfully!");
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Failed to parse resume"
@@ -108,7 +143,6 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
   const onSubmit = async (data: ResumeData) => {
     setIsSaving(true);
     const dataToSave = { ...data, id: initialData?.id };
-    console.log({ dataToSave });
     try {
       await saveResume(dataToSave);
       toast.success("Resume saved successfully!");
@@ -121,101 +155,80 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Upload Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Upload className="h-5 w-5" />
-                Upload CV
-              </CardTitle>
-              <CardDescription>
-                Upload your CV to auto-fill the form
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <UploadArea
-                onFileSelect={handleFileSelect}
-                accept=".pdf"
-                className="mb-4"
-              />
-              {isPending && (
-                <div className="text-center">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                  <p className="mt-2 text-sm text-gray-600">
-                    Parsing your resume...
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Row 1: Upload + Personal Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SectionCard icon={Upload} title="Upload CV" description="Upload your CV to auto-fill the form">
+            <UploadArea
+              onFileSelect={handleFileSelect}
+              accept=".pdf"
+            />
+            {isPending && (
+              <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
+                <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+                Parsing your resume...
+              </div>
+            )}
+          </SectionCard>
 
-          {/* Personal Info Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Personal Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="John Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="john@example.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone</FormLabel>
-                    <FormControl>
-                      <Input placeholder="+1 (555) 123-4567" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Location</FormLabel>
-                    <FormControl>
-                      <Input placeholder="New York, NY" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <SectionCard icon={User} title="Personal Information">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField
+                  control={control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="john@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField
+                  control={control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone</FormLabel>
+                      <FormControl>
+                        <Input placeholder="+1 (555) 123-4567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="New York, NY" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={control}
                 name="website"
@@ -229,159 +242,135 @@ export function ResumeForm({ initialData }: ResumeFormProps) {
                   </FormItem>
                 )}
               />
-            </CardContent>
-          </Card>
-
-          {/* Summary Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Professional Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={control}
-                name="summary"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Write your professional summary..."
-                        className="min-h-[200px] resize-none"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Experience Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5" />
-                Work Experience
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={control}
-                name="workExperiences"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea
-                        placeholder="List your work experience..."
-                        className="min-h-[300px] resize-none"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Education Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <GraduationCap className="h-5 w-5" />
-                Education
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={control}
-                name="educations"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea
-                        placeholder="List your education..."
-                        className="min-h-[200px] resize-none"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Projects Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Code2 className="h-5 w-5" />
-                Projects
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={control}
-                name="projects"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea
-                        placeholder="List your projects..."
-                        className="min-h-[200px] resize-none"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Skills Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Wrench className="h-5 w-5" />
-                Technical Skills
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={control}
-                name="skills"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea
-                        placeholder="List your technical skills..."
-                        className="min-h-[200px] resize-none"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
+            </div>
+          </SectionCard>
         </div>
 
-        {/* Save Button */}
-        <div className="text-center">
-          <Button type="submit" size="lg" className="px-8" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save"}
+        {/* Summary — full width */}
+        <SectionCard icon={FileText} title="Professional Summary" description="A brief overview of your experience and career goals">
+          <FormField
+            control={control}
+            name="summary"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Textarea
+                    placeholder="Experienced software engineer with 5+ years building scalable web applications..."
+                    className="min-h-[120px] resize-none"
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </SectionCard>
+
+        {/* Experience — full width */}
+        <SectionCard icon={Briefcase} title="Work Experience" description="List your relevant work experience, most recent first">
+          <FormField
+            control={control}
+            name="workExperiences"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Textarea
+                    placeholder="Senior Software Engineer — Acme Corp (2022-present)&#10;• Led team of 8 engineers building React microservices&#10;• Reduced load time by 40% through performance optimization"
+                    className="min-h-[240px] resize-none"
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </SectionCard>
+
+        {/* Education + Projects */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SectionCard icon={GraduationCap} title="Education" description="Degrees, certifications, relevant coursework">
+            <FormField
+              control={control}
+              name="educations"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Textarea
+                      placeholder="B.S. Computer Science — MIT (2018)&#10;GPA: 3.8/4.0"
+                      className="min-h-[160px] resize-none"
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </SectionCard>
+
+          <SectionCard icon={Code2} title="Projects" description="Notable projects and side work">
+            <FormField
+              control={control}
+              name="projects"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Open Source CLI Tool — Built a developer productivity tool with 2k+ GitHub stars"
+                      className="min-h-[160px] resize-none"
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </SectionCard>
+        </div>
+
+        {/* Skills — full width */}
+        <SectionCard icon={Wrench} title="Technical Skills" description="Technologies, tools, and frameworks you're proficient in">
+          <FormField
+            control={control}
+            name="skills"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Textarea
+                    placeholder="React, TypeScript, Node.js, PostgreSQL, AWS, Docker, Kubernetes, Python, GraphQL"
+                    className="min-h-[120px] resize-none"
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </SectionCard>
+
+        {/* Sticky save bar */}
+        <div className="sticky bottom-6 flex justify-end -mx-6 px-6 pb-2 pt-4 bg-gradient-to-t from-background via-background to-transparent">
+          <Button
+            type="submit"
+            size="lg"
+            className="gap-2 shadow-md"
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Save Resume
+              </>
+            )}
           </Button>
         </div>
       </form>

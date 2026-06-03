@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Upload, FileText } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface UploadProps {
@@ -50,8 +50,8 @@ const UploadArea = React.forwardRef<HTMLDivElement, UploadProps>(
       <div
         ref={ref}
         className={cn(
-          'border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer transition-colors hover:border-gray-400',
-          isDragOver && 'border-primary bg-accent',
+          'border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer transition-all duration-200 hover:border-primary/50 hover:bg-muted/50',
+          isDragOver && 'border-primary bg-primary/5',
           className
         )}
         onDragOver={handleDragOver}
@@ -68,11 +68,13 @@ const UploadArea = React.forwardRef<HTMLDivElement, UploadProps>(
           className="hidden"
           onClick={e => e.stopPropagation()}
         />
-        <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-        <p className="text-lg font-medium text-gray-700 mb-2">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+          <Upload className="h-6 w-6 text-primary" />
+        </div>
+        <p className="text-sm font-medium text-foreground mb-1">
           Drop your resume here or click to browse
         </p>
-        <p className="text-sm text-gray-500">PDF files only (max 10MB)</p>
+        <p className="text-xs text-muted-foreground">PDF files only (max 10MB)</p>
       </div>
     );
   }

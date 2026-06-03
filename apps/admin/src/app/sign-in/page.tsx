@@ -12,14 +12,6 @@ import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 const signInSchema = z.object({
   email: z.email("Invalid email address"),
@@ -58,29 +50,60 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="h-full grid content-center bg-gradient-to-br from-slate-50 to-accent">
-      <Card className="w-full max-w-md mx-auto border-primary/20">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center text-primary">
-            Sign In
-          </CardTitle>
-          <CardDescription className="text-center">
-            Enter your email and password to sign in to your account
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
+    <div className="flex min-h-screen -mx-6 -my-8">
+      {/* Left branded panel */}
+      <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden flex-col items-center justify-center p-12">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary-foreground/5 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/10 to-transparent" />
+        <div className="relative z-10 text-center">
+          <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-foreground text-primary text-2xl font-bold shadow-lg">
+            F
+          </div>
+          <h1 className="text-3xl font-bold text-primary-foreground mb-4">
+            FittedIn
+          </h1>
+          <p className="text-lg text-primary-foreground/80 max-w-sm">
+            Build resumes that get you hired. AI-powered optimization tailored to every job.
+          </p>
+        </div>
+        {/* Decorative dots */}
+        <div className="absolute top-16 left-16 grid grid-cols-4 gap-2 opacity-20">
+          {Array.from({ length: 16 }).map((_, i) => (
+            <div key={i} className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
+          ))}
+        </div>
+      </div>
+
+      {/* Right form panel */}
+      <div className="flex flex-1 items-center justify-center px-6 py-12 lg:px-12">
+        <div className="w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="lg:hidden mb-8 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground text-lg font-bold">
+              F
+            </div>
+            <h1 className="text-2xl font-bold text-foreground">FittedIn</h1>
+          </div>
+
+          <h2 className="text-2xl font-semibold text-foreground tracking-tight">
+            Welcome back
+          </h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Sign in to your account to continue
+          </p>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder="you@example.com"
                 {...register("email")}
                 disabled={isPending}
               />
               {errors.email && (
-                <p className="text-sm text-red-600">{errors.email.message}</p>
+                <p className="text-sm text-destructive">{errors.email.message}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -88,33 +111,37 @@ export default function SignInPage() {
               <Input
                 id="password"
                 type="password"
+                placeholder="••••••••"
                 {...register("password")}
                 disabled={isPending}
               />
               {errors.password && (
-                <p className="text-sm text-red-600">
+                <p className="text-sm text-destructive">
                   {errors.password.message}
                 </p>
               )}
             </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
+
             <Button
               type="submit"
-              className="w-full"
+              className="w-full h-11"
               disabled={isPending}
             >
               {isPending ? "Signing in..." : "Sign In"}
             </Button>
-            <p className="text-sm text-muted-foreground text-center">
-              Don't have an account?{" "}
-              <Link href="/sign-up" className="text-primary hover:underline">
-                Sign up
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
-      </Card>
+          </form>
+
+          <p className="mt-6 text-sm text-center text-muted-foreground">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/sign-up"
+              className="font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              Create one
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

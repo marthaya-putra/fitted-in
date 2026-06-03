@@ -20,7 +20,7 @@ export class OcrService {
         type: "text" as const,
         text: options.userMessage ?? "Extract all text from this file.",
       },
-      ...files.map(f => ({
+      ...files.map((f) => ({
         type: "file" as const,
         data: new Uint8Array(f.buffer),
         mediaType: f.mimetype,
