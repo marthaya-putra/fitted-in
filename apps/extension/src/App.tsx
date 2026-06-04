@@ -44,13 +44,6 @@ function App() {
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
-    console.log(
-      `[Instance ${instanceId.current}] useEffect - Connecting to background with port name 'sidepanel'`
-    );
-    const port = chrome.runtime.connect({ name: "sidepanel" });
-    portRef.current = port;
-    console.log(`[Instance ${instanceId.current}] Port connected:`, port);
-
     const messageHandler = (msg: {
       action: ActionType;
       data: string | OptimizationStatus;
@@ -110,14 +103,29 @@ function App() {
       }
     };
 
-    port.onMessage.addListener(messageHandler);
-    console.log("App: Message listener added to port");
+    function connect() {
+      const port = chrome.runtime.connect({ name: "sidepanel" });
+      portRef.current = port;
+      console.log(`[Instance ${instanceId.current}] Port connected:`, port);
+
+      port.onMessage.addListener(messageHandler);
+
+      port.onDisconnect.addListener(() => {
+        portRef.current = null;
+        console.log(
+          `[Instance ${instanceId.current}] Sidepanel port disconnected, reconnecting...`
+        );
+        setTimeout(connect, 1000);
+      });
+    }
+
+    connect();
 
     return () => {
-      console.log("App: Cleanup - removing listener and disconnecting port");
-      port.onMessage.removeListener(messageHandler);
-      port.disconnect();
-      portRef.current = null;
+      if (portRef.current) {
+        portRef.current.disconnect();
+        portRef.current = null;
+      }
     };
   }, []);
 

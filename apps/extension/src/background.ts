@@ -1,8 +1,7 @@
 import { actions, ActionType } from "./types";
 import { shouldEnableSidePanel } from "./utils";
 
-let isContentReady = false;
-let isSidePanelReady = false;
+let contentPort: chrome.runtime.Port | null = null;
 let sidePanelPorts: Set<chrome.runtime.Port> = new Set();
 
 // Ping server every 14 minutes (840,000 milliseconds)
@@ -35,9 +34,7 @@ function toggleSidePanel(tabId: number, enabled: boolean): void {
       enabled,
       path: enabled ? "sidepanel.html" : undefined,
     })
-    .then(() => {
-      isSidePanelReady = enabled;
-    })
+    .then(() => {})
     .catch(err => {
       console.warn("Failed to update sidepanel options:", err);
     });
@@ -46,15 +43,14 @@ function toggleSidePanel(tabId: number, enabled: boolean): void {
 chrome.runtime.onConnect.addListener(port => {
   console.log("onConnect: ", port.name);
   if (port.name === "content") {
-    isContentReady = true;
+    contentPort = port;
 
-    if (!isSidePanelReady || sidePanelPorts.size === 0) {
+    if (sidePanelPorts.size === 0) {
       console.log("Content connected but sidepanel not ready yet");
       return true;
     }
 
     console.log("Content connected, sidepanel ready - sending update");
-    // Small delay to ensure content script's useEffect has run
     setTimeout(() => {
       if (sidePanelPorts.size > 0) {
         sendResetPanelAndUpdateJobTitle("onConnect:content");
@@ -63,7 +59,7 @@ chrome.runtime.onConnect.addListener(port => {
 
     port.onDisconnect.addListener(() => {
       console.log("Content is disconnected");
-      isContentReady = false;
+      contentPort = null;
     });
   }
 
@@ -74,14 +70,10 @@ chrome.runtime.onConnect.addListener(port => {
 
     // Add this port to the set of connected sidepanels
     sidePanelPorts.add(port);
-    isSidePanelReady = true;
 
     port.onDisconnect.addListener(() => {
       console.log("Sidepanel disconnected, removing from set");
       sidePanelPorts.delete(port);
-      if (sidePanelPorts.size === 0) {
-        isSidePanelReady = false;
-      }
     });
 
     // Check if active tab is LinkedIn before sending update
@@ -92,16 +84,10 @@ chrome.runtime.onConnect.addListener(port => {
         console.log(
           "Sidepanel connected but active tab is not LinkedIn, clearing job title"
         );
-        // Send empty job title to all sidepanels
         broadcastToSidepanels({
           action: actions.updateJobTitle,
           data: "",
         });
-        return;
-      }
-
-      if (!isContentReady) {
-        console.log("Sidepanel connected but content not ready yet");
         return;
       }
 
@@ -117,7 +103,7 @@ chrome.runtime.onConnect.addListener(port => {
 });
 
 chrome.webNavigation.onHistoryStateUpdated.addListener(details => {
-  if (details.frameId === 0 && isContentReady) {
+  if (details.frameId === 0) {
     chrome.tabs.sendMessage(
       details.tabId,
       {
@@ -138,7 +124,7 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(details => {
 
         // After history state update, refresh job title if sidepanel is ready
         // Use the specific tabId from the event, not query
-        if (sidePanelPorts.size > 0 && isSidePanelReady) {
+        if (sidePanelPorts.size > 0) {
           sendResetPanelAndUpdateJobTitleForTab(
             details.tabId,
             "history-updated"
@@ -219,14 +205,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
     toggleSidePanel(tabId, enabled);
 
-    console.log("isContentReady: ", isContentReady);
-    console.log("isSidePanelReady: ", isSidePanelReady);
-    if (
-      sidePanelPorts.size > 0 &&
-      isSidePanelReady &&
-      isContentReady &&
-      enabled
-    ) {
+    console.log("sidePanelPorts: ", sidePanelPorts.size);
+    if (sidePanelPorts.size > 0 && enabled) {
       // Use the specific tabId from the event
       sendResetPanelAndUpdateJobTitleForTab(tabId, "changed url");
     }
@@ -244,7 +224,7 @@ chrome.tabs.onActivated.addListener(async activeInfo => {
       enabled: true,
     });
 
-    if (sidePanelPorts.size > 0 && isSidePanelReady && isContentReady) {
+    if (sidePanelPorts.size > 0) {
       console.log("Tab activated, sending reset panel update");
       sendResetPanelAndUpdateJobTitleForTab(activeInfo.tabId, "tab-activated");
     }

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import type { ActionType } from "../types";
 import "./content.css";
 
@@ -64,13 +64,28 @@ if (!(globalThis as any).contentMessageListenerAdded) {
 }
 
 export const Content: React.FC = () => {
+  const portRef = useRef<chrome.runtime.Port | null>(null);
+
   useEffect(() => {
-    console.log("Content component mounted");
-    const port = chrome.runtime.connect({ name: "content" });
-    console.log("Content: Port connected to background");
+    function connect() {
+      const port = chrome.runtime.connect({ name: "content" });
+      portRef.current = port;
+      console.log("Content: Port connected to background");
+
+      port.onDisconnect.addListener(() => {
+        portRef.current = null;
+        console.log("Content port disconnected, reconnecting...");
+        setTimeout(connect, 1000);
+      });
+    }
+
+    connect();
 
     return () => {
-      port.disconnect();
+      if (portRef.current) {
+        portRef.current.disconnect();
+        portRef.current = null;
+      }
     };
   }, []);
 
