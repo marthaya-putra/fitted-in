@@ -3,18 +3,16 @@ import { actions, ActionType } from "./types";
 import { ResumePreview } from "./resume-preview";
 import { LoginForm } from "./login-form";
 import { LoadingScreen } from "./loading-screen";
+import { ProgressStepper } from "./components/progress-stepper";
+import { EmptyState, EmptyNoJob } from "./components/empty-state";
+import { UserMenu } from "./components/user-menu";
+import { ErrorAlert } from "./components/error-alert";
 import { authClient } from "./auth";
 import {
   Briefcase,
   Sparkles,
-  AlertCircle,
   Loader2,
-  LogOut,
-  ChevronDown,
-  Check,
-  Circle,
 } from "lucide-react";
-import * as Popover from "@radix-ui/react-popover";
 import { Toaster } from "sonner";
 
 type OptimizationStatus = {
@@ -59,24 +57,8 @@ function App() {
           `[Instance ${instanceId.current}] Updating job title to:`,
           jobTitle
         );
-        console.log(
-          `[Instance ${instanceId.current}] Job title received:`,
-          jobTitle
-        );
 
-        // Force update by using functional form to get latest state
-        setCurrentJobTitle(prev => {
-          console.log(
-            `[Instance ${instanceId.current}] Previous job title in state:`,
-            prev
-          );
-          console.log(
-            `[Instance ${instanceId.current}] New job title will be:`,
-            jobTitle
-          );
-          return jobTitle;
-        });
-
+        setCurrentJobTitle(jobTitle);
         setResume("");
         setError("");
         setIsOptimized(false);
@@ -98,7 +80,6 @@ function App() {
       if (msg.action === actions.optimizationStatus) {
         const statusData = msg.data as OptimizationStatus;
         setOptimizationStatus(prev => [...prev, statusData]);
-
         return;
       }
     };
@@ -154,202 +135,107 @@ function App() {
     });
   };
 
-  isPending
-    ? console.log("Getting session...")
-    : console.log("Getting session done");
-
-  if (isPending) {
-    return <LoadingScreen />;
-  }
-
-  if (!session) {
-    return <LoginForm onSuccess={handleLoginSuccess} />;
-  }
+  if (isPending) return <LoadingScreen />;
+  if (!session) return <LoginForm onSuccess={handleLoginSuccess} />;
 
   const userLabel = session.user.name || session.user.email;
 
-  // Debug log to verify renders
-  console.log(
-    `[Instance ${instanceId.current}] App rendering with currentJobTitle:`,
-    currentJobTitle
-  );
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-accent relative">
+    <div className="h-screen flex flex-col bg-background">
       <Toaster />
-      <div className="p-4 flex flex-col gap-4 h-[calc(100vh-8rem)]">
-        <div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-accent rounded-lg">
-              <Briefcase className="w-6 h-6 text-primary" />
-            </div>
-            <h1 className="text-lg font-semibold text-foreground">
-              {currentJobTitle || "Select position to optimize"}
-            </h1>
-          </div>
+
+      {/* ===== HEADER ZONE ===== */}
+      <header className="flex-shrink-0 h-[var(--header-height)] px-4 flex items-center gap-3 border-b border-border">
+        <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary/10">
+          <Briefcase className="w-4 h-4 text-primary" />
         </div>
+        <h1 className="text-[15px] font-semibold text-foreground leading-tight truncate">
+          {currentJobTitle || "Select position to optimize"}
+        </h1>
+      </header>
 
-        <div>
-          <button
-            onClick={handleOptimizeCV}
-            disabled={loading || !currentJobTitle}
-            className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-              loading || !currentJobTitle
-                ? "bg-primary text-primary-foreground cursor-not-allowed opacity-90"
-                : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg"
-            }`}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Optimizing your CV...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5" />
-                <span>Optimize My CV for this Job</span>
-              </>
-            )}
-          </button>
+      {/* ===== CONTENT ZONE (scrollable) ===== */}
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-4 flex flex-col gap-4">
+          {/* Error */}
+          {error && (
+            <div className="animate-slide-in-up">
+              <ErrorAlert message={error} onDismiss={() => setError("")} />
+            </div>
+          )}
 
-          {!currentJobTitle && (
-            <p className="mt-2 text-sm text-gray-500 text-center">
-              Navigate to a job posting to enable optimization
-            </p>
+          {/* Progress stepper */}
+          {loading && !hasStartedStreaming && (
+            <div className="animate-fade-in">
+              <ProgressStepper statusItems={optimizationStatus} />
+            </div>
+          )}
+
+          {/* Resume result */}
+          {resume && (
+            <div className="animate-slide-in">
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
+                <ResumePreview markdown={resume} canCopy={isOptimized} />
+              </div>
+            </div>
+          )}
+
+          {/* Empty: job selected, ready to optimize */}
+          {!resume && !loading && currentJobTitle && (
+            <div className="animate-fade-in">
+              <EmptyState />
+            </div>
+          )}
+
+          {/* Empty: no job on page */}
+          {!currentJobTitle && !loading && (
+            <div className="animate-fade-in">
+              <EmptyNoJob />
+            </div>
           )}
         </div>
+      </main>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-red-900">Error</p>
-              <p className="text-sm text-red-700 mt-1">{error}</p>
-            </div>
-          </div>
-        )}
+      {/* ===== ACTION ZONE ===== */}
+      <div className="flex-shrink-0 px-4 pb-2 pt-3 bg-background border-t border-border/50">
+        <button
+          onClick={handleOptimizeCV}
+          disabled={loading || !currentJobTitle}
+          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm btn-press transition-colors duration-150 ${
+            loading || !currentJobTitle
+              ? "bg-muted text-muted-foreground cursor-not-allowed"
+              : "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:shadow-none"
+          }`}
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Optimizing your CV...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4" />
+              <span>Optimize My CV for this Job</span>
+            </>
+          )}
+        </button>
 
-        {loading && !hasStartedStreaming && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex-1">
-            <div className="space-y-3">
-              {[
-                { id: "summarizing", label: "Summarizing Job Description" },
-                { id: "summary", label: "Optimizing Your Summary" },
-                { id: "skills", label: "Optimizing Your Skills" },
-                { id: "experience", label: "Optimizing Your Experience" },
-                { id: "formatting", label: "Formatting Resume" },
-              ].map(stage => {
-                const isInProgress = optimizationStatus.some(
-                  s => s.stage === stage.id && s.status === "in-progress"
-                );
-                const isDone = optimizationStatus.some(
-                  s => s.stage === stage.id && s.status === "done"
-                );
-
-                return (
-                  <div
-                    key={stage.id}
-                    className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
-                      isDone
-                        ? "bg-green-50 border-green-200"
-                        : isInProgress
-                          ? "bg-accent border-primary"
-                          : "bg-gray-50 border-gray-200"
-                    }`}
-                  >
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        isDone
-                          ? "bg-green-500"
-                          : isInProgress
-                            ? "bg-primary"
-                            : "bg-gray-300"
-                      }`}
-                    >
-                      {isDone ? (
-                        <Check className="w-5 h-5 text-white" />
-                      ) : isInProgress ? (
-                        <Loader2 className="w-5 h-5 text-white animate-spin" />
-                      ) : (
-                        <Circle className="w-5 h-5 text-white" />
-                      )}
-                    </div>
-                    <span
-                      className={`font-medium ${
-                        isDone
-                          ? "text-green-700"
-                          : isInProgress
-                            ? "text-primary"
-                            : "text-gray-500"
-                      }`}
-                    >
-                      {stage.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {resume && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <ResumePreview markdown={resume} canCopy={isOptimized} />
-          </div>
-        )}
-        {!resume && !loading && currentJobTitle && (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-              <Sparkles className="w-8 h-8 text-gray-400" />
-            </div>
-            <p className="text-gray-600 text-sm">
-              Click "Optimize My CV" to get started
-            </p>
-          </div>
+        {!currentJobTitle && (
+          <p className="text-[11px] text-muted-foreground text-center mt-1.5 tracking-wide">
+            Navigate to a job posting to enable optimization
+          </p>
         )}
       </div>
 
-      {session && (
-        <div className="fixed bottom-2 right-2 z-50">
-          <Popover.Root>
-            <Popover.Trigger asChild>
-              <button className="flex items-center gap-1 p-1.5 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-200 border border-gray-200">
-                <div className="w-9 h-9 bg-gradient-to-br from-primary to-primary/90 rounded-full flex items-center justify-center">
-                  <span className="text-primary-foreground font-semibold text-sm">
-                    {userLabel[0]?.toUpperCase()}
-                  </span>
-                </div>
-                <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
-              </button>
-            </Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Content
-                align="end"
-                side="top"
-                sideOffset={10}
-                className="bg-white rounded-lg shadow-xl border border-gray-200 p-1 min-w-[200px] z-50"
-              >
-                <div className="px-3 py-2 border-b border-gray-100">
-                  <p className="text-sm font-medium text-gray-900">
-                    {session.user.email}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {session.user.name || "User"}
-                  </p>
-                </div>
-                <button
-                  onClick={handleSignOut}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Sign out</span>
-                </button>
-                <Popover.Arrow className="fill-gray-200" />
-              </Popover.Content>
-            </Popover.Portal>
-          </Popover.Root>
-        </div>
-      )}
+      {/* ===== FOOTER ZONE ===== */}
+      <footer className="flex-shrink-0 h-[var(--footer-height)] px-4 flex items-center justify-end border-t border-border">
+        <UserMenu
+          userLabel={userLabel}
+          email={session.user.email}
+          name={session.user.name}
+          onSignOut={handleSignOut}
+        />
+      </footer>
     </div>
   );
 }

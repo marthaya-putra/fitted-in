@@ -97,23 +97,23 @@ export const Content: React.FC = () => {
     <div id="fitted-in-floating-wrapper">
       <div id="fitted-in-floating-banner" onClick={handleClick}>
         <svg
-          width="32"
-          height="32"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <rect width="24" height="24" rx="4" fill="#0A66C2" />
           <text
-            x="7"
+            x="4"
             y="18"
-            fontFamily="Arial, Helvetica, sans-serif"
-            fontWeight="bold"
-            fontSize="16"
+            fontFamily="'Inter', system-ui, sans-serif"
+            fontWeight="700"
+            fontSize="18"
             fill="white"
           >
             fi
           </text>
         </svg>
+        <span className="fi-label">FittedIn</span>
       </div>
     </div>
   );
