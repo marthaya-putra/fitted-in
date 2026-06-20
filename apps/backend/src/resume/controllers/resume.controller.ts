@@ -99,7 +99,6 @@ export class ResumeController {
   }
 
   @Post("pdf")
-  @AllowAnonymous()
   @HttpCode(HttpStatus.OK)
   async enqueuePdfGeneration(@Body() dto: MarkdownToPdfDto) {
     const dbRow = await this.pdfGenerationRepo.create(this.db, {
@@ -118,7 +117,6 @@ export class ResumeController {
   }
 
   @Sse("pdf/status/:id")
-  @AllowAnonymous()
   pdfStatusStream(@Param("id") id: string): Observable<MessageEvent> {
     return timer(0, 2000).pipe(
       switchMap(async () => {
