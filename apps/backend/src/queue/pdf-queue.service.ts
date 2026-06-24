@@ -34,10 +34,20 @@ export class PdfQueueService implements OnModuleDestroy {
 
     this.worker = new Worker<PdfJobData>(PDF_QUEUE_NAME, this.processor(), {
       connection,
+      autorun: false,
     });
 
     this.worker.on("failed", (job: Job<PdfJobData> | undefined, err: Error) => {
       console.error(`Job ${job?.id} failed:`, err.message);
+    });
+
+    this.worker.on("completed", () => {
+      void this.queue
+        .getJobCounts("waiting", "active", "delayed")
+        .then(counts => {
+          const pending = counts.waiting + counts.active + counts.delayed;
+          if (pending === 0) void this.stop();
+        });
     });
   }
 
@@ -83,7 +93,18 @@ export class PdfQueueService implements OnModuleDestroy {
     };
   }
 
+  async start(): Promise<void> {
+    if (this.worker.isRunning()) return;
+    await this.worker.run();
+  }
+
+  async stop(): Promise<void> {
+    if (!this.worker.isRunning()) return;
+    await this.worker.pause();
+  }
+
   async addJob(dbRowId: string, markdown: string): Promise<string> {
+    await this.start();
     const job = await this.queue.add(
       "generate-pdf",
       { dbRowId, markdown } satisfies PdfJobData,

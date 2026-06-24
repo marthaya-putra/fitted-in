@@ -14,7 +14,7 @@ import {
 import { useSession } from "@/hooks/use-session";
 import { useSignOut } from "@/hooks/use-sign-out";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from 'cnfast';
 
 const navItems = [
   { href: "/", label: "CV Builder", icon: FileText },

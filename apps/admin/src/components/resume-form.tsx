@@ -35,7 +35,7 @@ import { toast } from "sonner";
 import { parseResume, saveResume, type ResumeData } from "@/lib/actions";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "./ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from 'cnfast';
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),

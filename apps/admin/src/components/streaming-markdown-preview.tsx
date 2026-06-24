@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { Copy, Check, Download, Loader2, FileText } from "lucide-react";
 import remarkBreaks from "remark-breaks";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from 'cnfast';
 import { StickToBottom } from "use-stick-to-bottom";
 import { toast } from "sonner";
 
