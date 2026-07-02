@@ -50,7 +50,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="flex min-h-screen -mx-6 -my-8">
+    <div className="flex min-h-screen">
       {/* Left branded panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden flex-col items-center justify-center p-12">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary-foreground/5 to-transparent" />
@@ -63,13 +63,17 @@ export default function SignInPage() {
             FittedIn
           </h1>
           <p className="text-lg text-primary-foreground/80 max-w-sm">
-            Build resumes that get you hired. AI-powered optimization tailored to every job.
+            Build resumes that get you hired. AI-powered optimization tailored
+            to every job.
           </p>
         </div>
         {/* Decorative dots */}
         <div className="absolute top-16 left-16 grid grid-cols-4 gap-2 opacity-20">
           {Array.from({ length: 16 }).map((_, i) => (
-            <div key={i} className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
+            <div
+              key={i}
+              className="h-1.5 w-1.5 rounded-full bg-primary-foreground"
+            />
           ))}
         </div>
       </div>
@@ -103,7 +107,9 @@ export default function SignInPage() {
                 disabled={isPending}
               />
               {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
+                <p className="text-sm text-destructive">
+                  {errors.email.message}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -122,11 +128,7 @@ export default function SignInPage() {
               )}
             </div>
 
-            <Button
-              type="submit"
-              className="w-full h-11"
-              disabled={isPending}
-            >
+            <Button type="submit" className="w-full h-11" disabled={isPending}>
               {isPending ? "Signing in..." : "Sign In"}
             </Button>
           </form>
