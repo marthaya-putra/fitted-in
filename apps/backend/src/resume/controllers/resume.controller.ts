@@ -18,7 +18,6 @@ import { type Response } from "express";
 import {
   Session,
   type UserSession,
-  AllowAnonymous,
 } from "@thallesp/nestjs-better-auth";
 import { map, type Observable, switchMap, takeWhile, timer } from "rxjs";
 

@@ -17,11 +17,9 @@ export class PdfJobHandler {
     private readonly storageService: SupabaseStorageService
   ) {}
 
-  // pg-boss v12 renamed teamSize/teamConcurrency to batchSize/localConcurrency.
-  // localConcurrency: 1 pins "one Chromium-bound PDF at a time". batchSize is
-  // left at its default of 1 (single-job mode) — setting it explicitly would
-  // switch the @Handle() decorator into its batch-handler overload.
-  @PdfJob.Handle({ localConcurrency: 1 })
+  // teamConcurrency: 1 pins "one Chromium-bound PDF at a time". teamSize stays
+  // at its default of 1 (single-job mode), so exactly one PDF renders at once.
+  @PdfJob.Handle({ teamConcurrency: 1 })
   async generate(job: PGBoss.Job<PdfJobData>): Promise<void> {
     const { dbRowId, markdown } = job.data;
 

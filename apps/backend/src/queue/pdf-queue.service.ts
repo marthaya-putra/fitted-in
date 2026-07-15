@@ -12,8 +12,8 @@ export class PdfQueueService {
   /**
    * Enqueue a PDF generation job into pg-boss.
    *
-   * `retryLimit: 2, retryDelay: 5` preserves the old BullMQ semantics of
-   * 2 attempts with a 5s exponential backoff base.
+   * `retryLimit: 2, retryDelay: 5` allows up to 2 attempts with a 5s
+   * exponential backoff base.
    *
    * Returns the pg-boss job UUID (written into pdf_generation.job_id).
    */
