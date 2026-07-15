@@ -1,7 +1,8 @@
-import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
+import { Module, Logger } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 import { ZodSerializerInterceptor, ZodValidationPipe } from "nestjs-zod";
+import { PGBossModule } from "@loctax/nest-pg-boss";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { DRIZZLE_DB, DrizzleModule } from "./drizzle/drizzle.module";
@@ -52,6 +53,20 @@ import { QueueModule } from "./queue/queue.module";
       }),
     }),
     DrizzleModule,
+    PGBossModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const connectionString = configService.get<string>("DATABASE_URL");
+        if (!connectionString) {
+          throw new Error("DATABASE_URL is not configured");
+        }
+        return {
+          connectionString,
+          poolSize: 5,
+          onError: (err) => new Logger(PGBossModule.name).error(err),
+        };
+      },
+    }),
     RepositoryModule,
     ResumeModule,
     JobsModule,

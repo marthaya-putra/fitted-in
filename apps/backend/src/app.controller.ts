@@ -20,4 +20,10 @@ export class AppController {
       timestamp: new Date().toISOString(),
     };
   }
+
+  @Get("health")
+  @AllowAnonymous()
+  health(): { status: string } {
+    return { status: "ok" };
+  }
 }
