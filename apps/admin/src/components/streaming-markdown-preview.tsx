@@ -56,12 +56,12 @@ export function StreamingMarkdownPreview({
       });
       if (!res.ok) throw new Error("Failed to enqueue PDF generation");
 
-      const { data } = (await res.json()) as { data: { id: string } };
-      const { id } = data;
+      const { data } = (await res.json()) as { data: { id: string; statusToken: string } };
+      const { id, statusToken } = data;
       const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 
       await new Promise<void>((resolve, reject) => {
-        const es = new EventSource(`${apiUrl}/api/resumes/pdf/status/${id}`);
+        const es = new EventSource(`${apiUrl}/api/resumes/pdf/status/${id}?token=${statusToken}`);
 
         es.onmessage = async (event) => {
           try {

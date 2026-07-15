@@ -13,13 +13,17 @@ import {
   Sse,
   UnauthorizedException,
   Inject,
+  UseGuards,
 } from "@nestjs/common";
 import { type Response } from "express";
+import { randomBytes, createHash } from "node:crypto";
 import {
+  AllowAnonymous,
   Session,
   type UserSession,
 } from "@thallesp/nestjs-better-auth";
 import { map, type Observable, switchMap, takeWhile, timer } from "rxjs";
+import { PdfStatusTokenGuard } from "../guards/pdf-status-token.guard";
 
 import { ResumeService } from "../services/resume.service";
 import { resumeDto } from "../dto/create-resume.dto";
@@ -102,9 +106,18 @@ export class ResumeController {
   @Post("pdf")
   @HttpCode(HttpStatus.OK)
   async enqueuePdfGeneration(@Body() dto: MarkdownToPdfDto) {
+    // Capability token: returned to the authenticated caller only, used by the
+    // (public) SSE status endpoint. Stored as a SHA-256 hash so the DB leak
+    // wouldn't grant status access.
+    const statusToken = randomBytes(32).toString("hex");
+    const statusTokenHash = createHash("sha256")
+      .update(statusToken)
+      .digest("hex");
+
     const dbRow = await this.pdfGenerationRepo.create(this.db, {
       jobId: "",
       status: "pending",
+      statusTokenHash,
     });
 
     const jobId = await this.pdfQueueService.addJob(dbRow.id, dto.markdown);
@@ -114,11 +127,16 @@ export class ResumeController {
       .set({ jobId })
       .where(eq(pdfGeneration.id, dbRow.id));
 
-    return { id: dbRow.id, jobId };
+    return { id: dbRow.id, jobId, statusToken };
   }
 
   @Sse("pdf/status/:id")
+  @AllowAnonymous()
+  @UseGuards(PdfStatusTokenGuard)
   pdfStatusStream(@Param("id") id: string): Observable<MessageEvent> {
+    // Auth is handled by PdfStatusTokenGuard (which must run as a guard, not an
+    // in-handler check — see the guard's docstring for why SSE routes can't
+    // surface HTTP errors once the stream has started).
     return timer(0, 2000).pipe(
       switchMap(async () => {
         try {

@@ -9,6 +9,9 @@ export const pdfGeneration = pgTable("pdf_generation", {
   signedUrl: text("signed_url"),
   storagePath: text("storage_path"),
   errorMessage: text("error_message"),
+  // SHA-256 hash of the capability token that gates the public SSE status
+  // endpoint. Raw token is returned only to the authenticated enqueue caller.
+  statusTokenHash: text("status_token_hash").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

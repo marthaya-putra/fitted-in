@@ -39,11 +39,11 @@ export const ResumePreview = ({
       });
       if (!res.ok) throw new Error("Failed to enqueue PDF generation");
 
-      const { data } = (await res.json()) as { data: { id: string } };
-      const { id } = data;
+      const { data } = (await res.json()) as { data: { id: string; statusToken: string } };
+      const { id, statusToken } = data;
 
       await new Promise<void>((resolve, reject) => {
-        const es = new EventSource(`${backendUrl}/api/resumes/pdf/status/${id}`);
+        const es = new EventSource(`${backendUrl}/api/resumes/pdf/status/${id}?token=${statusToken}`);
 
         es.onmessage = async (event) => {
           try {
