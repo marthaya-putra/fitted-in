@@ -27,7 +27,7 @@ async function bootstrap() {
     bodyParser: false,
     logger: ["error", "warn", "log", "debug", "verbose"],
   });
-  app.setGlobalPrefix("api");
+  app.setGlobalPrefix("api", { exclude: ["health"] });
 
   const openApiDoc = SwaggerModule.createDocument(
     app,
