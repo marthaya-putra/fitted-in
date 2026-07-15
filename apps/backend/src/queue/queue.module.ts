@@ -1,6 +1,7 @@
 import { Global, Module } from "@nestjs/common";
 import { PGBossModule } from "@loctax/nest-pg-boss";
 import { PdfQueueService } from "./pdf-queue.service";
+import { PdfJobStatusService } from "./pdf-job-status.service";
 import { PdfJobHandler } from "./pdf-job.handler";
 import { PdfJob } from "./pdf-job";
 import { PdfModule } from "../pdf/pdf.module";
@@ -14,7 +15,7 @@ import { PdfModule } from "../pdf/pdf.module";
     // (declared in app.module.ts) owns the PGBoss instance + worker lifecycle.
     PGBossModule.forJobs([PdfJob]),
   ],
-  providers: [PdfQueueService, PdfJobHandler],
-  exports: [PdfQueueService],
+  providers: [PdfQueueService, PdfJobStatusService, PdfJobHandler],
+  exports: [PdfQueueService, PdfJobStatusService],
 })
 export class QueueModule {}

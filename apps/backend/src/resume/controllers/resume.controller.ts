@@ -36,6 +36,7 @@ import { createUIMessageStream, pipeUIMessageStreamToResponse } from "ai";
 import { MarkdownToPdfDto } from "../dto/markdown-to-pdf.dto";
 import { PdfGenerationRepository } from "../../repositories/pdf-generation.repository";
 import { PdfQueueService } from "../../queue/pdf-queue.service";
+import { PdfJobStatusService } from "../../queue/pdf-job-status.service";
 import { DRIZZLE_DB } from "../../drizzle/drizzle.module";
 import { type Db } from "../../db/types";
 import { pdfGeneration } from "../../db/schema/pdf-generation.schema";
@@ -49,6 +50,7 @@ export class ResumeController {
     private readonly resumeOptimizerService: ResumeOptimizerService,
     private readonly pdfGenerationRepo: PdfGenerationRepository,
     private readonly pdfQueueService: PdfQueueService,
+    private readonly pdfJobStatus: PdfJobStatusService,
     @Inject(DRIZZLE_DB) private readonly db: Db
   ) {}
 
@@ -123,6 +125,36 @@ export class ResumeController {
         try {
           const row = await this.pdfGenerationRepo.findById(this.db, id);
           if (!row) return { data: { status: "not_found" } };
+
+          // When the row is still in-flight, ask pg-boss what it thinks.
+          // This catches cases where the worker died and pg-boss expired
+          // the job but never ran the handler that would update the row.
+          if (row.status === "pending" || row.status === "processing") {
+            const bossState = await this.pdfJobStatus.getState(row.jobId);
+
+            // Terminal states that mean the job will never succeed. `expired`
+            // is the one pg-boss uses when the worker dies mid-job.
+            if (
+              bossState === "failed" ||
+              bossState === "cancelled" ||
+              bossState === "expired"
+            ) {
+              const reason = `Job ${bossState} in pg-boss`;
+              await this.db
+                .update(pdfGeneration)
+                .set({ status: "failed", errorMessage: reason, updatedAt: new Date() })
+                .where(eq(pdfGeneration.id, id));
+
+              return {
+                data: { status: "failed", errorMessage: reason },
+              };
+            }
+
+            // pg-boss `completed` while the row is still in-flight: the handler
+            // has finished but hasn't written the row yet. Fall through and let
+            // the next poll read the reconciled row (don't emit `completed`
+            // without a `signedUrl`).
+          }
 
           return {
             data: {
