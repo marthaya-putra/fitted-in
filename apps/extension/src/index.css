@@ -90,7 +90,7 @@ body {
     font-size: var(--text-display);
     line-height: var(--text-display-leading);
     font-weight: 700;
-    margin-bottom: var(--space-1, 0.25rem);
+    margin-bottom: var(--space-1);
     color: hsl(var(--foreground));
   }
 
@@ -98,8 +98,8 @@ body {
     font-size: 0.875rem;
     line-height: 1.35;
     font-weight: 600;
-    margin-top: 0.75rem;
-    margin-bottom: 0.25rem;
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-1);
     color: hsl(var(--foreground));
   }
 
@@ -107,8 +107,8 @@ body {
     font-size: var(--text-body);
     line-height: 1.35;
     font-weight: 600;
-    margin-top: 0.5rem;
-    margin-bottom: 0.25rem;
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-1);
     color: hsl(var(--foreground));
   }
 
@@ -147,6 +147,20 @@ body {
     border: 0;
     border-top: 1px solid hsl(var(--border));
   }
+
+  /* Dismissible alert entrance — @starting-style so it fades/slides in on
+     mount without JS. Never scale(0); starts from 0.98 + opacity 0. */
+  .alert-enter {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity var(--duration-base) var(--ease-out),
+      transform var(--duration-base) var(--ease-out);
+    @starting-style {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
 }
 
 /* ========================================
@@ -155,9 +169,28 @@ body {
 
 @layer utilities {
   .btn-press {
-    transition: transform 100ms ease-in, box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    /* ease-out, never ease-in — press feedback must feel instant.
+       Scale animates the whole element (and its children). */
+    transition: transform var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
   }
   .btn-press:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
+  }
+}
+
+/* ========================================
+   REDUCED MOTION — gentler, not zero.
+   Keep opacity/color that aid comprehension; drop transform movement.
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
   }
 }

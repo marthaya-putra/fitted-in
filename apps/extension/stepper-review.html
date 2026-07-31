@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FittedIn — Stepper redesign v2 (parallel-aware)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          background: 'hsl(220 14% 98%)',
+          foreground: 'hsl(222 47% 11%)',
+          card: 'hsl(0 0% 100%)',
+          primary: { DEFAULT: 'hsl(221 83% 53%)', foreground: 'hsl(0 0% 100%)' },
+          muted: 'hsl(220 14% 96%)',
+          'muted-foreground': 'hsl(220 9% 46%)',
+          border: 'hsl(220 13% 91%)',
+          ring: 'hsl(221 83% 53%)',
+        },
+        borderRadius: { lg: '0.625rem', xl: '0.75rem', '2xl': '1rem' },
+        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+<style>
+  :root {
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-base: 200ms;
+  }
+  html { -webkit-font-smoothing: antialiased; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: hsl(220 14% 94%); }
+
+  .spin { animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .shimmer {
+    background: linear-gradient(90deg, hsl(221 83% 53% / 0.08) 0%, hsl(221 83% 53% / 0.30) 50%, hsl(221 83% 53% / 0.08) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  .enter { opacity: 0; transform: translateY(6px); animation: enter 0.4s var(--ease-out) forwards; }
+  @keyframes enter { to { opacity: 1; transform: translateY(0); } }
+  .stagger > * { opacity: 0; transform: translateY(6px); animation: enter 0.35s var(--ease-out) forwards; }
+  .stagger > *:nth-child(1){animation-delay:.00s}.stagger > *:nth-child(2){animation-delay:.06s}
+  .stagger > *:nth-child(3){animation-delay:.12s}.stagger > *:nth-child(4){animation-delay:.18s}
+  .stagger > *:nth-child(5){animation-delay:.24s}.stagger > *:nth-child(6){animation-delay:.30s}
+
+  /* Animated DAG connectors draw in. */
+  .dag-line { stroke-dasharray: 200; stroke-dashoffset: 200; animation: draw 0.7s var(--ease-out) forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  .pulse-ring { animation: pulseRing 1.6s ease-out infinite; }
+  @keyframes pulseRing { 0%{box-shadow:0 0 0 0 hsl(221 83% 53% / 0.4)} 70%{box-shadow:0 0 0 10px hsl(221 83% 53% / 0)} 100%{box-shadow:0 0 0 0 hsl(221 83% 53% / 0)} }
+</style>
+</head>
+<body class="text-foreground">
+
+<div class="max-w-[1280px] mx-auto px-6 py-10">
+
+  <!-- ============ INTRO ============ -->
+  <header class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight">Progress stepper — redesign v2 (parallel-aware)</h1>
+    <p class="mt-2 text-sm text-slate-500 max-w-3xl">
+      The backend (<code class="text-slate-600">resume-optimizer.service.ts</code>) runs the three
+      “Optimizing” stages <strong>in parallel</strong> via <code class="text-slate-600">Promise.all</code> —
+      so a linear 1→5 timeline misrepresents the work. These designs model the real topology:
+      <strong>summarize</strong> (gate) → <strong>summary · skills · experience</strong> (parallel) →
+      <strong>format</strong> (join). Note: the parallel <em>done</em> events arrive in arbitrary order,
+      so none of these assume a fixed finish sequence.
+    </p>
+    <div class="mt-4 inline-flex items-center gap-2 text-[11px] bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-3 py-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+      Simulated state across all: <strong>summarizing ✓ · experience ✓ · skills ✓ · summary ⟳ · formatting pending</strong>
+    </div>
+    <div class="mt-4 flex flex-wrap gap-2 text-xs">
+      <span class="px-2.5 py-1 rounded-full bg-white border border-border shadow-sm">1. DAG fan-out / fan-in</span>
+      <span class="px-2.5 py-1 rounded-full bg-white border border-border shadow-sm">2. Parallel lanes (pipeline)</span>
+      <span class="px-2.5 py-1 rounded-full bg-white border border-border shadow-sm">3. Phase clusters</span>
+      <span class="px-2.5 py-1 rounded-full bg-white border border-border shadow-sm">4. Parallel cards grid</span>
+    </div>
+  </header>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 items-start">
+
+    <!-- ============================================================ -->
+    <!-- VARIANT 1 — DAG fan-out / fan-in                             -->
+    <!-- ============================================================ -->
+    <section>
+      <div class="mb-3">
+        <h2 class="font-semibold text-sm">1 · DAG fan-out / fan-in</h2>
+        <p class="text-xs text-slate-500 mt-1">Draws the actual topology: gate node → 3 parallel nodes → join node. Most literal. Connectors animate in.</p>
+      </div>
+      <div class="w-[360px] h-[600px] bg-background rounded-2xl border border-border shadow-xl overflow-hidden flex flex-col">
+        <div class="px-4 pt-4 pb-2 enter">
+          <h3 class="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">Optimization pipeline</h3>
+        </div>
+
+        <div class="flex-1 flex items-center justify-center px-4">
+          <svg viewBox="0 0 280 460" class="w-full max-w-[300px]">
+            <!-- connectors: gate -> 3 branches -->
+            <path class="dag-line" d="M140 70 C140 110, 50 110, 50 180" stroke="hsl(220 13% 85%)" stroke-width="1.5" fill="none"/>
+            <path class="dag-line" d="M140 70 L140 180" stroke="hsl(220 13% 85%)" stroke-width="1.5" fill="none"/>
+            <path class="dag-line" d="M140 70 C140 110, 230 110, 230 180" stroke="hsl(220 13% 85%)" stroke-width="1.5" fill="none"/>
+            <!-- connectors: 3 branches -> join -->
+            <path class="dag-line" d="M50 250 C50 320, 140 320, 140 390" stroke="hsl(220 13% 85%)" stroke-width="1.5" fill="none"/>
+            <path class="dag-line" d="M140 250 L140 390" stroke="hsl(220 13% 85%)" stroke-width="1.5" fill="none"/>
+            <path class="dag-line" d="M230 250 C230 320, 140 320, 140 390" stroke="hsl(220 13% 85%)" stroke-width="1.5" fill="none"/>
+
+            <!-- GATE node: summarizing (done) -->
+            <g>
+              <rect x="80" y="20" width="120" height="50" rx="10" fill="hsl(0 0% 100%)" stroke="hsl(142 71% 45% / 0.4)" stroke-width="1.5"/>
+              <circle cx="102" cy="45" r="11" fill="hsl(142 71% 45%)"/>
+              <path d="M97 45 l4 4 l7 -8" stroke="white" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <text x="120" y="42" font-size="11" font-weight="600" fill="hsl(222 47% 11%)">Summarize</text>
+              <text x="120" y="56" font-size="9" fill="hsl(220 9% 46%)">job description</text>
+            </g>
+
+            <!-- PARALLEL branch: experience (done) -->
+            <g>
+              <rect x="5" y="180" width="90" height="70" rx="10" fill="hsl(0 0% 100%)" stroke="hsl(142 71% 45% / 0.4)" stroke-width="1.5"/>
+              <circle cx="27" cy="205" r="9" fill="hsl(142 71% 45%)"/>
+              <path d="M23 205 l3 3 l5 -6" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <text x="42" y="200" font-size="9.5" font-weight="600" fill="hsl(222 47% 11%)">Experience</text>
+              <text x="42" y="214" font-size="8.5" fill="hsl(142 71% 40%)">done</text>
+            </g>
+            <!-- PARALLEL branch: skills (done) -->
+            <g>
+              <rect x="95" y="180" width="90" height="70" rx="10" fill="hsl(0 0% 100%)" stroke="hsl(142 71% 45% / 0.4)" stroke-width="1.5"/>
+              <circle cx="117" cy="205" r="9" fill="hsl(142 71% 45%)"/>
+              <path d="M113 205 l3 3 l5 -6" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <text x="132" y="200" font-size="9.5" font-weight="600" fill="hsl(222 47% 11%)">Skills</text>
+              <text x="132" y="214" font-size="8.5" fill="hsl(142 71% 40%)">done</text>
+            </g>
+            <!-- PARALLEL branch: summary (in progress) -->
+            <g>
+              <rect x="185" y="180" width="90" height="70" rx="10" fill="hsl(221 83% 53% / 0.04)" stroke="hsl(221 83% 53% / 0.5)" stroke-width="1.5"/>
+              <g transform="translate(207 205)">
+                <circle r="9" fill="hsl(221 83% 53%)"/>
+                <g class="spin" style="transform-origin: 0px 0px;">
+                  <path d="M0 -5 A5 5 0 1 1 -4.3 2.5" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                </g>
+              </g>
+              <text x="222" y="200" font-size="9.5" font-weight="600" fill="hsl(222 47% 11%)">Summary</text>
+              <text x="222" y="214" font-size="8.5" fill="hsl(221 83% 45%)">working…</text>
+            </g>
+
+            <!-- JOIN node: formatting (pending) -->
+            <g opacity="0.5">
+              <rect x="80" y="390" width="120" height="50" rx="10" fill="hsl(0 0% 100%)" stroke="hsl(220 13% 91%)" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <circle cx="102" cy="415" r="11" fill="hsl(220 14% 96%)" stroke="hsl(220 13% 85%)"/>
+              <text x="120" y="412" font-size="11" font-weight="600" fill="hsl(220 9% 46%)">Format</text>
+              <text x="120" y="426" font-size="9" fill="hsl(220 9% 46%)">waiting</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="px-4 pb-4 enter">
+          <div class="flex items-center justify-between text-[11px] text-muted-foreground">
+            <span>Parallel · 2 of 3 done</span>
+            <span class="font-medium text-primary">~50%</span>
+          </div>
+          <div class="w-full h-1.5 rounded-full bg-muted mt-2 overflow-hidden">
+            <div class="h-full bg-primary rounded-full" style="width:50%"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- VARIANT 2 — Parallel lanes (pipeline)                        -->
+    <!-- ============================================================ -->
+    <section>
+      <div class="mb-3">
+        <h2 class="font-semibold text-sm">2 · Parallel lanes (pipeline)</h2>
+        <p class="text-xs text-slate-500 mt-1">CI/CD-style: gate bar on top, 3 independent lanes side-by-side, join bar below. Each lane resolves in its own order.</p>
+      </div>
+      <div class="w-[360px] h-[600px] bg-background rounded-2xl border border-border shadow-xl overflow-hidden flex flex-col">
+        <div class="px-4 pt-4 pb-3 enter">
+          <h3 class="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">Optimization pipeline</h3>
+        </div>
+
+        <div class="flex-1 flex flex-col px-4 gap-3 justify-center">
+          <!-- GATE bar -->
+          <div class="flex items-center gap-3 rounded-lg bg-green-50 border border-green-200 px-3 py-2.5 enter">
+            <span class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+              <svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <div class="flex-1">
+              <p class="text-[12px] font-semibold text-green-700">Summarize job description</p>
+              <p class="text-[10px] text-green-600/80">Gate · complete</p>
+            </div>
+            <span class="text-[9px] font-medium uppercase tracking-wide text-green-600/70">prep</span>
+          </div>
+
+          <!-- diverge arrow -->
+          <div class="flex justify-center -my-1 enter"><svg width="14" height="10" viewBox="0 0 14 10"><path d="M7 0v8M7 8L2 4M7 8l5-4" stroke="hsl(220 13% 80%)" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+
+          <!-- 3 LANES -->
+          <div class="grid grid-cols-3 gap-2 stagger">
+            <div class="rounded-lg bg-green-50 border border-green-200 px-2 py-3 flex flex-col items-center text-center gap-2">
+              <span class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="text-[10px] font-semibold text-green-700 leading-tight">Experience</span>
+            </div>
+            <div class="rounded-lg bg-green-50 border border-green-200 px-2 py-3 flex flex-col items-center text-center gap-2">
+              <span class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="text-[10px] font-semibold text-green-700 leading-tight">Skills</span>
+            </div>
+            <div class="rounded-lg bg-primary/5 border border-primary/40 px-2 py-3 flex flex-col items-center text-center gap-2">
+              <span class="w-8 h-8 rounded-full bg-primary flex items-center justify-center pulse-ring">
+                <svg class="w-4 h-4 text-white spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56" stroke-linecap="round"/></svg>
+              </span>
+              <span class="text-[10px] font-semibold text-foreground leading-tight">Summary</span>
+            </div>
+          </div>
+
+          <!-- converge arrow -->
+          <div class="flex justify-center -my-1 enter"><svg width="14" height="10" viewBox="0 0 14 10"><path d="M7 10V2M7 2L2 6M7 2l5 4" stroke="hsl(220 13% 80%)" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+
+          <!-- JOIN bar -->
+          <div class="flex items-center gap-3 rounded-lg bg-muted/40 border border-dashed border-border px-3 py-2.5 opacity-70 enter">
+            <span class="w-6 h-6 rounded-full bg-background border border-border flex items-center justify-center flex-shrink-0">
+              <span class="w-1.5 h-1.5 rounded-full bg-muted-foreground/40"></span>
+            </span>
+            <div class="flex-1">
+              <p class="text-[12px] font-semibold text-muted-foreground">Format resume</p>
+              <p class="text-[10px] text-muted-foreground/80">Join · waiting for all</p>
+            </div>
+            <span class="text-[9px] font-medium uppercase tracking-wide text-muted-foreground/70">join</span>
+          </div>
+        </div>
+
+        <div class="px-4 pb-4 pt-2 enter">
+          <div class="flex items-center justify-between text-[11px] text-muted-foreground">
+            <span>Parallel · 2 of 3 done</span>
+            <span class="font-medium text-primary">~50%</span>
+          </div>
+          <div class="w-full h-1.5 rounded-full bg-muted mt-2 overflow-hidden">
+            <div class="h-full bg-primary rounded-full" style="width:50%"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- VARIANT 3 — Phase clusters                                   -->
+    <!-- ============================================================ -->
+    <section>
+      <div class="mb-3">
+        <h2 class="font-semibold text-sm">3 · Phase clusters</h2>
+        <p class="text-xs text-slate-500 mt-1">Three named phases stacked; the parallel work is grouped into one cluster of chips. Calm, scannable, de-emphasizes raw topology.</p>
+      </div>
+      <div class="w-[360px] h-[600px] bg-background rounded-2xl border border-border shadow-xl overflow-hidden flex flex-col">
+        <div class="px-4 pt-4 pb-2 enter">
+          <h3 class="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">Optimizing your CV</h3>
+        </div>
+
+        <div class="flex-1 flex flex-col justify-center gap-3 px-4 stagger">
+          <!-- PHASE 1: prepare -->
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70">1 · Prepare</span>
+              <span class="flex-1 h-px bg-border"></span>
+            </div>
+            <div class="flex items-center gap-2 rounded-lg bg-card border border-border px-3 py-2">
+              <svg class="w-3.5 h-3.5 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="text-[12px] text-muted-foreground line-through decoration-1">Summarize job description</span>
+            </div>
+          </div>
+
+          <!-- PHASE 2: optimize (parallel cluster) -->
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-[10px] font-semibold uppercase tracking-wide text-primary">2 · Optimize</span>
+              <span class="text-[10px] text-primary/70">in parallel</span>
+              <span class="flex-1 h-px bg-primary/30"></span>
+              <span class="text-[10px] font-medium text-primary">2/3</span>
+            </div>
+            <div class="rounded-lg bg-primary/[0.03] border border-primary/20 p-2 flex flex-col gap-1.5">
+              <div class="flex items-center gap-2 px-1.5 py-1">
+                <span class="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="text-[12px] text-muted-foreground">Experience</span>
+              </div>
+              <div class="flex items-center gap-2 px-1.5 py-1">
+                <span class="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="text-[12px] text-muted-foreground">Skills</span>
+              </div>
+              <div class="flex items-center gap-2 px-1.5 py-1">
+                <span class="w-4 h-4 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                  <svg class="w-2.5 h-2.5 text-white spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 12a9 9 0 1 1-6.219-8.56" stroke-linecap="round"/></svg>
+                </span>
+                <span class="text-[12px] font-semibold text-foreground">Summary</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHASE 3: format -->
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/50">3 · Format</span>
+              <span class="flex-1 h-px bg-border"></span>
+            </div>
+            <div class="flex items-center gap-2 rounded-lg bg-muted/30 border border-dashed border-border px-3 py-2 opacity-60">
+              <span class="w-4 h-4 rounded-full border border-border flex items-center justify-center flex-shrink-0">
+                <span class="w-1 h-1 rounded-full bg-muted-foreground/40"></span>
+              </span>
+              <span class="text-[12px] text-muted-foreground">Format resume</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-4 pb-4 pt-2 enter">
+          <div class="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+            <div class="h-full bg-primary rounded-full" style="width:50%"></div>
+          </div>
+          <p class="text-[10px] text-muted-foreground text-center mt-1.5">2 of 3 optimizations complete</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- VARIANT 4 — Parallel cards grid (hero)                       -->
+    <!-- ============================================================ -->
+    <section>
+      <div class="mb-3">
+        <h2 class="font-semibold text-sm">4 · Parallel cards grid</h2>
+        <p class="text-xs text-slate-500 mt-1">The 3 concurrent optimizations are the hero — large independent cards. Gate & join recede to slim phase markers. Most modern, app-like.</p>
+      </div>
+      <div class="w-[360px] h-[600px] bg-background rounded-2xl border border-border shadow-xl overflow-hidden flex flex-col">
+        <!-- gate breadcrumb -->
+        <div class="px-4 pt-3 enter">
+          <div class="flex items-center gap-1.5 text-[11px] text-green-600">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="font-medium">Job description summarized</span>
+          </div>
+        </div>
+
+        <!-- hero header -->
+        <div class="px-4 pt-3 pb-2 enter">
+          <h3 class="text-[15px] font-bold text-foreground">Optimizing in parallel</h3>
+          <p class="text-[11px] text-muted-foreground mt-0.5">Tailoring 3 sections at once</p>
+        </div>
+
+        <!-- parallel cards grid -->
+        <div class="flex-1 flex flex-col justify-center px-4 gap-2.5 stagger">
+          <div class="rounded-xl bg-green-50 border border-green-200 p-3 flex items-center gap-3">
+            <span class="w-9 h-9 rounded-lg bg-green-500 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <div class="flex-1">
+              <p class="text-[13px] font-semibold text-green-700">Experience</p>
+              <p class="text-[10px] text-green-600/80">Optimized</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-green-50 border border-green-200 p-3 flex items-center gap-3">
+            <span class="w-9 h-9 rounded-lg bg-green-500 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <div class="flex-1">
+              <p class="text-[13px] font-semibold text-green-700">Skills</p>
+              <p class="text-[10px] text-green-600/80">Optimized</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-primary/5 border border-primary/30 p-3 flex items-center gap-3 ring-1 ring-primary/10">
+            <span class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-white spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56" stroke-linecap="round"/></svg>
+            </span>
+            <div class="flex-1">
+              <p class="text-[13px] font-semibold text-foreground">Summary</p>
+              <p class="text-[10px] text-primary/80">Working…</p>
+            </div>
+            <div class="w-12 h-1 rounded-full bg-muted overflow-hidden">
+              <div class="h-full shimmer rounded-full" style="width:70%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- join footer -->
+        <div class="px-4 pb-4 pt-3 enter">
+          <div class="flex items-center gap-2 rounded-lg bg-muted/30 border border-dashed border-border px-3 py-2 opacity-70">
+            <svg class="w-3.5 h-3.5 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="text-[12px] text-muted-foreground">Format &amp; assemble resume</span>
+            <span class="ml-auto text-[10px] text-muted-foreground/70">next</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ============ TRADEOFFS ============ -->
+  <section class="mt-12 bg-white rounded-2xl border border-border p-6 shadow-sm">
+    <h2 class="font-bold text-base mb-3">How to choose</h2>
+    <div class="grid md:grid-cols-2 gap-x-10 gap-y-2 text-sm text-slate-600">
+      <div><span class="font-semibold text-foreground">1 · DAG</span> — most literal topology. Great if you want users to <em>see</em> the parallelism. Busiest; needs the SVG care already shown.</div>
+      <div><span class="font-semibold text-foreground">2 · Parallel lanes</span> — pipeline feel (think GitHub Actions). Each lane independent; arbitrary finish order looks natural. Balanced.</div>
+      <div><span class="font-semibold text-foreground">3 · Phase clusters</span> — calmest & most scannable. Groups parallel work under one “Optimize” phase so it doesn’t read as 3 separate things. Quiet, professional.</div>
+      <div><span class="font-semibold text-foreground">4 · Parallel cards grid</span> — most modern/app-like. Hero-izes the concurrent work; gate & join recede. Best if the 3 optimizations are the “interesting” part.</div>
+    </div>
+    <div class="mt-4 rounded-lg bg-slate-50 border border-border p-3 text-xs text-slate-500">
+      <strong class="text-slate-700">Implementation note:</strong> the extension already receives
+      <code>{stage, status}</code> per branch with no timing data. Any of these can be driven purely from the
+      existing events; per-branch durations (if wanted) must be derived client-side from the wall-clock gap
+      between <code>in-progress</code> and <code>done</code>. The <code>done</code> events arrive in arbitrary
+      order — all four designs above render correctly regardless of which branch finishes first.
+    </div>
+    <p class="mt-4 text-xs text-slate-400">
+      Tell me which number (or a mix) and I’ll implement it in <code class="text-slate-600">progress-stepper.tsx</code>. Nothing here is committed.
+    </p>
+  </section>
+
+</div>
+</body>
+</html>

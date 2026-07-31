@@ -11,10 +11,14 @@ export default {
   theme: {
     extend: {
       animation: {
-        'slide-in': 'slideIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        'slide-in-up': 'slideUp 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        'fade-in': 'fadeIn 200ms ease-out forwards',
-        'stagger-in': 'staggerIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        // Timing/easing come from shared CSS vars (--ease-out, --duration-base)
+        // so curves stay in one place and never drift back to ease-in.
+        'slide-in': 'slideIn var(--duration-base) var(--ease-out) forwards',
+        'slide-in-up': 'slideUp var(--duration-base) var(--ease-out) forwards',
+        'fade-in': 'fadeIn var(--duration-base) var(--ease-out) forwards',
+        'stagger-in': 'staggerIn var(--duration-base) var(--ease-out) forwards',
+        // Origin-aware popover enter — scales from its trigger, never scale(0).
+        'popover-in': 'popoverIn 180ms var(--ease-out)',
       },
       keyframes: {
         slideIn: {
@@ -32,6 +36,10 @@ export default {
         staggerIn: {
           '0%': { opacity: '0', transform: 'translateX(-8px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        popoverIn: {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
         },
       },
     },

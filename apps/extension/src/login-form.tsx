@@ -39,9 +39,9 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-md animate-fade-in">
-        <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+        <div className="bg-card rounded-xl shadow-sm ring-1 ring-border/60 p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="p-2 bg-primary/10 rounded-lg">
+            <div className="p-2 bg-gradient-to-b from-primary/15 to-primary/5 rounded-lg ring-1 ring-primary/10">
               <LogIn className="w-5 h-5 text-primary" />
             </div>
             <h2 className="text-lg font-semibold text-foreground">Sign In</h2>
@@ -62,7 +62,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all duration-150"
+                  className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:border-primary focus:ring-2 focus:ring-[var(--ring-color)] outline-none transition-colors duration-150"
                   placeholder="you@example.com"
                   required
                 />
@@ -83,7 +83,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all duration-150"
+                  className="w-full pl-10 pr-10 py-2.5 border border-border rounded-lg focus:border-primary focus:ring-2 focus:ring-[var(--ring-color)] outline-none transition-colors duration-150"
                   placeholder="Enter your password"
                   required
                 />

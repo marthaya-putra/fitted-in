@@ -146,17 +146,31 @@ function App() {
 
       {/* ===== HEADER ZONE ===== */}
       <header className="flex-shrink-0 h-[var(--header-height)] px-4 flex items-center gap-3 border-b border-border">
-        <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary/10">
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-b from-primary/15 to-primary/5 ring-1 ring-primary/10">
           <Briefcase className="w-4 h-4 text-primary" />
         </div>
-        <h1 className="text-[15px] font-semibold text-foreground leading-tight truncate">
-          {currentJobTitle || "Select position to optimize"}
-        </h1>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`h-1.5 w-1.5 rounded-full transition-colors duration-200 ${
+                currentJobTitle && !loading
+                  ? "bg-green-500"
+                  : "bg-muted-foreground/30"
+              }`}
+            />
+            <span className="text-[11px] font-medium uppercase tracking-[0.04em] text-muted-foreground">
+              {currentJobTitle ? "Target position" : "No position"}
+            </span>
+          </div>
+          <h1 className="text-[15px] font-semibold text-foreground leading-tight line-clamp-2">
+            {currentJobTitle || "Select a position to optimize"}
+          </h1>
+        </div>
       </header>
 
       {/* ===== CONTENT ZONE (scrollable) ===== */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-4 flex flex-col gap-4">
+      <main className="flex-1 min-h-0 overflow-y-auto">
+        <div className="p-4 flex flex-col gap-4 h-full">
           {/* Error */}
           {error && (
             <div className="animate-slide-in-up">
@@ -164,9 +178,9 @@ function App() {
             </div>
           )}
 
-          {/* Progress stepper */}
+          {/* Progress stepper — fills the content zone while optimizing. */}
           {loading && !hasStartedStreaming && (
-            <div className="animate-fade-in">
+            <div className="animate-fade-in flex-1 min-h-0">
               <ProgressStepper statusItems={optimizationStatus} />
             </div>
           )}
@@ -201,10 +215,10 @@ function App() {
         <button
           onClick={handleOptimizeCV}
           disabled={loading || !currentJobTitle}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm btn-press transition-colors duration-150 ${
+          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm btn-press ${
             loading || !currentJobTitle
               ? "bg-muted text-muted-foreground cursor-not-allowed"
-              : "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:shadow-none"
+              : "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md transition-colors duration-150"
           }`}
         >
           {loading ? (

@@ -12,8 +12,8 @@ export function UserMenu({ userLabel, email, name, onSignOut }: UserMenuProps) {
   return (
     <Popover.Root>
       <Popover.Trigger asChild>
-        <button className="flex items-center gap-1.5 py-1 px-1.5 rounded-lg bg-card border border-border shadow-sm hover:shadow-md hover:border-border transition-all duration-150 btn-press">
-          <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center">
+        <button className="flex items-center gap-1.5 py-1 px-1.5 rounded-lg bg-card border border-border shadow-sm hover:shadow-md hover:border-border/80 transition-colors duration-150 btn-press">
+          <div className="w-7 h-7 bg-gradient-to-b from-primary to-primary/90 rounded-full flex items-center justify-center ring-1 ring-primary/20">
             <span className="text-primary-foreground font-semibold text-xs">
               {userLabel[0]?.toUpperCase()}
             </span>
@@ -26,7 +26,13 @@ export function UserMenu({ userLabel, email, name, onSignOut }: UserMenuProps) {
           align="end"
           side="top"
           sideOffset={8}
-          className="bg-popover rounded-lg border border-border shadow-lg p-1 min-w-[200px] z-50 animate-slide-in"
+          style={
+            {
+              transformOrigin:
+                "var(--radix-popover-content-transform-origin)",
+            } as React.CSSProperties
+          }
+          className="bg-popover rounded-lg border border-border shadow-lg p-1 min-w-[200px] z-50 data-[state=open]:animate-popover-in"
         >
           <div className="px-3 py-2 border-b border-border">
             <p className="text-[13px] font-medium text-foreground truncate">
