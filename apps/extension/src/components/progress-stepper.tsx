@@ -105,12 +105,29 @@ function NodeGlyph({
   status: StepStatus;
 }) {
   const c = statusColor(status);
-  const cx = node.x + 22;
-  const cy = node.y + node.h / 2;
-  const r = node.badgeR;
-  const labelX = node.x + 40;
   const dashed = status === "pending";
   const opacity = status === "pending" ? 0.55 : 1;
+
+  // The wider gate/join nodes carry descriptive sub-text (e.g. "job
+  // description") and fit it horizontally. The three parallel branch nodes
+  // are taller than wide, so a horizontal "badge + label to its right" layout
+  // left only ~44px for the label — "Experience" (~50px) overflowed the
+  // border. Stacking the branch content vertically and centring the text
+  // matches the node's aspect ratio and gives every label equal padding on
+  // both sides, so nothing can spill.
+  const isBranch = node.badgeR <= 10;
+
+  // Badge position: centred horizontally for branches; left-anchored for the
+  // wider gate/join bookends.
+  const cx = isBranch ? node.x + node.w / 2 : node.x + 22;
+  const cy = isBranch ? node.y + 22 : node.y + node.h / 2;
+  const r = node.badgeR;
+
+  // Label anchor: centred for branches, left-aligned next to the badge
+  // otherwise.
+  const labelX = isBranch ? node.x + node.w / 2 : node.x + 40;
+  const labelY = isBranch ? node.y + 44 : cy - 1;
+  const subY = isBranch ? node.y + 56 : cy + 12;
 
   return (
     <g opacity={opacity}>
@@ -168,7 +185,8 @@ function NodeGlyph({
       {/* labels */}
       <text
         x={labelX}
-        y={cy - 1}
+        y={labelY}
+        textAnchor={isBranch ? "middle" : "start"}
         fontSize={node.badgeR > 10 ? 11 : 9.5}
         fontWeight={600}
         fill={c.label}
@@ -178,7 +196,8 @@ function NodeGlyph({
       </text>
       <text
         x={labelX}
-        y={cy + 12}
+        y={subY}
+        textAnchor={isBranch ? "middle" : "start"}
         fontSize={node.badgeR > 10 ? 9 : 8.5}
         fill={c.sub}
         fontFamily="Inter, system-ui, sans-serif"
