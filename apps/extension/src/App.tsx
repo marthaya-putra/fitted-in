@@ -169,8 +169,8 @@ function App() {
       </header>
 
       {/* ===== CONTENT ZONE (scrollable) ===== */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-4 flex flex-col gap-4">
+      <main className="flex-1 min-h-0 overflow-y-auto">
+        <div className="p-4 flex flex-col gap-4 h-full">
           {/* Error */}
           {error && (
             <div className="animate-slide-in-up">
@@ -178,9 +178,9 @@ function App() {
             </div>
           )}
 
-          {/* Progress stepper */}
+          {/* Progress stepper — fills the content zone while optimizing. */}
           {loading && !hasStartedStreaming && (
-            <div className="animate-fade-in">
+            <div className="animate-fade-in flex-1 min-h-0">
               <ProgressStepper statusItems={optimizationStatus} />
             </div>
           )}
