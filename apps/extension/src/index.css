@@ -155,9 +155,28 @@ body {
 
 @layer utilities {
   .btn-press {
-    transition: transform 100ms ease-in, box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    /* ease-out, never ease-in — press feedback must feel instant.
+       Scale animates the whole element (and its children). */
+    transition: transform var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
   }
   .btn-press:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
+  }
+}
+
+/* ========================================
+   REDUCED MOTION — gentler, not zero.
+   Keep opacity/color that aid comprehension; drop transform movement.
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
   }
 }
