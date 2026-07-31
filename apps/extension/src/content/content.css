@@ -4,7 +4,8 @@
   right: 20px;
   z-index: 999999;
   transform: translateY(-50%);
-  animation: fiSlideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* Token-driven entrance — one-shot, first run only. */
+  animation: fiSlideInRight 0.4s var(--ease-emphasized, cubic-bezier(0.16, 1, 0.3, 1)) forwards;
   will-change: transform, opacity;
 }
 
@@ -27,22 +28,24 @@
     0 1px 3px hsl(221 83% 53% / 0.2);
 
   transition:
-    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.25s ease,
-    background 0.25s ease;
+    transform var(--duration-base, 200ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)),
+    box-shadow var(--duration-base, 200ms) var(--ease-out, ease),
+    background var(--duration-base, 200ms) var(--ease-out, ease);
 }
 
-/* Hover: darker variant of primary */
-#fitted-in-floating-banner:hover {
-  background: hsl(221, 83%, 47%);
-  box-shadow:
-    0 8px 24px hsl(221 83% 53% / 0.4),
-    0 2px 6px hsl(221 83% 53% / 0.25);
-
-  transform: scale(1.05);
+/* Hover only on real pointers — touch devices false-trigger hover on tap.
+   Active (press) applies everywhere and stays subtle. */
+@media (hover: hover) and (pointer: fine) {
+  #fitted-in-floating-banner:hover {
+    background: hsl(221, 83%, 47%);
+    box-shadow:
+      0 8px 24px hsl(221 83% 53% / 0.4),
+      0 2px 6px hsl(221 83% 53% / 0.25);
+    transform: scale(1.05);
+  }
 }
 
-/* Active: even darker */
+/* Active: even darker, subtle press. */
 #fitted-in-floating-banner:active {
   transform: scale(0.97);
   background: hsl(221, 83%, 40%);
