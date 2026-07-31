@@ -21,6 +21,60 @@ type OptimizationStatus = {
   status: "in-progress" | "done";
 };
 
+// === Per-job resume persistence (chrome.storage.local) ===
+// The generated resume previously lived only in React state, so any
+// updateJobTitle re-broadcast (SW death/reconnect, tab focus, URL change,
+// LinkedIn SPA nav) wiped it with nothing to restore from. We now keep a map
+// of { jobTitle: resume } in chrome.storage.local so a resume is never lost.
+const RESUMES_STORAGE_KEY = "fittedin:resumes";
+
+// Validate the stored map shape so a corrupted/garbage value doesn't propagate
+// as an unsafe cast — fall back to an empty map instead.
+function asResumesMap(value: unknown): Record<string, string> {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, string>;
+  }
+  return {};
+}
+
+async function loadResumes(): Promise<Record<string, string>> {
+  try {
+    const result = await chrome.storage.local.get(RESUMES_STORAGE_KEY);
+    return asResumesMap(result[RESUMES_STORAGE_KEY]);
+  } catch (err) {
+    console.error("Failed to load resumes from storage:", err);
+    return {};
+  }
+}
+
+// Serialize writes through a queue. Each save is a load-modify-write of the
+// whole map; without serialization, a streamingEnded save (current job) and a
+// near-simultaneous switch-away save (previous job) could each read a stale
+// map and clobber the other's key, losing a just-generated resume.
+let saveChain: Promise<void> = Promise.resolve();
+function saveResumeForJob(title: string, resume: string): Promise<void> {
+  if (!title) return Promise.resolve();
+  const run = saveChain.then(async () => {
+    try {
+      const all = await loadResumes();
+      all[title] = resume;
+      await chrome.storage.local.set({ [RESUMES_STORAGE_KEY]: all });
+    } catch (err) {
+      console.error("Failed to save resume to storage:", err);
+    }
+  });
+  // Keep the chain alive even if one write rejects, but never let a rejected
+  // promise escape to callers (they use `void`).
+  saveChain = run.catch(() => {});
+  return run;
+}
+
+async function getResumeForJob(title: string): Promise<string | undefined> {
+  if (!title) return undefined;
+  const all = await loadResumes();
+  return all[title];
+}
+
 function App() {
   const [resume, setResume] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,7 +93,28 @@ function App() {
   // Track port connection to prevent duplicate listeners
   const portRef = useRef<chrome.runtime.Port | null>(null);
 
+  // Refs mirror state so the message handler (which closes over stale values)
+  // always reads the latest resume / job title when deciding whether to
+  // restore, no-op, or persist.
+  const resumeRef = useRef("");
+  const currentJobTitleRef = useRef("");
+
+  const setResumeSync = (next: string) => {
+    resumeRef.current = next;
+    setResume(next);
+  };
+  const setCurrentJobTitleSync = (next: string) => {
+    currentJobTitleRef.current = next;
+    setCurrentJobTitle(next);
+  };
+
   const { data: session, isPending } = authClient.useSession();
+
+  // Close/reopen restore: on a fresh sidepanel mount currentJobTitleRef is "",
+  // so there's nothing to hydrate here directly. The restore is driven by the
+  // background's reconnect-triggered updateJobTitle broadcast, whose handler
+  // calls getResumeForJob for the active title — see the updateJobTitle branch
+  // below.
 
   useEffect(() => {
     const messageHandler = (msg: {
@@ -52,28 +127,76 @@ function App() {
         msg.data
       );
       if (msg.action === actions.updateJobTitle) {
-        const jobTitle = (msg.data as string).trim();
+        // Harden the payload: the content script returns { data: null } when
+        // no company/position is found. Coerce non-strings to "" to avoid
+        // `(null).trim()` crashing.
+        const incoming =
+          typeof msg.data === "string" ? msg.data.trim() : "";
+        const jobTitle = incoming;
+
+        // No-op on unchanged title: the background re-broadcasts updateJobTitle
+        // on routine events (SW death + port reconnect, tab focus, URL change,
+        // LinkedIn SPA nav) that fire with no user action. Treating an
+        // unchanged title as a no-op prevents those races from wiping a
+        // generated resume.
+        if (jobTitle === currentJobTitleRef.current) {
+          console.log(
+            `[Instance ${instanceId.current}] Job title unchanged ("${jobTitle}"), skipping reset`
+          );
+          return;
+        }
+
+        // Per-job "hide but keep": before switching away from the current job,
+        // persist its resume under its title so it is never lost.
+        const prevTitle = currentJobTitleRef.current;
+        const prevResume = resumeRef.current;
+        if (prevTitle && prevResume) {
+          void saveResumeForJob(prevTitle, prevResume);
+        }
+
         console.log(
           `[Instance ${instanceId.current}] Updating job title to:`,
           jobTitle
         );
 
-        setCurrentJobTitle(jobTitle);
-        setResume("");
+        // Reset view state for the new (possibly blank) job.
+        setCurrentJobTitleSync(jobTitle);
+        setResumeSync("");
         setError("");
         setIsOptimized(false);
         setOptimizationStatus([]);
         setHasStartedStreaming(false);
+
+        // Restore the new job's previously saved resume, if any. Guard so a
+        // later navigation that wins the race doesn't apply a stale restore.
+        if (jobTitle) {
+          void getResumeForJob(jobTitle).then(saved => {
+            if (saved && currentJobTitleRef.current === jobTitle) {
+              setResumeSync(saved);
+              setIsOptimized(true);
+            }
+          });
+        }
+        return;
       }
       if (msg.action === actions.streaming) {
         setHasStartedStreaming(true);
-        setResume(prev => prev + (msg.data as string));
+        const chunk = msg.data as string;
+        // Keep resumeRef in sync so streamingEnded persists the full text.
+        resumeRef.current += chunk;
+        setResume(prev => prev + chunk);
         return;
       }
 
       if (msg.action === actions.streamingEnded) {
         setLoading(false);
         setIsOptimized(true);
+        // Durability: persist the completed resume under its job title so a
+        // sidepanel close/reopen (or later re-broadcast cycle) restores it.
+        const title = currentJobTitleRef.current;
+        if (title && resumeRef.current) {
+          void saveResumeForJob(title, resumeRef.current);
+        }
         return;
       }
 
@@ -119,7 +242,7 @@ function App() {
   };
 
   const handleOptimizeCV = () => {
-    setResume("");
+    setResumeSync("");
     setError("");
     setLoading(true);
     setIsOptimized(false);
