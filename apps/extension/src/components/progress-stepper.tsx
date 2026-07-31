@@ -28,57 +28,62 @@ function getStepStatus(
 export function ProgressStepper({ statusItems }: { statusItems: StatusItem[] }) {
   return (
     <div className="bg-card rounded-lg border border-border p-4">
-      <div className="space-y-2">
+      <ol className="relative">
+        {/* Vertical connector rail behind the badges; fills to progress. */}
         {STAGES.map((stage, index) => {
           const stepStatus = getStepStatus(stage.id, statusItems);
+          const isLast = index === STAGES.length - 1;
+          const connectorActive =
+            stepStatus === "done" || stepStatus === "in-progress";
           return (
-            <div
+            <li
               key={stage.id}
-              className="animate-stagger-in"
+              className="animate-stagger-in relative flex items-center gap-3 pb-3 last:pb-0"
               style={{ animationDelay: `${index * 50}ms`, opacity: 0 }}
             >
+              {/* Connector line to the next step (hidden on last). */}
+              {!isLast && (
+                <span
+                  className="absolute left-[13px] top-7 w-px h-[calc(100%-12px)] transition-colors duration-200"
+                  style={{
+                    backgroundColor: connectorActive
+                      ? "hsl(var(--primary) / 0.3)"
+                      : "hsl(var(--border))",
+                  }}
+                />
+              )}
               <div
-                className={`flex items-center gap-3 p-3 rounded-md border transition-all duration-200 ${
+                className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-200 ${
                   stepStatus === "done"
-                    ? "bg-green-50 border-green-200"
+                    ? "bg-green-500"
                     : stepStatus === "in-progress"
-                      ? "bg-primary/5 border-primary/20"
-                      : "bg-muted/50 border-border"
+                      ? "bg-primary"
+                      : "bg-muted border border-border"
                 }`}
               >
-                <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
-                    stepStatus === "done"
-                      ? "bg-green-500"
-                      : stepStatus === "in-progress"
-                        ? "bg-primary"
-                        : "bg-border"
-                  }`}
-                >
-                  {stepStatus === "done" ? (
-                    <Check className="w-3.5 h-3.5 text-white" />
-                  ) : stepStatus === "in-progress" ? (
-                    <Loader2 className="w-3.5 h-3.5 text-white animate-spin" />
-                  ) : (
-                    <Circle className="w-3.5 h-3.5 text-muted-foreground/40" />
-                  )}
-                </div>
-                <span
-                  className={`text-[13px] font-medium transition-colors duration-200 ${
-                    stepStatus === "done"
-                      ? "text-green-700"
-                      : stepStatus === "in-progress"
-                        ? "text-foreground"
-                        : "text-muted-foreground"
-                  }`}
-                >
-                  {stage.label}
-                </span>
+                {stepStatus === "done" ? (
+                  <Check className="w-3.5 h-3.5 text-white" />
+                ) : stepStatus === "in-progress" ? (
+                  <Loader2 className="w-3.5 h-3.5 text-white animate-spin" />
+                ) : (
+                  <Circle className="w-3.5 h-3.5 text-muted-foreground/40" />
+                )}
               </div>
-            </div>
+              <span
+                className={`text-[13px] font-medium transition-colors duration-200 ${
+                  stepStatus === "done"
+                    ? "text-green-700"
+                    : stepStatus === "in-progress"
+                      ? "text-foreground"
+                      : "text-muted-foreground"
+                }`}
+              >
+                {stage.label}
+              </span>
+            </li>
           );
         })}
-      </div>
+      </ol>
     </div>
   );
 }

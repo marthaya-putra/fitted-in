@@ -17,6 +17,8 @@ export default {
         'slide-in-up': 'slideUp var(--duration-base) var(--ease-out) forwards',
         'fade-in': 'fadeIn var(--duration-base) var(--ease-out) forwards',
         'stagger-in': 'staggerIn var(--duration-base) var(--ease-out) forwards',
+        // Origin-aware popover enter — scales from its trigger, never scale(0).
+        'popover-in': 'popoverIn 180ms var(--ease-out)',
       },
       keyframes: {
         slideIn: {
@@ -34,6 +36,10 @@ export default {
         staggerIn: {
           '0%': { opacity: '0', transform: 'translateX(-8px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        popoverIn: {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
         },
       },
     },

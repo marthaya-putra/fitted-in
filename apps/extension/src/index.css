@@ -147,6 +147,20 @@ body {
     border: 0;
     border-top: 1px solid hsl(var(--border));
   }
+
+  /* Dismissible alert entrance — @starting-style so it fades/slides in on
+     mount without JS. Never scale(0); starts from 0.98 + opacity 0. */
+  .alert-enter {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity var(--duration-base) var(--ease-out),
+      transform var(--duration-base) var(--ease-out);
+    @starting-style {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
 }
 
 /* ========================================

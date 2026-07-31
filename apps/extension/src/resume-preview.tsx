@@ -95,7 +95,7 @@ export const ResumePreview = ({
           <button
             onClick={handleDownloadPdf}
             disabled={isDownloading}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[11px] font-medium transition-colors duration-150 bg-muted text-muted-foreground hover:bg-muted/80 border border-border hover:border-border btn-press disabled:opacity-50"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors duration-150 bg-muted text-muted-foreground hover:bg-muted/80 border border-border hover:border-border/80 btn-press disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isDownloading ? (
               <>
@@ -109,17 +109,24 @@ export const ResumePreview = ({
 
           <button
             onClick={handleCopy}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[11px] font-medium transition-colors duration-150 border btn-press ${
+            className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors duration-150 border btn-press ${
               copied
                 ? "bg-green-50 text-green-700 border-green-200"
                 : "bg-card text-muted-foreground border-border hover:bg-muted"
             }`}
+            aria-label={copied ? "Copied" : "Copy resume"}
           >
-            {copied ? (
-              <Check className="w-3 h-3" />
-            ) : (
-              <Copy className="w-3 h-3" />
-            )}
+            {/* Crossfade Copy → Check on success (feedback, ~13px: opacity swap, no blur needed). */}
+            <Copy
+              className={`w-3 h-3 transition-opacity duration-150 ${
+                copied ? "opacity-0" : "opacity-100"
+              }`}
+            />
+            <Check
+              className={`absolute left-2.5 w-3 h-3 transition-opacity duration-150 ${
+                copied ? "opacity-100" : "opacity-0"
+              }`}
+            />
           </button>
         </div>
       )}
