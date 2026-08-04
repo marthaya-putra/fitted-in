@@ -2,6 +2,54 @@ import React, { useEffect, useRef } from "react";
 import type { ActionType } from "../types";
 import "./content.css";
 
+// Return first non-empty trimmed textContent from a list of selectors.
+const firstText = (...selectors: string[]): string => {
+  for (const sel of selectors) {
+    const el = document.querySelector(sel);
+    const text = el?.textContent?.trim() ?? "";
+    if (text) return text;
+  }
+  return "";
+};
+
+// Job description: try primary #job-details, then LinkedIn AI expandable box.
+// Remove the "see more" button before reading innerText.
+const extractJobDescription = (): string => {
+  const primary = document.getElementById("job-details");
+  const primaryText = primary?.textContent?.trim() ?? "";
+  if (primaryText) return primaryText;
+
+  const box = document
+    .querySelector('[data-testid="expandable-text-box"]')
+    ?.cloneNode(true) as HTMLElement | null;
+  box?.querySelector('[data-testid="expandable-text-button"]')?.remove();
+  return box?.innerText?.trim() ?? "";
+};
+
+// Resolve company and position, polling until at least one is non-empty.
+// The LinkedIn AI job panel renders asynchronously; on in-page navigation
+// between jobs the elements are not yet in the DOM when the message arrives.
+const resolveCompanyPosition = (
+  timeoutMs = 3000,
+  intervalMs = 200
+): Promise<{ company: string; position: string }> => {
+  const deadline = Date.now() + timeoutMs;
+  const tryOnce = () => {
+    const company = firstText(
+      ".job-details-jobs-unified-top-card__company-name",
+      'a[href*="/company/"]'
+    );
+    const position = firstText(
+      ".job-details-jobs-unified-top-card__job-title",
+      'a[href*="/jobs/view/"]'
+    );
+    if (company || position) return { company, position };
+    if (Date.now() >= deadline) return { company, position };
+    return new Promise(r => setTimeout(r, intervalMs)).then(tryOnce);
+  };
+  return Promise.resolve().then(tryOnce);
+};
+
 // Global message handler - outside React lifecycle to prevent cleanup issues
 const handleRuntimeMessage = (
   request: { action: ActionType },
@@ -16,8 +64,7 @@ const handleRuntimeMessage = (
 
   console.log("Content script received message:", request.action);
   if (request.action === "extract-job-description") {
-    const el = document.getElementById("job-details");
-    const data = el ? el.textContent : "";
+    const data = extractJobDescription();
     console.log("Sending extract-job-description response");
     sendResponse({ data });
     return true;
@@ -26,31 +73,20 @@ const handleRuntimeMessage = (
   if (request.action === "reset-panel") {
     console.log("Received reset-panel request");
 
-    const companyEl = document.querySelector(
-      ".job-details-jobs-unified-top-card__company-name"
-    );
-    const positionEl = document.querySelector(
-      ".job-details-jobs-unified-top-card__job-title"
-    );
+    resolveCompanyPosition().then(({ company, position }) => {
+      console.log("company: ", company);
+      console.log("position: ", position);
 
-    console.log("companyEl: ", companyEl);
-    console.log("positionEl: ", positionEl);
-
-    const company = companyEl ? companyEl.textContent : "";
-    const position = positionEl ? positionEl.textContent : "";
-
-    console.log("company: ", company);
-    console.log("position: ", position);
-
-    if (!company && !position) {
-      console.warn("No company or position found, sending null response");
-      sendResponse({ data: null });
-    } else {
-      const jobTitle = `${position} at ${company}`;
-      console.log(`Sending response:`, { data: jobTitle });
-      sendResponse({ data: jobTitle });
-      console.log("Response sent!");
-    }
+      if (!company && !position) {
+        console.warn("No company or position found, sending null response");
+        sendResponse({ data: null });
+      } else {
+        const jobTitle = `${position} at ${company}`;
+        console.log(`Sending response:`, { data: jobTitle });
+        sendResponse({ data: jobTitle });
+        console.log("Response sent!");
+      }
+    });
     return true;
   }
   return false;
