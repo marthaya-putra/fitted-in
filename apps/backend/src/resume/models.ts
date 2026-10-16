@@ -8,7 +8,7 @@ export function getModel(): LanguageModel {
   if (provider === "mistral") {
     return mistral("mistral-large-latest");
   }
-  return google("gemini-3.1-flash-lite");
+  return google("gemini-3.5-flash-lite");
 }
 
 export const ocrModel: LanguageModel = mistral("mistral-large-latest");
